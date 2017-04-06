@@ -1,0 +1,12 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:section title="${%topazTotalTestWbCli}">
+    <f:entry title="${%topazTotalTestWbCliDirectoryWindows}" field="topazTotalTestCLILocationWindows">
+      <f:textbox name="topazTotalTestCLILocationWindows" default="C:\Program Files\Compuware\Topaz Workbench CLI"/>
+    </f:entry>
+    <f:entry title="${%topazTotalTestWbCliDirectoryLinux}" field="topazTotalTestCLILocationLinux">
+      <f:textbox name="topazTotalTestCLILocationLinux" default="/opt/Compuware/TopazCLI"/>
+    </f:entry>
+  </f:section>
+</j:jelly>
+

@@ -1,0 +1,24 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+
+      <f:entry title="${%hostPort}" field="hostPort">
+            <f:textbox/>
+      </f:entry>
+      
+      <f:entry title="${%loginCredentials}" field="credentialsId">
+            <c:select/>
+      </f:entry>
+      
+      <f:entry title="${%project}" field="projectFolder">
+            <f:textbox/>
+      </f:entry>
+
+      <f:entry title="${%testSuite}" field="testSuite">
+           <f:textbox/>
+      </f:entry>
+      
+      <f:entry title="${%jcl}" field="jcl">
+            <f:textbox/>
+      </f:entry>
+</j:jelly>
+
