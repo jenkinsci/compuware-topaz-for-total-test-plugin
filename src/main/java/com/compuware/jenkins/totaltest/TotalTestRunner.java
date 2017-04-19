@@ -27,6 +27,8 @@ public class TotalTestRunner
 	private static final String PROJECT_PARM = "-project="; //$NON-NLS-1$
 	private static final String TESTSUITE_PARM = "-ts=";
 	private static final String JCL_PARM = "-jcl=";
+	private static final String EXTERNAL_TOOLS_WS_PARM = "-externaltoolsws=";
+	private static final String EXTERNAL_TOOLS_PARM = "-externaltools=";
 	private static final String DATA_PARM = "-data"; //$NON-NLS-1$
 	
 	
@@ -91,6 +93,8 @@ public class TotalTestRunner
 		String projectFolder = TotalTestRunnerUtils.escapeForScript(PROJECT_PARM + tttBuilder.getProjectFolder(), isShell);
 		String testSuite = TotalTestRunnerUtils.escapeForScript(TESTSUITE_PARM + tttBuilder.getTestSuite(), isShell);
 		String jcl = TotalTestRunnerUtils.escapeForScript(JCL_PARM + tttBuilder.getJcl(), isShell);
+		String externalToolsWS = TotalTestRunnerUtils.escapeForScript(EXTERNAL_TOOLS_WS_PARM + workspaceFilePath.getRemote(), isShell);
+		String externalTool = TotalTestRunnerUtils.escapeForScript(EXTERNAL_TOOLS_PARM + "jenkins", isShell);
 		String data = TotalTestRunnerUtils.escapeForScript(topazCliWorkspace, isShell);
 		
 		args.add(COMMAND_PARM);
@@ -101,6 +105,8 @@ public class TotalTestRunner
 		args.add(projectFolder);
 		args.add(testSuite);
 		args.add(jcl);
+		args.add(externalToolsWS);
+		args.add(externalTool);
 		args.add(DATA_PARM, data);
 		
 		FilePath workDir = new FilePath (vChannel, workspaceFilePath.getRemote());

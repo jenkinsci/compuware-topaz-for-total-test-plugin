@@ -143,6 +143,10 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		return jcl;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see jenkins.tasks.SimpleBuildStep#perform(hudson.model.Run, hudson.FilePath, hudson.Launcher, hudson.model.TaskListener)
+	 */
     @Override
     public void perform(final Run<?,?> build, final FilePath workspaceFilePath, final Launcher launcher, final TaskListener listener) throws AbortException
     {
@@ -174,10 +178,11 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 			throw new AbortException();
 		}
     }
-
-    // Overridden for better type safety.
-    // If your plugin doesn't really define any property on Descriptor,
-    // you don't have to do this.
+    
+    /*
+     * (non-Javadoc)
+     * @see hudson.tasks.Builder#getDescriptor()
+     */
     @Override
     public DescriptorImpl getDescriptor()
     {
@@ -408,7 +413,12 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 * Fills in the Login Credential selection box with applicable Jenkins credentials
 		 * 
 		 * @param context
-		 *            filter for credentials
+		 *            Jenkins context.
+		 * @param credentialsId
+		 * 			  The credendtial id for the user.
+		 * @param project
+		 * 			  The Jenkins projec.
+		 * 
 		 * @return credential selections
 		 * 
 		 * @throws ServletException

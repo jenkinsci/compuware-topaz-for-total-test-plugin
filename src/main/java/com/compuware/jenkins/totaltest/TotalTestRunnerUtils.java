@@ -67,6 +67,9 @@ public class TotalTestRunnerUtils
 	 * 
 	 * @param project
 	 *			the Jenkins project
+	 * @param credentialsId
+	 * 			  The credendtial id for the user.
+	 * 
 	 * @return a Jenkins credential with login information
 	 */
 	public static StandardUsernamePasswordCredentials getLoginInformation(Item project, String credentialsId)

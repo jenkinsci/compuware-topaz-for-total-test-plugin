@@ -76,6 +76,8 @@ public class TotalTestGlobalConfiguration extends GlobalConfiguration
 	/**
 	 * Returns the Topaz Workbench CLI location based on node
 	 * 
+	 * @param launcher
+	 * 			An instance of launcher for launch project,
 	 * @return CLI location
 	 */
 	public String getTopazCLILocation(Launcher launcher)
