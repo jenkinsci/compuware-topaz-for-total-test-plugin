@@ -16,9 +16,15 @@ import hudson.security.ACL;
 
 public class TotalTestRunnerUtils
 {
+	private static final String QUESTION = "?"; //$NON-NLS-1$
+	private static final String ASTERISK = "*"; //$NON-NLS-1$
+	private static final String COMMA = ","; //$NON-NLS-1$
 	private static final String COLON = ":"; //$NON-NLS-1$
 	private static final String DOUBLE_QUOTE = "\"";
 	private static final String DOUBLE_QUOTE_ESCAPED = "\"\"";
+	
+	private static final String ALL_SCENARIOS = "ALL_SCENARIOS"; //$NON-NLS-1$
+	private static final String ALL_SUITES = "ALL_SUITES"; //$NON-NLS-1$
 	
 	/**
 	 * Gets the host name;
@@ -164,6 +170,44 @@ public class TotalTestRunnerUtils
 		return output;
 	}
 	
+	/**
+	 * Checks if the specified test name is ALL_SCENARIOS or ALL_SUITES
+	 * <p>
+	 * The check is case insensitive.
+	 * 
+	 * @param testName
+	 * 			The test name to check.
+	 * 
+	 * @return	<code>true</code> if either ALL_SCENARIOS or ALL_SUITES was specified, otherwise <code>false</code>.
+	 */
+	public static boolean isAllTestScenariosOrSuites(String testName)
+	{
+		if (ALL_SCENARIOS.equalsIgnoreCase(testName) || ALL_SUITES.equalsIgnoreCase(testName))
+		{
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Checks if the test suite entry is a list of test scenario/suite names.
+	 * 
+	 * @param testSuiteEntry
+	 * 			The test suite entry to check.
+	 * 
+	 * @return	<code>true</code> if the entry is a list, otherwise <code>false</code>
+	 */
+	public static boolean isTestNameList(String testSuiteEntry)
+	{
+		if (testSuiteEntry.contains(COMMA) || testSuiteEntry.contains(QUESTION) || testSuiteEntry.contains(ASTERISK))
+		{
+			return true;
+		}
+		
+		return false;
+
+	}
 	
 	/**
 	 * Wrap a string in quotes.

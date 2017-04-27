@@ -53,7 +53,12 @@ import java.util.List;
 public class TotalTestBuilder extends Builder implements SimpleBuildStep
 {
 	private static final String COLON = ":"; //$NON-NLS-1$
+	private static final String EQUAL = "="; //$NON-NLS-1$
+	private static final String COMMA = ","; //$NON-NLS-1$
 	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+	
+	private static final String TEST_SCENARIO_SUFFIX = ".testscenario"; //$NON-NLS-1$
+	private static final String TEST_SUITE_SUFFIX = ".testsuite"; //$NON-NLS-1$
 	
 	private String hostPort;
 	private String projectFolder;
@@ -203,7 +208,7 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	{
 		if (TotalTestRunnerUtils.getLoginInformation(project, getCredentialsId()) != null)
 		{
-			listener.getLogger().println(Messages.username() + " = " + TotalTestRunnerUtils.getLoginInformation(project, getCredentialsId()).getUsername()); //$NON-NLS-1$
+			listener.getLogger().println(Messages.username() + EQUAL + TotalTestRunnerUtils.getLoginInformation(project, getCredentialsId()).getUsername());
 		}
 		else
 		{
@@ -214,7 +219,7 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		
 		if (getProjectFolder().isEmpty() == false) // NOSONAR
 		{
-			listener.getLogger().println(Messages.project() + " = " + getProjectFolder());			
+			listener.getLogger().println(Messages.project() + EQUAL + getProjectFolder());		
 		}
 		else
 		{
@@ -223,13 +228,29 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		
 		if (getTestSuite().isEmpty() == false) // NOSONAR
 		{
-			String lcTestSuite = getTestSuite().toLowerCase();
-			if ((lcTestSuite.endsWith(".testsuite") == false) && (lcTestSuite.endsWith(".testscenario") == false)) //NOSONAR
+			String [] nameList = getTestSuite().split(COMMA);
+			if ((nameList.length == 1) && (TotalTestRunnerUtils.isAllTestScenariosOrSuites(nameList[0].trim())))
 			{
-				throw new IllegalArgumentException(Messages.testSuiteError(getTestSuite()));
+				listener.getLogger().println(Messages.testsuite() + EQUAL + getTestSuite());	
+				return;
 			}
 			
-			listener.getLogger().println(Messages.testsuite() + " = " + getTestSuite());			
+			for (String name : nameList)
+			{
+				String lcName = name.trim().toLowerCase();
+				
+				if (TotalTestRunnerUtils.isAllTestScenariosOrSuites(lcName))
+				{
+					throw new IllegalArgumentException(Messages.testSuiteAllScenariosSuitesError(name));
+				}
+				
+				if ((lcName.endsWith(TEST_SUITE_SUFFIX) == false) && (lcName.endsWith(TEST_SCENARIO_SUFFIX) == false)) //NOSONAR
+				{
+					throw new IllegalArgumentException(Messages.testSuiteError(name));
+				}
+			}
+			
+			listener.getLogger().println(Messages.testsuite() + EQUAL + getTestSuite());		
 		}
 		else
 		{
@@ -238,7 +259,7 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		
 		if (getJcl().isEmpty() == false) // NOSONAR
 		{
-			listener.getLogger().println(Messages.jcl() + " = " + getJcl());			
+			listener.getLogger().println(Messages.jcl() + EQUAL + getJcl());			
 		}
 		else
 		{
@@ -356,18 +377,31 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 				return FormValidation.error(Messages.checkTestSuiteEmptyError());
 			}
 			
-			String lcTestSuite = trimmedValue.toLowerCase();
-			if ((lcTestSuite.endsWith(".testsuite") == false) && (lcTestSuite.endsWith(".testscenario") == false)) //NOSONAR
+			String [] nameList = trimmedValue.split(COMMA);
+			if ((nameList.length == 1) && (TotalTestRunnerUtils.isAllTestScenariosOrSuites(nameList[0].trim())))
 			{
-				return FormValidation.error(Messages.testSuiteError(value));
+				return FormValidation.ok();
 			}
-
-
+			
+			for (String name : nameList)
+			{
+				String lcName = name.trim().toLowerCase();
+				if (TotalTestRunnerUtils.isAllTestScenariosOrSuites(lcName))
+				{
+					return FormValidation.error(Messages.testSuiteAllScenariosSuitesError(name));
+				}
+				
+				if ((lcName.endsWith(TEST_SUITE_SUFFIX) == false) && (lcName.endsWith(TEST_SCENARIO_SUFFIX) == false)) //NOSONAR
+				{
+					return FormValidation.error(Messages.testSuiteError(name));
+				}
+			}
+			
 			return FormValidation.ok();
 		}
 		
 		/**
-		 * Validator for the 'jcl' text field
+		 * Validator for the 'JCL' text field
 		 * 
 		 * @param value
 		 *            value passed from the config.jelly "jcl" field

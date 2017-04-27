@@ -15,6 +15,8 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestRunner
 {
+	private static final String COPY_JUNIT = "copyjunit"; //$NON-NLS-1$
+
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestCLI.sh"; //$NON-NLS-1$
 	public static final String TOPAZ_CLI_WORKSPACE = "TopazCliWkspc"; //$NON-NLS-1$
@@ -25,10 +27,11 @@ public class TotalTestRunner
 	private static final String USER_PARM = "-user="; //$NON-NLS-1$
 	private static final String PASSWORD_PARM = "-pw="; //$NON-NLS-1$
 	private static final String PROJECT_PARM = "-project="; //$NON-NLS-1$
-	private static final String TESTSUITE_PARM = "-ts=";
-	private static final String JCL_PARM = "-jcl=";
-	private static final String EXTERNAL_TOOLS_WS_PARM = "-externaltoolsws=";
-	private static final String EXTERNAL_TOOLS_PARM = "-externaltools=";
+	private static final String TESTSUITE_PARM = "-ts="; //$NON-NLS-1$
+	private static final String JCL_PARM = "-jcl="; //$NON-NLS-1$
+	private static final String EXTERNAL_TOOLS_WS_PARM = "-externaltoolsws=";  //$NON-NLS-1$
+	private static final String EXTERNAL_TOOLS_PARM = "-externaltools=";  //$NON-NLS-1$
+	private static final String TEST_NAME_LIST_PARM = "-testsuitelist=";  //$NON-NLS-1$
 	private static final String DATA_PARM = "-data"; //$NON-NLS-1$
 	
 	
@@ -91,10 +94,21 @@ public class TotalTestRunner
 		String password = TotalTestRunnerUtils.escapeForScript(PASSWORD_PARM + TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword().getPlainText(), isShell);
 		
 		String projectFolder = TotalTestRunnerUtils.escapeForScript(PROJECT_PARM + tttBuilder.getProjectFolder(), isShell);
-		String testSuite = TotalTestRunnerUtils.escapeForScript(TESTSUITE_PARM + tttBuilder.getTestSuite(), isShell);
+	 
+		String testSuiteInfo;
+		String testSuiteEntry = tttBuilder.getTestSuite();
+		if (TotalTestRunnerUtils.isAllTestScenariosOrSuites(testSuiteEntry) || TotalTestRunnerUtils.isTestNameList(testSuiteEntry))
+		{
+			testSuiteInfo = TotalTestRunnerUtils.escapeForScript(TEST_NAME_LIST_PARM + testSuiteEntry, isShell);
+		}
+		else
+		{
+			testSuiteInfo = TotalTestRunnerUtils.escapeForScript(TESTSUITE_PARM + testSuiteEntry, isShell);
+		}
+		
 		String jcl = TotalTestRunnerUtils.escapeForScript(JCL_PARM + tttBuilder.getJcl(), isShell);
 		String externalToolsWS = TotalTestRunnerUtils.escapeForScript(EXTERNAL_TOOLS_WS_PARM + workspaceFilePath.getRemote(), isShell);
-		String externalTool = TotalTestRunnerUtils.escapeForScript(EXTERNAL_TOOLS_PARM + "jenkins", isShell);
+		String externalTool = TotalTestRunnerUtils.escapeForScript(EXTERNAL_TOOLS_PARM + COPY_JUNIT, isShell);
 		String data = TotalTestRunnerUtils.escapeForScript(topazCliWorkspace, isShell);
 		
 		args.add(COMMAND_PARM);
@@ -103,7 +117,7 @@ public class TotalTestRunner
 		args.add(user);
 		args.add(password, true);
 		args.add(projectFolder);
-		args.add(testSuite);
+		args.add(testSuiteInfo);
 		args.add(jcl);
 		args.add(externalToolsWS);
 		args.add(externalTool);
