@@ -15,7 +15,9 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestRunner
 {
+	private static final String COMMA = ","; //$NON-NLS-1$
 	private static final String COPY_JUNIT = "copyjunit"; //$NON-NLS-1$
+	private static final String COPY_SONAR = "copysonar"; //$NON-NLS-1$
 
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestCLI.sh"; //$NON-NLS-1$
@@ -30,7 +32,7 @@ public class TotalTestRunner
 	private static final String TESTSUITE_PARM = "-ts="; //$NON-NLS-1$
 	private static final String JCL_PARM = "-jcl="; //$NON-NLS-1$
 	private static final String EXTERNAL_TOOLS_WS_PARM = "-externaltoolsws=";  //$NON-NLS-1$
-	private static final String EXTERNAL_TOOLS_PARM = "-externaltools=";  //$NON-NLS-1$
+	private static final String POST_RUN_COMMANDS = "-postruncommands=";  //$NON-NLS-1$
 	private static final String TEST_NAME_LIST_PARM = "-testsuitelist=";  //$NON-NLS-1$
 	private static final String DATA_PARM = "-data"; //$NON-NLS-1$
 	
@@ -108,7 +110,7 @@ public class TotalTestRunner
 		
 		String jcl = TotalTestRunnerUtils.escapeForScript(JCL_PARM + tttBuilder.getJcl(), isShell);
 		String externalToolsWS = TotalTestRunnerUtils.escapeForScript(EXTERNAL_TOOLS_WS_PARM + workspaceFilePath.getRemote(), isShell);
-		String externalTool = TotalTestRunnerUtils.escapeForScript(EXTERNAL_TOOLS_PARM + COPY_JUNIT, isShell);
+		String externalTool = TotalTestRunnerUtils.escapeForScript(POST_RUN_COMMANDS + COPY_JUNIT + COMMA + COPY_SONAR, isShell);
 		String data = TotalTestRunnerUtils.escapeForScript(topazCliWorkspace, isShell);
 		
 		args.add(COMMAND_PARM);
