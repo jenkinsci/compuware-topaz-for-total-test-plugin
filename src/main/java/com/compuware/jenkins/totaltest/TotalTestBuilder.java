@@ -59,12 +59,14 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	
 	private static final String TEST_SCENARIO_SUFFIX = ".testscenario"; //$NON-NLS-1$
 	private static final String TEST_SUITE_SUFFIX = ".testsuite"; //$NON-NLS-1$
+	private static final String DATASET_HLQ_PATTERN = "^([A-Z#@\\$]{1}[\\w#@\\$\\-]{1,7})";
 	
 	private String hostPort;
 	private String projectFolder;
 	private String credentialsId;
 	private String testSuite;
 	private String jcl;
+	private String datasetHLQ;
 	
 	/**
 	 * Constructor 
@@ -79,15 +81,18 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	 * 			The name of the test scenario or test suite to run.
 	 * @param jcl
 	 * 			The name of the JCL file to use.
+	 * @param hlq
+	 * 			High level qualifier for allocating datasets. Can be <code>null</code>
 	 */
 	@DataBoundConstructor
-	public TotalTestBuilder(String hostPort, String credentialsId, String projectFolder, String testSuite, String jcl)
+	public TotalTestBuilder(String hostPort, String credentialsId, String projectFolder, String testSuite, String jcl, String hlq)
 	{
 		this.hostPort = StringUtils.trimToEmpty(hostPort);
 		this.credentialsId = StringUtils.trimToEmpty(credentialsId);
 		this.projectFolder = StringUtils.trimToEmpty(projectFolder);
 		this.testSuite = StringUtils.trimToEmpty(testSuite);
 		this.jcl = StringUtils.trimToEmpty(jcl);
+		this.datasetHLQ = StringUtils.trimToEmpty(hlq);
 	}
 	
 	/**
@@ -146,6 +151,17 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	public String getJcl()
 	{
 		return jcl;
+	}
+	
+	/**
+	 * Returns the dataset high level qualifier
+	 * 
+	 * @return	The high level qualifier for allocating datasets. <code>null</code> will be
+	 * 			returned if no high level qualifier was specified.
+	 */
+	public String getHlq()
+	{
+		return datasetHLQ;
 	}
 	
 	/*
@@ -264,6 +280,11 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		else
 		{
 			throw new IllegalArgumentException(Messages.missingParameterError(Messages.jcl()));
+		}
+		
+		if (getHlq().isEmpty() == false) // NOSONAR
+		{
+			listener.getLogger().println(Messages.hlq() + EQUAL + getHlq().isEmpty());			
 		}
 	}
 	
@@ -419,6 +440,44 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 				return FormValidation.error(Messages.checkJCLEmptyError());
 			}
 
+			return FormValidation.ok();
+		}
+		
+		/**
+		 * Validator for the high level qualifier text field
+		 * 
+		 * @param value
+		 *            value passed from the config.jelly "hlq" field
+		 *            
+		 * @return validation message
+		 * 
+		 * @throws ServletException
+		 * 			If an error occurred validating field.
+		 */
+		public FormValidation doCheckHlq(@QueryParameter final String value) throws ServletException
+		{
+			String trimmedValue = value.trim().toUpperCase();
+			if (trimmedValue.isEmpty() == false) //NOSONAR
+			{
+				if (trimmedValue.length() >= 8) 
+				{		
+					return FormValidation.error(Messages.checkHLQLengthError());
+				}
+				else if (trimmedValue.contains(" "))
+				{
+					return FormValidation.error(Messages.checkHLQSpacesError());
+				}
+				else
+				{
+					if (trimmedValue.matches(DATASET_HLQ_PATTERN) == false)
+					{
+						return FormValidation.error(Messages.checkHLQInvalidError());
+					}
+				}
+				
+			}
+
+			
 			return FormValidation.ok();
 		}
 		

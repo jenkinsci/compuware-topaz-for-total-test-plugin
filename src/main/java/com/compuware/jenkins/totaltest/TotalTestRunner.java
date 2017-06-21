@@ -35,6 +35,7 @@ public class TotalTestRunner
 	private static final String POST_RUN_COMMANDS = "-postruncommands=";  //$NON-NLS-1$
 	private static final String TEST_NAME_LIST_PARM = "-testsuitelist=";  //$NON-NLS-1$
 	private static final String DATA_PARM = "-data"; //$NON-NLS-1$
+	private static final String DSN_HLQ_PARM = "-dsnhlq="; //$NON-NLS-1$
 	
 	
 	private static final String PROPERTY_FILE_SEPARATOR = "file.separator";
@@ -123,6 +124,11 @@ public class TotalTestRunner
 		args.add(jcl);
 		args.add(externalToolsWS);
 		args.add(externalTool);
+		String dsnhlq =  tttBuilder.getHlq();
+		if ((dsnhlq != null) && (dsnhlq.length() != 0))
+		{
+			args.add(DSN_HLQ_PARM + dsnhlq.toUpperCase());
+		}
 		args.add(DATA_PARM, data);
 		
 		FilePath workDir = new FilePath (vChannel, workspaceFilePath.getRemote());

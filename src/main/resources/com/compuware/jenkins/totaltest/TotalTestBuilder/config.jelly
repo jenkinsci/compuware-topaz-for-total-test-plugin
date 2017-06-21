@@ -20,5 +20,10 @@
       <f:entry title="${%jcl}" field="jcl">
             <f:textbox/>
       </f:entry>
+      
+     <f:entry title="${%hlq}" field="hlq">
+            <f:textbox/>
+      </f:entry>
+      
 </j:jelly>
 
