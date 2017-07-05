@@ -37,6 +37,12 @@ public class TotalTestRunner
 	private static final String DATA_PARM = "-data"; //$NON-NLS-1$
 	private static final String DSN_HLQ_PARM = "-dsnhlq="; //$NON-NLS-1$
 	
+	private static final String CODE_COVERAGE_REPO = "-ccrepo="; //$NON-NLS-1$
+	private static final String CODE_COVERAGE_SYSTEM = "-ccsystem="; //$NON-NLS-1$
+	private static final String CODE_COVERAGE_TESTID = "-cctestid="; //$NON-NLS-1$
+	
+	private static final String USE_STUBS = "-usestubs="; //$NON-NLS-1$
+	private static final String DELETE_TEMPORARY = "-deletetemp="; //$NON-NLS-1$
 	
 	private static final String PROPERTY_FILE_SEPARATOR = "file.separator";
 	
@@ -122,13 +128,40 @@ public class TotalTestRunner
 		args.add(projectFolder);
 		args.add(testSuiteInfo);
 		args.add(jcl);
+		
 		args.add(externalToolsWS);
 		args.add(externalTool);
+		
 		String dsnhlq =  tttBuilder.getHlq();
 		if ((dsnhlq != null) && (dsnhlq.length() != 0))
 		{
-			args.add(DSN_HLQ_PARM + dsnhlq.toUpperCase());
+			args.add(TotalTestRunnerUtils.escapeForScript(DSN_HLQ_PARM + dsnhlq.toUpperCase(), isShell));
 		}
+		if (tttBuilder.isUseStubs() == false) //NOSONAR
+		{
+			args.add(TotalTestRunnerUtils.escapeForScript(USE_STUBS + "false", isShell)); //$NON-NLS-1$
+		}
+		if (tttBuilder.isDeleteTemp() == false) //NOSONAR
+		{
+			args.add(TotalTestRunnerUtils.escapeForScript(DELETE_TEMPORARY + "false", isShell)); //$NON-NLS-1$
+		}
+		
+		String ccRepo = tttBuilder.getCcRepo();
+		if ((ccRepo != null) && (ccRepo.length() != 0))
+		{
+			args.add(TotalTestRunnerUtils.escapeForScript(CODE_COVERAGE_REPO + ccRepo.toUpperCase(), isShell));
+		}
+		String ccSystem = tttBuilder.getCcSystem();
+		if ((ccSystem != null) && (ccSystem.length() != 0))
+		{
+			args.add(TotalTestRunnerUtils.escapeForScript(CODE_COVERAGE_SYSTEM + ccSystem, isShell)); //$NON-NLS-1$
+		}
+		String ccTestId = tttBuilder.getCcTestId();
+		if ((ccTestId != null) && (ccTestId.length() != 0))
+		{
+			args.add(TotalTestRunnerUtils.escapeForScript(CODE_COVERAGE_TESTID + ccTestId, isShell)); //$NON-NLS-1$
+		}
+		
 		args.add(DATA_PARM, data);
 		
 		FilePath workDir = new FilePath (vChannel, workspaceFilePath.getRemote());

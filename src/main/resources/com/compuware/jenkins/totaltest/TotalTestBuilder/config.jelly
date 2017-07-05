@@ -1,29 +1,49 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
 
-      <f:entry title="${%hostPort}" field="hostPort">
-            <f:textbox/>
-      </f:entry>
-      
-      <f:entry title="${%loginCredentials}" field="credentialsId">
-            <c:select/>
-      </f:entry>
-      
-      <f:entry title="${%project}" field="projectFolder">
-            <f:textbox/>
-      </f:entry>
+	<f:entry title="${%hostPort}" field="hostPort">
+		<f:textbox/>
+	</f:entry>
+  
+	<f:entry title="${%loginCredentials}" field="credentialsId">
+		<c:select/>
+	</f:entry>
+  
+	<f:entry title="${%project}" field="projectFolder">
+		<f:textbox/>
+	</f:entry>
 
-      <f:entry title="${%testSuite}" field="testSuite">
-           <f:textbox/>
-      </f:entry>
-      
-      <f:entry title="${%jcl}" field="jcl">
-            <f:textbox/>
-      </f:entry>
-      
-     <f:entry title="${%hlq}" field="hlq">
-            <f:textbox/>
-      </f:entry>
-      
-</j:jelly>
+	<f:entry title="${%testSuite}" field="testSuite">
+		<f:textbox/>
+	</f:entry>
+  
+	<f:entry title="${%jcl}" field="jcl">
+		<f:textbox/>
+	</f:entry>
 
+	<f:entry>
+  		<f:advanced title="${%codeCoverage}">
+	 		<f:entry title="${%ccRepo}" field="ccRepo">
+				<f:textbox/>
+			</f:entry>
+			<f:entry title="${%ccSystem}" field="ccSystem">
+				<f:textbox/>
+			</f:entry>
+			<f:entry title="${%ccTestId}" field="ccTestId">
+				<f:textbox/>
+			</f:entry>
+  		</f:advanced>
+   		<f:advanced title="${%options}">
+       			<f:entry field="useStubs">
+					<f:checkbox title="${%useStubs}" default="true"/>
+				</f:entry>
+     			<f:entry field="deleteTemp">
+					<f:checkbox title="${%deleteTemp}" default="true"/>
+				</f:entry>
+				<f:entry title="${%hlq}" field="hlq">
+					<f:textbox/>
+				</f:entry>
+  		</f:advanced>
+	</f:entry>
+      
+ </j:jelly>
