@@ -67,6 +67,12 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	private String testSuite;
 	private String jcl;
 	private String datasetHLQ;
+	private boolean useStubs = true;
+	private boolean deleteTemp = true;
+
+	private String ccRepo;
+	private String ccSystem;
+	private String ccTestId;
 	
 	/**
 	 * Constructor 
@@ -81,17 +87,35 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	 * 			The name of the test scenario or test suite to run.
 	 * @param jcl
 	 * 			The name of the JCL file to use.
+	 * @param ccRepo
+	 * 			The Code Coverage repository name.
+	 * @param ccSystem
+	 * 			The Code Coverage system.
+	 * @param ccTestId
+	 * 			The Code Coverage test id.
+	 * @param useStubs
+	 * 			<code>true</code> if stubs are to be used, otherwise <code>false</code>
+	 * @param deleteTemp
+	 * 			<code>true</code> if temporary files should be deleted, otherwise false;
 	 * @param hlq
 	 * 			High level qualifier for allocating datasets. Can be <code>null</code>
 	 */
 	@DataBoundConstructor
-	public TotalTestBuilder(String hostPort, String credentialsId, String projectFolder, String testSuite, String jcl, String hlq)
+	public TotalTestBuilder(String hostPort, String credentialsId, String projectFolder, String testSuite, String jcl,
+			String ccRepo, String ccSystem, String ccTestId, boolean useStubs, boolean deleteTemp, String hlq)
 	{
 		this.hostPort = StringUtils.trimToEmpty(hostPort);
 		this.credentialsId = StringUtils.trimToEmpty(credentialsId);
 		this.projectFolder = StringUtils.trimToEmpty(projectFolder);
 		this.testSuite = StringUtils.trimToEmpty(testSuite);
 		this.jcl = StringUtils.trimToEmpty(jcl);
+		
+		this.ccRepo = ccRepo;
+		this.ccSystem = ccSystem;
+		this.ccTestId = ccTestId;
+		
+		this.useStubs = useStubs;
+		this.deleteTemp = deleteTemp;
 		this.datasetHLQ = StringUtils.trimToEmpty(hlq);
 	}
 	
@@ -153,6 +177,55 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		return jcl;
 	}
 	
+	/**
+	 * Returns the name of the Code Coverage repository.
+	 * 
+	 * @return	The name of the Code Coverage repository.
+	 */
+	public String getCcRepo()
+	{
+		return ccRepo;
+	}
+	
+	/**
+	 * Returns the Code Coverage system.
+	 * 
+	 * @return	The Code Coverage system.
+	 */
+	public String getCcSystem()
+	{
+		return ccSystem;
+	}
+	
+	/**
+	 * Returns the Code Coverage test id.
+	 * 
+	 * @return	The Code Coverage test id.
+	 */
+	public String getCcTestId()
+	{
+		return ccTestId;
+	}
+	
+	/**
+	 * Returns whether stubs are to be used.
+	 * 
+	 * @return	<code>true</code> indicates stubs should be used, otherwise <code>false</code>
+	 */
+	public boolean isUseStubs()
+	{
+		return useStubs;
+	}
+	
+	/**
+	 * Returns whether temporary file should be deleted.
+	 * 
+	 * @return	<code>true</code> indicates temporary files should be deleted.
+	 */
+	public boolean isDeleteTemp()
+	{
+		return deleteTemp;
+	}
 	/**
 	 * Returns the dataset high level qualifier
 	 * 
@@ -309,12 +382,12 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
         }
 
 		/**
-		 * Validator for the 'hostPort' text field
+		 * Validates the 'hostPort' text field
 		 * 
 		 * @param value
-		 *            value passed from the config.jelly "hostPort" field
+		 *            Value passed from the config.jelly "hostPort" field
 		 *            
-		 * @return validation message
+		 * @return	An instance of <code>FormValidation</code> containing the validation status.
 		 * 
 		 * @throws ServletException
 		 * 			If an error occurred validating field.
@@ -357,12 +430,12 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		}
 
 		/**
-		 * Validator for the 'projectFolder' text field
+		 * Validates the 'projectFolder' text field
 		 * 
 		 * @param value
-		 *            value passed from the config.jelly "projectFolder" field
+		 *            Value passed from the config.jelly "projectFolder" field
 		 *            
-		 * @return validation message
+		 * @return	An instance of <code>FormValidation</code> containing the validation status.
 		 * 
 		 * @throws ServletException
 		 * 			If an error occurred validating field.
@@ -379,17 +452,16 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		}
 
 		/**
-		 * Validator for the 'testSuite' text field
+		 * Validates the 'testSuite' text field
 		 * 
 		 * @param value
-		 *            value passed from the config.jelly "testSuite" field
+		 *            Value passed from the config.jelly "testSuite" field
 		 *            
-		 * @return validation message
+		 * @return	An instance of <code>FormValidation</code> containing the validation status.
 		 * 
 		 * @throws ServletException
 		 * 			If an error occurred validating field.
 		 */
-
 		public FormValidation doCheckTestSuite(@QueryParameter final String value) throws ServletException
 		{
 			String trimmedValue = value.trim();
@@ -422,12 +494,12 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		}
 		
 		/**
-		 * Validator for the 'JCL' text field
+		 * Validates for the 'JCL' text field
 		 * 
 		 * @param value
-		 *            value passed from the config.jelly "jcl" field
+		 *            Value passed from the config.jelly "jcl" field
 		 *            
-		 * @return validation message
+		 * @return	An instance of <code>FormValidation</code> containing the validation status.
 		 * 
 		 * @throws ServletException
 		 * 			If an error occurred validating field.
@@ -444,12 +516,12 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		}
 		
 		/**
-		 * Validator for the high level qualifier text field
+		 * Validates for the 'hlsq' field
 		 * 
 		 * @param value
-		 *            value passed from the config.jelly "hlq" field
+		 *            Value passed from the config.jelly "hlq" field
 		 *            
-		 * @return validation message
+		 * @return	An instance of <code>FormValidation</code> containing the validation status.
 		 * 
 		 * @throws ServletException
 		 * 			If an error occurred validating field.
@@ -469,23 +541,92 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 				}
 				else
 				{
-					if (trimmedValue.matches(DATASET_HLQ_PATTERN) == false)
+					if (trimmedValue.matches(DATASET_HLQ_PATTERN) == false) //NOSONAR
 					{
 						return FormValidation.error(Messages.checkHLQInvalidError());
 					}
 				}
 				
 			}
-
 			
 			return FormValidation.ok();
 		}
 		
 		/**
-		 * Validator for the 'Login Credential' field
+		 * Validates the 'ccRepo' field.
 		 * 
 		 * @param value
-		 *            value passed from the config.jelly "fileExtension" field
+		 *            Value passed from the config.jelly "ccRepo" field
+		 * 
+		 * @return	An instance of <code>FormValidation</code> containing the validation status.
+		 * 
+		 * @throws ServletException
+		 * 			If an error occurred validating field.
+		 */
+		public FormValidation doCheckCcRepo(@QueryParameter final String value) throws ServletException
+		{
+			String trimmedValue = value.trim();
+			if (trimmedValue.length() > 44)
+			{
+				return FormValidation.error(Messages.checkCCRepoLengthError());
+			}
+			else if (trimmedValue.contains(" "))
+			{
+				return FormValidation.error(Messages.checkCCRepoSpacesError());
+			}
+
+			return FormValidation.ok();
+		}
+		
+		/**
+		 * Validates the 'ccTestId' field.
+		 * 
+		 * @param value
+		 *            Value passed from the config.jelly "ccRepo" field
+		 * 
+		 * @return	An instance of <code>FormValidation</code> containing the validation status.
+		 * 
+		 * @throws ServletException
+		 * 			If an error occurred validating field.
+		 */
+		public FormValidation doCheckCcSystem(@QueryParameter final String value) throws ServletException
+		{
+			String trimmedValue = value.trim();
+			if (trimmedValue.length() > 16)
+			{
+				return FormValidation.error(Messages.checkCCSystemLengthError());
+			}
+			
+			return FormValidation.ok();
+		}
+
+		/**
+		 * Validates the 'ccTestId' field.
+		 * 
+		 * @param value
+		 *            Value passed from the config.jelly "ccRepo" field
+		 * 
+		 * @return	An instance of <code>FormValidation</code> containing the validation status.
+		 * 
+		 * @throws ServletException
+		 * 			If an error occurred validating field.
+		 */
+		public FormValidation doCheckCcTestId(@QueryParameter final String value) throws ServletException
+		{
+			String trimmedValue = value.trim();
+			if (trimmedValue.length() > 16)
+			{
+				return FormValidation.error(Messages.checkCCTestIdLengthError());
+			}
+			
+			return FormValidation.ok();
+		}
+		
+		/**
+		 * Validates for the 'Login Credential' field
+		 * 
+		 * @param value
+		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
 		 * 
 		 * @throws ServletException
@@ -501,7 +642,6 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 			return FormValidation.ok();
 		}
 		
-
 		/**
 		 * Fills in the Login Credential selection box with applicable Jenkins credentials
 		 * 
@@ -510,7 +650,7 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 * @param credentialsId
 		 * 			  The credendtial id for the user.
 		 * @param project
-		 * 			  The Jenkins projec.
+		 * 			  The Jenkins project.
 		 * 
 		 * @return credential selections
 		 * 
