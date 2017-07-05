@@ -12,7 +12,7 @@
   
   <groupId>com.compuware.jenkins</groupId>
   <version>1.5-SNAPSHOT</version>
-  <artifactId>compuware-totaltest</artifactId>
+  <artifactId>>compuware-topaz-for-total-test</artifactId>
   <packaging>hpi</packaging>
 
   <properties>
