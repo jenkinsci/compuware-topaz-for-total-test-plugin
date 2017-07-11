@@ -448,7 +448,7 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
      * See {@code src/main/resources/hudson/plugins/totatest/TotalTestRunner/*.jelly}
      * for the actual HTML fragment for the configuration screen.
      */
-    @Symbol("TotalTest") @Extension
+    @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> 
     {
         /**
