@@ -20,7 +20,6 @@ import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
