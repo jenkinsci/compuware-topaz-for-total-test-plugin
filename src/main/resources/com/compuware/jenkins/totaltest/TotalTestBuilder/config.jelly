@@ -32,6 +32,9 @@
 			<f:entry title="${%ccTestId}" field="ccTestId">
 				<f:textbox/>
 			</f:entry>
+   			<f:entry field="ccDB2">
+				<f:checkbox title="${%ccDB2}" default="false"/>
+			</f:entry>
   		</f:advanced>
    		<f:advanced title="${%options}">
        			<f:entry field="useStubs">
