@@ -20,8 +20,10 @@ import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
@@ -67,12 +69,13 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	private String testSuite;
 	private String jcl;
 	private String datasetHLQ;
-	private boolean useStubs = true;
-	private boolean deleteTemp = true;
+	private boolean useStubs;
+	private boolean deleteTemp;
 
 	private String ccRepo;
 	private String ccSystem;
 	private String ccTestId;
+	private boolean ccDB2;
 	
 	/**
 	 * Constructor 
@@ -87,36 +90,17 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	 * 			The name of the test scenario or test suite to run.
 	 * @param jcl
 	 * 			The name of the JCL file to use.
-	 * @param ccRepo
-	 * 			The Code Coverage repository name.
-	 * @param ccSystem
-	 * 			The Code Coverage system.
-	 * @param ccTestId
-	 * 			The Code Coverage test id.
-	 * @param useStubs
-	 * 			<code>true</code> if stubs are to be used, otherwise <code>false</code>
-	 * @param deleteTemp
-	 * 			<code>true</code> if temporary files should be deleted, otherwise false;
-	 * @param hlq
-	 * 			High level qualifier for allocating datasets. Can be <code>null</code>
 	 */
 	@DataBoundConstructor
-	public TotalTestBuilder(String hostPort, String credentialsId, String projectFolder, String testSuite, String jcl,
-			String ccRepo, String ccSystem, String ccTestId, boolean useStubs, boolean deleteTemp, String hlq)
+	public TotalTestBuilder(String hostPort, String credentialsId, String projectFolder, String testSuite, String jcl)
 	{
 		this.hostPort = StringUtils.trimToEmpty(hostPort);
 		this.credentialsId = StringUtils.trimToEmpty(credentialsId);
 		this.projectFolder = StringUtils.trimToEmpty(projectFolder);
 		this.testSuite = StringUtils.trimToEmpty(testSuite);
 		this.jcl = StringUtils.trimToEmpty(jcl);
-		
-		this.ccRepo = ccRepo;
-		this.ccSystem = ccSystem;
-		this.ccTestId = ccTestId;
-		
-		this.useStubs = useStubs;
-		this.deleteTemp = deleteTemp;
-		this.datasetHLQ = StringUtils.trimToEmpty(hlq);
+		this.useStubs = true;
+		this.deleteTemp = true;
 	}
 	
 	/**
@@ -178,6 +162,18 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	}
 	
 	/**
+	 * Sets the Code Coverage repository dataset name.
+	 * 
+	 * @param ccRepo
+	 * 			The Code Coverage repository name.
+	 */
+	@DataBoundSetter
+	public void setCcRepo(final String ccRepo)
+	{
+		this.ccRepo = StringUtils.trimToEmpty(ccRepo);
+	}
+	
+	/**
 	 * Returns the name of the Code Coverage repository.
 	 * 
 	 * @return	The name of the Code Coverage repository.
@@ -188,6 +184,18 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	}
 	
 	/**
+	 * Sets the Code Coverage system.
+	 * 
+	 * @param ccSystem
+	 * 			The Code Coverage system.
+	 */
+	@DataBoundSetter
+	public void setCcSystem(final String ccSystem)
+	{
+		this.ccSystem = StringUtils.trimToEmpty(ccSystem);
+}
+	
+	/**
 	 * Returns the Code Coverage system.
 	 * 
 	 * @return	The Code Coverage system.
@@ -195,6 +203,18 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	public String getCcSystem()
 	{
 		return ccSystem;
+	}
+	
+	/**
+	 * Sets the Code Coverage test id.
+	 * 
+	 * @param ccTestId
+	 * 			The Code Coverage test id.
+	 */
+	@DataBoundSetter
+	public void setCcTestId(final String ccTestId)
+	{
+		this.ccTestId = StringUtils.trimToEmpty(ccTestId);
 	}
 	
 	/**
@@ -208,6 +228,40 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	}
 	
 	/**
+	 * Set if the main program is DB2.
+	 * 
+	 * @param ccDB2
+	 * 			<code>true</code> if Code Coverage is for a DB2 program, otherwise <code>false</code>
+	 */
+	@DataBoundSetter
+	public void setCcDB2(final boolean ccDB2)
+	{
+		this.ccDB2 = ccDB2;
+	}
+	
+	/**
+	 * Returns whether Code Coverage is for a DB2 program.
+	 * 
+	 * @return	<code>true</code> indicates program is a DB2 program, otherwise <code>false</code>
+	 */
+	public boolean getCcDB2()
+	{
+		return ccDB2;
+	}
+	
+	/**
+	 * Sets if stubs are being used.
+	 * 
+	 * @param useStubs
+	 * 			<code>true</code> if stubs are to be used, otherwise <code>false</code>
+	 */
+	@DataBoundSetter
+	public void setUseStubs(final boolean useStubs)
+	{
+		this.useStubs = useStubs;
+	}
+	
+	/**
 	 * Returns whether stubs are to be used.
 	 * 
 	 * @return	<code>true</code> indicates stubs should be used, otherwise <code>false</code>
@@ -215,6 +269,18 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	public boolean isUseStubs()
 	{
 		return useStubs;
+	}
+	
+	/**
+	 * Sets whether temporary file should be deleted.
+	 * 
+	 * @param deleteTemp
+	 * 			<code>true</code> if temporary files should be deleted, otherwise <code>false</code>
+	 */
+	@DataBoundSetter
+	public void setDeleteTemp(final boolean deleteTemp)
+	{
+		this.deleteTemp = deleteTemp;
 	}
 	
 	/**
@@ -226,6 +292,19 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	{
 		return deleteTemp;
 	}
+	
+	/**
+	 * Sets the dataset high level qualifier,
+	 * 
+	 * @param hlq
+	 * 			High level qualifier for allocating datasets. Can be <code>null</code>
+	 */
+	@DataBoundSetter
+	public void setHlq(final String hlq)
+	{
+		this.datasetHLQ = StringUtils.trimToEmpty(hlq);
+	}
+	
 	/**
 	 * Returns the dataset high level qualifier
 	 * 
@@ -369,7 +448,7 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
      * See {@code src/main/resources/hudson/plugins/totatest/TotalTestRunner/*.jelly}
      * for the actual HTML fragment for the configuration screen.
      */
-    @Extension // This indicates to Jenkins that this is an implementation of an extension point.
+    @Symbol("TotalTest") @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> 
     {
         /**

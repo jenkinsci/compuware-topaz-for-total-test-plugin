@@ -40,6 +40,7 @@ public class TotalTestRunner
 	private static final String CODE_COVERAGE_REPO = "-ccrepo="; //$NON-NLS-1$
 	private static final String CODE_COVERAGE_SYSTEM = "-ccsystem="; //$NON-NLS-1$
 	private static final String CODE_COVERAGE_TESTID = "-cctestid="; //$NON-NLS-1$
+	private static final String CODE_COVERAGE_DB2 = "-ccdb2="; //$NON-NLS-1$
 	
 	private static final String USE_STUBS = "-usestubs="; //$NON-NLS-1$
 	private static final String DELETE_TEMPORARY = "-deletetemp="; //$NON-NLS-1$
@@ -150,16 +151,23 @@ public class TotalTestRunner
 		if ((ccRepo != null) && (ccRepo.length() != 0))
 		{
 			args.add(TotalTestRunnerUtils.escapeForScript(CODE_COVERAGE_REPO + ccRepo.toUpperCase(), isShell));
-		}
-		String ccSystem = tttBuilder.getCcSystem();
-		if ((ccSystem != null) && (ccSystem.length() != 0))
-		{
-			args.add(TotalTestRunnerUtils.escapeForScript(CODE_COVERAGE_SYSTEM + ccSystem, isShell)); //$NON-NLS-1$
-		}
-		String ccTestId = tttBuilder.getCcTestId();
-		if ((ccTestId != null) && (ccTestId.length() != 0))
-		{
-			args.add(TotalTestRunnerUtils.escapeForScript(CODE_COVERAGE_TESTID + ccTestId, isShell)); //$NON-NLS-1$
+			
+			String ccSystem = tttBuilder.getCcSystem();
+			if ((ccSystem != null) && (ccSystem.length() != 0))
+			{
+				args.add(TotalTestRunnerUtils.escapeForScript(CODE_COVERAGE_SYSTEM + ccSystem, isShell)); //$NON-NLS-1$
+			}
+			
+			String ccTestId = tttBuilder.getCcTestId();
+			if ((ccTestId != null) && (ccTestId.length() != 0))
+			{
+				args.add(TotalTestRunnerUtils.escapeForScript(CODE_COVERAGE_TESTID + ccTestId, isShell)); //$NON-NLS-1$
+			}
+			
+			if (tttBuilder.getCcDB2())
+			{
+				args.add(TotalTestRunnerUtils.escapeForScript(CODE_COVERAGE_DB2 + Boolean.toString(tttBuilder.getCcDB2()), isShell)); //$NON-NLS-1$
+			}
 		}
 		
 		args.add(DATA_PARM, data);
