@@ -11,7 +11,7 @@
   </parent>
   
   <groupId>com.compuware.jenkins</groupId>
-  <version>1.7-SNAPSHOT</version>
+  <version>1.6-SNAPSHOT</version>
   <artifactId>compuware-topaz-for-total-test</artifactId>
   <packaging>hpi</packaging>
 
