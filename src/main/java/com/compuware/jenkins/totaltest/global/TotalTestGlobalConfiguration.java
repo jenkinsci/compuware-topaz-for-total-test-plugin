@@ -106,7 +106,7 @@ public class TotalTestGlobalConfiguration extends GlobalConfiguration
 	 * Returns the value of the topazTotalTestCLILocationLinux field. Used for databinding.
 	 * @return CLI location - Linux
 	 */
-	public String getopazTotalTestCLILocationLinux()
+	public String getTopazTotalTestCLILocationLinux()
 	{
 		return totaltestCLILocationLinux;
 	}

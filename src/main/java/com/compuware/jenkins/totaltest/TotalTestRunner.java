@@ -8,10 +8,12 @@ import com.compuware.jenkins.totaltest.global.TotalTestGlobalConfiguration;
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Plugin;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import hudson.util.ArgumentListBuilder;
+import jenkins.model.Jenkins;
 
 public class TotalTestRunner
 {
@@ -86,6 +88,21 @@ public class TotalTestRunner
 		
 		TotalTestGlobalConfiguration globalConfig = TotalTestGlobalConfiguration.get();
 		String topazCLILocation = globalConfig.getTopazCLILocation(launcher);
+        
+		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION);
+		Plugin pluginV1 = Jenkins.getInstance().getPlugin("compuware-topaz-for-total-test"); //$NON-NLS-1$
+		if (pluginV1 != null)
+		{
+			listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion());  //$NON-NLS-1$  //$NON-NLS-2$
+		}
+		else
+		{
+			Plugin pluginV2 = Jenkins.getInstance().getPlugin("compuware-totaltest");  //$NON-NLS-1$
+			if (pluginV2 != null)
+			{
+				listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$  //$NON-NLS-2$
+			}
+		}
         
 		String cliScriotFile = topazCLILocation  + remoteFileSeparator + osFile;
 		listener.getLogger().println("Topaz for Total Test CLI script file path: " + cliScriotFile); //$NON-NLS-1$
