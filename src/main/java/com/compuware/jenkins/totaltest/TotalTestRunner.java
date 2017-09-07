@@ -90,17 +90,22 @@ public class TotalTestRunner
 		String topazCLILocation = globalConfig.getTopazCLILocation(launcher);
         
 		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION);
-		Plugin pluginV1 = Jenkins.getInstance().getPlugin("compuware-topaz-for-total-test"); //$NON-NLS-1$
-		if (pluginV1 != null)
+		
+		Jenkins jenkinsInstance = Jenkins.getInstance();
+		if (jenkinsInstance != null)
 		{
-			listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion());  //$NON-NLS-1$  //$NON-NLS-2$
-		}
-		else
-		{
-			Plugin pluginV2 = Jenkins.getInstance().getPlugin("compuware-totaltest");  //$NON-NLS-1$
-			if (pluginV2 != null)
+			Plugin pluginV1 = jenkinsInstance.getPlugin("compuware-topaz-for-total-test"); //$NON-NLS-1$
+			if (pluginV1 != null)
 			{
-				listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$  //$NON-NLS-2$
+				listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion());  //$NON-NLS-1$  //$NON-NLS-2$
+			}
+			else
+			{
+				Plugin pluginV2 = jenkinsInstance.getPlugin("compuware-totaltest");  //$NON-NLS-1$
+				if (pluginV2 != null)
+				{
+					listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$  //$NON-NLS-2$
+				}
 			}
 		}
         
