@@ -29,10 +29,11 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
+import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
+import com.compuware.jenkins.common.configuration.HostConnection;
 
 import org.kohsuke.stapler.QueryParameter;
 
-import javax.servlet.ServletException;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,7 +52,7 @@ import java.util.List;
  * When a build is performed, the {@link #perform} method will be invoked. 
  *
  */
-public class TotalTestBuilder extends Builder implements SimpleBuildStep
+public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implements SimpleBuildStep
 {
 	private static final String COLON = ":"; //$NON-NLS-1$
 	private static final String EQUAL = "="; //$NON-NLS-1$
@@ -62,7 +63,6 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	private static final String TEST_SUITE_SUFFIX = ".testsuite"; //$NON-NLS-1$
 	private static final String DATASET_HLQ_PATTERN = "^([A-Z#@\\$]{1}[\\w#@\\$\\-]{1,7})";
 	
-	private String hostPort;
 	private String projectFolder;
 	private String credentialsId;
 	private String testSuite;
@@ -79,8 +79,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Constructor 
 	 * 
-	 * @param hostPort
-	 * 			The host and port for running Total Test.
+	 * @param connectionId
+	 * 			The connection id for the selected connection
 	 * @param credentialsId
 	 * 			The user's credential id.
 	 * @param projectFolder
@@ -91,9 +91,10 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	 * 			The name of the JCL file to use.
 	 */
 	@DataBoundConstructor
-	public TotalTestBuilder(String hostPort, String credentialsId, String projectFolder, String testSuite, String jcl)
+	public TotalTestBuilder(String connectionId, String credentialsId, String projectFolder, String testSuite, String jcl)
 	{
-		this.hostPort = StringUtils.trimToEmpty(hostPort);
+		super.connectionId = StringUtils.trimToEmpty(connectionId);
+		
 		this.credentialsId = StringUtils.trimToEmpty(credentialsId);
 		this.projectFolder = StringUtils.trimToEmpty(projectFolder);
 		this.testSuite = StringUtils.trimToEmpty(testSuite);
@@ -103,15 +104,13 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 	}
 	
 	/**
-	 * Returns the host and port for running Total Test.
-	 * <p>
-	 * The host and port must be specified as "host:port"
+	 * Gets the unique identifier of the 'Host connection'.
 	 * 
-	 * @return	The host and port for running Total Test.
+	 * @return <code>String</code> value of m_connectionId
 	 */
-	public String getHostPort()
+	public String getConnectionId()
 	{
-		return hostPort;
+		return connectionId;
 	}
 	
 	/**
@@ -382,8 +381,6 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 			throw new IllegalArgumentException(Messages.missingParameterError(Messages.loginCredentials()));
 		}
 
-		TotalTestRunnerUtils.validateHostPort(listener, getHostPort());
-		
 		if (getProjectFolder().isEmpty() == false) // NOSONAR
 		{
 			listener.getLogger().println(Messages.project() + EQUAL + getProjectFolder());		
@@ -466,11 +463,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "hostPort" field
 		 *            
 		 * @return	An instance of <code>FormValidation</code> containing the validation status.
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public FormValidation doCheckHostPort(@QueryParameter final String value) throws ServletException
+		public FormValidation doCheckHostPort(@QueryParameter final String value)
 		{
 			String trimmedValue =  StringUtils.trimToEmpty(value);
 			if (trimmedValue.isEmpty())
@@ -514,11 +508,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "projectFolder" field
 		 *            
 		 * @return	An instance of <code>FormValidation</code> containing the validation status.
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public FormValidation doCheckProjectFolder(@QueryParameter final String value) throws ServletException
+		public FormValidation doCheckProjectFolder(@QueryParameter final String value)
 		{
 			String trimmedValue = value.trim();
 			if (trimmedValue.isEmpty() || trimmedValue.length() == 0)
@@ -536,11 +527,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "testSuite" field
 		 *            
 		 * @return	An instance of <code>FormValidation</code> containing the validation status.
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public FormValidation doCheckTestSuite(@QueryParameter final String value) throws ServletException
+		public FormValidation doCheckTestSuite(@QueryParameter final String value)
 		{
 			String trimmedValue = value.trim();
 			if (trimmedValue.isEmpty() || trimmedValue.length() == 0)
@@ -578,11 +566,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "jcl" field
 		 *            
 		 * @return	An instance of <code>FormValidation</code> containing the validation status.
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public FormValidation doCheckJcl(@QueryParameter final String value) throws ServletException
+		public FormValidation doCheckJcl(@QueryParameter final String value)
 		{
 			String trimmedValue = value.trim();
 			if (trimmedValue.isEmpty() || trimmedValue.length() == 0)
@@ -600,11 +585,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "hlq" field
 		 *            
 		 * @return	An instance of <code>FormValidation</code> containing the validation status.
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public FormValidation doCheckHlq(@QueryParameter final String value) throws ServletException
+		public FormValidation doCheckHlq(@QueryParameter final String value)
 		{
 			String trimmedValue = value.trim().toUpperCase();
 			if (trimmedValue.isEmpty() == false) //NOSONAR
@@ -637,11 +619,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "ccRepo" field
 		 * 
 		 * @return	An instance of <code>FormValidation</code> containing the validation status.
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public FormValidation doCheckCcRepo(@QueryParameter final String value) throws ServletException
+		public FormValidation doCheckCcRepo(@QueryParameter final String value)
 		{
 			String trimmedValue = value.trim();
 			if (trimmedValue.length() > 44)
@@ -663,11 +642,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "ccRepo" field
 		 * 
 		 * @return	An instance of <code>FormValidation</code> containing the validation status.
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public FormValidation doCheckCcSystem(@QueryParameter final String value) throws ServletException
+		public FormValidation doCheckCcSystem(@QueryParameter final String value)
 		{
 			String trimmedValue = value.trim();
 			if (trimmedValue.length() > 16)
@@ -685,11 +661,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "ccRepo" field
 		 * 
 		 * @return	An instance of <code>FormValidation</code> containing the validation status.
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public FormValidation doCheckCcTestId(@QueryParameter final String value) throws ServletException
+		public FormValidation doCheckCcTestId(@QueryParameter final String value)
 		{
 			String trimmedValue = value.trim();
 			if (trimmedValue.length() > 16)
@@ -706,11 +679,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 * @param value
 		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public FormValidation doCheckCredentialsId(@QueryParameter final String value) throws ServletException
+		public FormValidation doCheckCredentialsId(@QueryParameter final String value)
 		{
 			if (value.equalsIgnoreCase(EMPTY_STRING))
 			{
@@ -718,6 +688,42 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 			}
 
 			return FormValidation.ok();
+		}
+
+		/**
+		 * Fills in the Host Connection selection box with applicable connections.
+		 * 
+		 * @param context
+		 *            filter for host connections
+		 * @param connectionId
+		 *            an existing host connection identifier; can be null
+		 * @param project
+		 *            the Jenkins project
+		 * 
+		 * @return host connection selections
+		 */
+		public ListBoxModel doFillConnectionIdItems(@AncestorInPath Jenkins context, @QueryParameter String connectionId,
+				@AncestorInPath Item project)
+		{
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+			HostConnection[] hostConnections = globalConfig.getHostConnections();
+
+			ListBoxModel model = new ListBoxModel();
+			model.add(new Option(StringUtils.EMPTY, StringUtils.EMPTY, false));
+
+			for (HostConnection connection : hostConnections)
+			{
+				boolean isSelected = false;
+				if (connectionId != null)
+				{
+					isSelected = connectionId.matches(connection.getConnectionId());
+				}
+
+				model.add(new Option(connection.getDescription() + " [" + connection.getHostPort() + ']', //$NON-NLS-1$
+						connection.getConnectionId(), isSelected));
+			}
+
+			return model;
 		}
 		
 		/**
@@ -731,11 +737,8 @@ public class TotalTestBuilder extends Builder implements SimpleBuildStep
 		 * 			  The Jenkins project.
 		 * 
 		 * @return credential selections
-		 * 
-		 * @throws ServletException
-		 * 			If an error occurred validating field.
 		 */
-		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context, @QueryParameter final String credentialsId, @AncestorInPath final Item project) throws  ServletException
+		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context, @QueryParameter final String credentialsId, @AncestorInPath final Item project)
 		{
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider
 					.lookupCredentials(StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
