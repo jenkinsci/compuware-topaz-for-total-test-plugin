@@ -1,10 +1,10 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials" xmlns:cc="/lib/compuware">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
 
-    <f:entry title="${%hostConnection}" field="connectionId">
-       <cc:hostSelect default=""/>
-    </f:entry>
-      
+	<f:entry title="${%hostPort}" field="hostPort">
+		<f:textbox/>
+	</f:entry>
+  
 	<f:entry title="${%loginCredentials}" field="credentialsId">
 		<c:select/>
 	</f:entry>
@@ -32,17 +32,8 @@
 			<f:entry title="${%ccTestId}" field="ccTestId">
 				<f:textbox/>
 			</f:entry>
-			<f:entry description="${%ccPgmTypeDescr}" />
- 			<f:entry>
- 				<f:entry>
-            		<f:radio title="${%ccDB2}" name="ccType" value="DB2" checked="${instance.ccDB2}"/>
-            	</f:entry>
-				<f:entry>
-            		<f:radio title="${%ccIMS}" name="ccType" value="IMS" checked="${instance.ccIMS}"/>
-            	</f:entry>
-				<f:entry>
-            		<f:radio title="${%ccTTT}" name="ccType" value="TOTALTEST" checked="${instance.ccTotalTest}"/>
-            	</f:entry>
+   			<f:entry field="ccDB2">
+				<f:checkbox title="${%ccDB2}" default="false"/>
 			</f:entry>
   		</f:advanced>
    		<f:advanced title="${%options}">
