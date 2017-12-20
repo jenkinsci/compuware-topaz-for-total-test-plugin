@@ -118,8 +118,7 @@ public class TotalTestRunner
 		
 		addExternalToolArguments(workspaceFilePath, args, isShell);
 		
-		String data = TotalTestRunnerUtils.escapeForScript(topazCliWorkspace, isShell);
-		args.add(DATA_PARM, data);
+		args.add(DATA_PARM, topazCliWorkspace);
 		
 		FilePath workDir = new FilePath (vChannel, workspaceFilePath.getRemote());
 		workDir.mkdirs();
