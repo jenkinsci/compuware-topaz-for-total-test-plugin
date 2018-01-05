@@ -4,7 +4,7 @@
     <f:entry title="${%hostConnection}" field="connectionId">
        <cc:hostSelect default=""/>
     </f:entry>
-  
+      
 	<f:entry title="${%loginCredentials}" field="credentialsId">
 		<c:select/>
 	</f:entry>
@@ -23,6 +23,9 @@
 
 	<f:entry>
   		<f:advanced title="${%codeCoverage}">
+	    	<f:entry title="${%ccPgmType}" field="ccPgmType">
+	        	<f:select value="${ccPgmType}" default="TOTALTEST"/>
+	    	</f:entry>
 	 		<f:entry title="${%ccRepo}" field="ccRepo">
 				<f:textbox/>
 			</f:entry>
@@ -32,8 +35,8 @@
 			<f:entry title="${%ccTestId}" field="ccTestId">
 				<f:textbox/>
 			</f:entry>
-   			<f:entry field="ccDB2">
-				<f:checkbox title="${%ccDB2}" default="false"/>
+       		<f:entry field="ccClearStats">
+				<f:checkbox title="${%ccClearStats}" default="true"/>
 			</f:entry>
   		</f:advanced>
    		<f:advanced title="${%options}">

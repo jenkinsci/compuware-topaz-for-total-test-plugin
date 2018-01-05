@@ -61,7 +61,10 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	
 	private static final String TEST_SCENARIO_SUFFIX = ".testscenario"; //$NON-NLS-1$
 	private static final String TEST_SUITE_SUFFIX = ".testsuite"; //$NON-NLS-1$
-	private static final String DATASET_HLQ_PATTERN = "^([A-Z#@\\$]{1}[\\w#@\\$\\-]{1,7})";
+	private static final String DATASET_HLQ_PATTERN = "^([A-Z#@\\$]{1}[\\w#@\\$\\-]{1,7})"; //$NON-NLS-1$
+	private static final String DB2 = "DB2"; //$NON-NLS-1$
+	private static final String IMS = "IMS"; //$NON-NLS-1$
+	private static final String TOTALTEST = "TOTALTEST"; //$NON-NLS-1$
 	
 	private String projectFolder;
 	private String credentialsId;
@@ -74,7 +77,8 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	private String ccRepo;
 	private String ccSystem;
 	private String ccTestId;
-	private boolean ccDB2;
+	private String ccPgmType;
+	private boolean ccClearStats;
 	
 	/**
 	 * Constructor 
@@ -101,6 +105,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		this.jcl = StringUtils.trimToEmpty(jcl);
 		this.useStubs = true;
 		this.deleteTemp = true;
+		this.ccClearStats = true;
 	}
 	
 	/**
@@ -191,7 +196,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	public void setCcSystem(final String ccSystem)
 	{
 		this.ccSystem = StringUtils.trimToEmpty(ccSystem);
-}
+	}
 	
 	/**
 	 * Returns the Code Coverage system.
@@ -227,6 +232,8 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	
 	/**
 	 * Set if the main program is DB2.
+	 * <p>
+	 * This method is only here to support version 1.7 and below when ccDB2 was a checkbox.
 	 * 
 	 * @param ccDB2
 	 * 			<code>true</code> if Code Coverage is for a DB2 program, otherwise <code>false</code>
@@ -234,17 +241,61 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	@DataBoundSetter
 	public void setCcDB2(final boolean ccDB2)
 	{
-		this.ccDB2 = ccDB2;
+		ccPgmType = DB2;
 	}
 	
 	/**
-	 * Returns whether Code Coverage is for a DB2 program.
+	 * Returns whether Code Coverage main program is DB2(IKJEFT01).
 	 * 
-	 * @return	<code>true</code> indicates program is a DB2 program, otherwise <code>false</code>
+	 * @return	<code>true</code> indicates program is DB2, otherwise <code>false</code>
 	 */
 	public boolean getCcDB2()
 	{
-		return ccDB2;
+		return (DB2.equalsIgnoreCase(ccPgmType));
+	}
+	
+	/**
+	 * Returns the Code Coverage main program type.
+	 * 
+	 * @return	The main program type for Code Coverage
+	 */
+	public String getCcPgmType()
+	{
+		return (ccPgmType == null || ccPgmType.equals("") ? TOTALTEST : ccPgmType);
+	}
+	
+	/**
+	 * Sets the Code Coverage main program type.
+	 * 
+	 * @param ccType
+	 * 			The Code Coverage main program type. Should be 'DB2', 'IMS", or 'TOTALTEST'.
+	 */
+	@DataBoundSetter
+	public void setCcPgmType(final String ccType)
+	{
+		this.ccPgmType = ccType;
+	}
+	
+	/**
+	 * Sets whether statistics should be clear before the test.
+	 * 
+	 * @param ccClearStats
+	 * 			<code>true</code> if the statistics should be cleared before test, otherwise <code>false</code>
+	 */
+	@DataBoundSetter
+	public void setCcClearStats(final boolean ccClearStats)
+	{
+		this.ccClearStats = ccClearStats;
+	}
+	
+	/**
+	 * Returns whether statistics should be cleared before the test
+	 * 
+	 * @return	<code>true</code> indicates stubs should be used, otherwise <code>false</code>
+	 */
+	public boolean isCcClearStats()
+	{
+		return ccClearStats;
 	}
 	
 	/**
@@ -454,7 +505,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
         public DescriptorImpl()
         {
             load();
-        }
+         }
 
 		/**
 		 * Validates the 'hostPort' text field
@@ -725,6 +776,21 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 
 			return model;
 		}
+
+		/**
+		 * Fills in the Code page selection box with code pages.
+		 *
+		 * @return code page selections
+		 */
+		public ListBoxModel doFillCcPgmTypeItems(@AncestorInPath Jenkins context, @QueryParameter String ccPgmType, @AncestorInPath Item project)
+		{
+			ListBoxModel ccPgmTypeModel = new ListBoxModel();
+			ccPgmTypeModel.add(new Option("Live DB2 - IKJEFT01", DB2, (DB2.equalsIgnoreCase(ccPgmType) ? true : false)));
+			ccPgmTypeModel.add(new Option("Live IMS - DFSRCC00", IMS, (IMS.equalsIgnoreCase(ccPgmType) ? true : false)));
+			ccPgmTypeModel.add(new Option("TotalTest - TTTRUNNR", TOTALTEST, (ccPgmType == null || ccPgmType.equals("") || TOTALTEST.equalsIgnoreCase(ccPgmType) || ccPgmType == null ? true : false)));
+
+			return ccPgmTypeModel;
+		}
 		
 		/**
 		 * Fills in the Login Credential selection box with applicable Jenkins credentials
@@ -737,6 +803,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		 * 			  The Jenkins project.
 		 * 
 		 * @return credential selections
+		 * 
 		 */
 		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context, @QueryParameter final String credentialsId, @AncestorInPath final Item project)
 		{
