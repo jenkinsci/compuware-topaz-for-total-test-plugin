@@ -787,7 +787,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 			ListBoxModel ccPgmTypeModel = new ListBoxModel();
 			ccPgmTypeModel.add(new Option("Live DB2 - IKJEFT01", DB2, (DB2.equalsIgnoreCase(ccPgmType) ? true : false)));
 			ccPgmTypeModel.add(new Option("Live IMS - DFSRCC00", IMS, (IMS.equalsIgnoreCase(ccPgmType) ? true : false)));
-			ccPgmTypeModel.add(new Option("TotalTest - TTTRUNNR", TOTALTEST, (ccPgmType == null || ccPgmType.equals("") || TOTALTEST.equalsIgnoreCase(ccPgmType) || ccPgmType == null ? true : false)));
+			ccPgmTypeModel.add(new Option("TotalTest - TTTRUNNR", TOTALTEST, (ccPgmType == null || ccPgmType.equals("") || TOTALTEST.equalsIgnoreCase(ccPgmType) ? true : false)));
 
 			return ccPgmTypeModel;
 		}
