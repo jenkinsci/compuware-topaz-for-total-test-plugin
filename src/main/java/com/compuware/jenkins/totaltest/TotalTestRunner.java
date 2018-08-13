@@ -74,8 +74,10 @@ public class TotalTestRunner
 	private static final String DELETE_TEMPORARY = "-deletetemp"; //$NON-NLS-1$
 	private static final String TARGET_ENCODING = "-targetencoding"; //$NON-NLS-1$
 	
-	private static final String PROPERTY_FILE_SEPARATOR = "file.separator";
+	private static final String PROPERTY_FILE_SEPARATOR = "file.separator";  //$NON-NLS-1$
 	private static final String DEFAULT_CODE_PAGE = "1047";  //$NON-NLS-1$
+
+	private static final String JENKINS = "-jenkins";  //$NON-NLS-1$
 	
 	private final TotalTestBuilder tttBuilder;
 	
@@ -125,6 +127,8 @@ public class TotalTestRunner
 		listener.getLogger().println("Topaz for Total Test CLI workspace: " + topazCliWorkspace); //$NON-NLS-1$
 		
 		addArgument(args, COMMAND, RUNTEST, isShell);
+		
+		args.add(JENKINS);
 		
 		addHostArguments(build, args, isShell);
 		
