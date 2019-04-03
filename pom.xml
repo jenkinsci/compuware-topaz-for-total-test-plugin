@@ -73,7 +73,7 @@
     <dependency>
       <groupId>com.compuware.jenkins</groupId>
       <artifactId>compuware-common-configuration</artifactId>
-      <version>1.0.2</version>
+      <version>1.0.7</version>
     </dependency>
   </dependencies>
 

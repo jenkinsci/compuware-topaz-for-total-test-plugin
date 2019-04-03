@@ -115,7 +115,7 @@ public abstract class AbstractTotalTestBuilderMigration extends Builder
 					{
 						String description = hostPort + " " + DEFAULT_CODEPAGE; //$NON-NLS-1$ //NOSONAR
 						logger.info(String.format("Create new connection for: %s", description));  //$NON-NLS-1$ //NOSONAR
-						connection = new HostConnection(description, hostPort, DEFAULT_CODEPAGE, null, null); //NOSONAR
+						connection = new HostConnection(description, hostPort, null, DEFAULT_CODEPAGE, null, null, null); // NOSONAR
 						globalConfig.addHostConnection(connection);
 
 					}
