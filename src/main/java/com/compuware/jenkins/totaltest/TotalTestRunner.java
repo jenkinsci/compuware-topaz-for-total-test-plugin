@@ -196,9 +196,9 @@ public class TotalTestRunner
 	        VirtualChannel vChannel = launcher.getChannel();
 			cliBatchFileRemote = new FilePath(vChannel, cliScriptFile);
 			listener.getLogger().println("Topaz for Total Test CLI script file remote path: " + cliBatchFileRemote.getRemote()); //$NON-NLS-1$
-
 			
-		    CLIVersionUtils.checkCLICompatibility(globalCLIDirectory, TTT_MINIMUM_CLI_VERSION);  
+			String cliVersion = CLIVersionUtils.getCLIVersion(globalCLIDirectory, TTT_MINIMUM_CLI_VERSION);
+			CLIVersionUtils.checkCLICompatibility(cliVersion, TTT_MINIMUM_CLI_VERSION);
 		}
 		
 		return cliBatchFileRemote;
