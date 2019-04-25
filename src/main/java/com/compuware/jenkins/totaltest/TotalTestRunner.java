@@ -63,6 +63,7 @@ public class TotalTestRunner
 	private static final String TEST_NAME_LIST = "-testsuitelist";  //$NON-NLS-1$
 	private static final String DATA = "-data"; //$NON-NLS-1$
 	private static final String DSN_HLQ = "-dsnhlq"; //$NON-NLS-1$
+	private static final String PROTOCOL = "-encryptprotocol"; //$NON-NLS-1$
 	
 	private static final String CODE_COVERAGE_REPO = "-ccrepo"; //$NON-NLS-1$
 	private static final String CODE_COVERAGE_SYSTEM = "-ccsystem"; //$NON-NLS-1$
@@ -260,6 +261,7 @@ public class TotalTestRunner
 		String host = null;
 		String port = null;
 		String codePage = DEFAULT_CODE_PAGE;
+		String protocol = null;
 		
 		HostConnection connection = null;
 		CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
@@ -277,9 +279,15 @@ public class TotalTestRunner
 			host = connection.getHost();
 			port = connection.getPort();
 			codePage = connection.getCodePage();
-			if ((codePage == null) || (codePage.length() == 0))
+			protocol = connection.getProtocol();
+			if (codePage == null|| codePage.length() == 0)
 			{
 				codePage = DEFAULT_CODE_PAGE;
+			}
+			
+			if (protocol == null || protocol.isEmpty())
+			{
+				protocol = "None"; //NOSONAR
 			}
 		}
 		else if (tttBuilder.getHostPort() != null) //NOSONAR
@@ -299,6 +307,7 @@ public class TotalTestRunner
 		addArgument(args, HOST, host, isShell);
 		addArgument(args, PORT, port, isShell);
 		addArgument(args, TARGET_ENCODING, codePage, isShell);
+		addArgument(args, PROTOCOL, protocol, isShell);
 		addArgument(args, USER, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(), isShell);
 		addArgument(args, PASSWORD, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword().getPlainText(), isShell, true);
 	}
