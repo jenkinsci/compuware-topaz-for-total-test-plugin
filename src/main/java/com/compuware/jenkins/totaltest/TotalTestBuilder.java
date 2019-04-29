@@ -37,6 +37,7 @@ import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -512,6 +513,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
      * See {@code src/main/resources/hudson/plugins/totatest/TotalTestRunner/*.jelly}
      * for the actual HTML fragment for the configuration screen.
      */
+	@Symbol("totaltestUT")
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> 
     {
