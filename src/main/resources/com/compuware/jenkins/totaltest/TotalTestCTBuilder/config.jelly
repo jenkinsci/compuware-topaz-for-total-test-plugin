@@ -1,0 +1,47 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:c="/lib/credentials" xmlns:f="/lib/form">
+    <f:entry title="${%environmentId}" field="environmentId">
+        <f:textbox />
+    </f:entry> 
+ 
+    <f:entry title="${%serverUrl}" field="serverUrl" >
+ 	   <f:select /> 
+ 	   <label><a href="/configure#cpwr-config">Manage connections</a></label>
+    </f:entry>
+
+    <f:entry title="${%loginCredentials}" field="credentialsId">
+		<c:select/>
+	</f:entry>
+    <f:entry title="${%recursive}" field="recursive">
+		<f:checkbox default="${descriptor.defaultRecursive}"/>
+	</f:entry>
+	<f:entry title="${%stopIfTestFailsOrThresholdReached}" field="stopIfTestFailsOrThresholdReached">
+		<f:checkbox default="${descriptor.defaultStopIfTestFailsOrThresholdReached}"/>
+	</f:entry>
+    <f:advanced>
+        <f:entry title="${%folderPath}" field="folderPath">
+		<f:textbox default="${descriptor.defaultFolderPath}"/>
+	</f:entry>
+        <f:entry title="${%uploadToServer}" field="uploadToServer">
+            <f:checkbox title="${%uploadToServerDescription}" default="${descriptor.defaultUploadToServer}"/>
+        </f:entry>
+        <f:entry title="${%haltAtFailure}" field="haltAtFailure">
+            <f:checkbox title="${%haltAtFailureDescription}" default="${descriptor.defaultHaltAtFailure}"/>
+        </f:entry>
+        <f:entry title="${%ccThreshhold}" field="ccThreshhold">
+        	<f:textbox default="${descriptor.defaultCCThreshhold}"/>
+    	</f:entry>
+    	<f:entry name="sonarVersion" title="SonarQube" field="sonarVersion">
+		    <select name="sonarVersion">
+		    	<option value="6">Version 6</option>
+		        <option value="5">Version 5</option>		        
+		    </select>
+		</f:entry>
+		<f:entry title="${%sourceFolder}" field="sourceFolder">
+        	<f:textbox default="${descriptor.defaultSourceFolder}" />
+    	</f:entry>
+    	<f:entry title="${%reportFolder}" field="reportFolder">
+        	<f:textbox default="${descriptor.defaultReportFolder}"/>
+    	</f:entry>
+    </f:advanced>
+</j:jelly>
