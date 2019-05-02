@@ -259,10 +259,10 @@ public class TotalTestCTRunner {
 		
 		args.add("-s").add(tttServerUrl, false);
 		args.add("-u").add(
-				JenkinsUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
+		    TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
 				false);
 		args.add("-p").add(
-				JenkinsUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword(), true);
+		    TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword(), true);
 		
 		String folder = tttBuilder.getFolderPath();
 		if (folder == null || folder.isEmpty() || folder.trim().isEmpty()) {
@@ -345,13 +345,13 @@ public class TotalTestCTRunner {
 			throw new FileNotFoundException("workDir location does not exist. Location: " + workDir.getRemote());
 		}
 		
-		String filenameAndPath = workDir.toString();
+		String filenameAndPath = workDir.getRemote();
 		listener.getLogger().println("worspace path: " + filenameAndPath);
 		
 		if (tttBuilder.getReportFolder() != null && tttBuilder.getReportFolder().trim().length() > 0) {
 			File reportFolder = new File(tttBuilder.getReportFolder().trim());
 			if (reportFolder != null && reportFolder.isAbsolute() && reportFolder.isDirectory()) {				
-				filenameAndPath = new FilePath(vChannel, tttBuilder.getReportFolder().trim()).toString();				
+				filenameAndPath = new FilePath(vChannel, tttBuilder.getReportFolder().trim()).getRemote();				
 			} else {				
 				filenameAndPath = filenameAndPath + remoteFileSeparator + tttBuilder.getReportFolder().trim();
 			}

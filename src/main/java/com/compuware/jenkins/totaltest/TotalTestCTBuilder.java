@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -260,7 +259,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep {
 
 		if (getCredentialsId().isEmpty() == false) {
 
-			if (JenkinsUtils.getLoginInformation(project, getCredentialsId()) != null) {
+			if (TotalTestRunnerUtils.getLoginInformation(project, getCredentialsId()) != null) {
 				listener.getLogger().println("Credentials entered...");
 			} else {
 				throw new IllegalArgumentException(
