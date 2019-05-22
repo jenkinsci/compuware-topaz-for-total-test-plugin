@@ -88,6 +88,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep {
 	 */
 	private String sourceFolder = DescriptorImpl.defaultSourceFolder;
 	private String reportFolder = DescriptorImpl.defaultReportFolder;
+	private String accountInfo =  DescriptorImpl.defaultAccountInfo;
 	
 
 	@DataBoundConstructor
@@ -169,6 +170,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep {
 		return stopIfTestFailsOrThresholdReached;
 	}
 
+	public String getAccountInfo()
+	{
+		return accountInfo;
+	}
+
+	
 	@DataBoundSetter
 	public void setSourceFolder(String sourceFolder) {
 		this.sourceFolder = sourceFolder;
@@ -210,6 +217,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep {
 		this.stopIfTestFailsOrThresholdReached = stopIfTestFailsOrThresholdReached;
 	}
 
+	@DataBoundSetter 
+	public void setAccountInfo(String accountInfo)
+	{
+		this.accountInfo = accountInfo;
+	}
+	
 	@Override
 	public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener)
 			throws InterruptedException, IOException {
@@ -283,6 +296,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep {
 		public static final Boolean defaultStopIfTestFailsOrThresholdReached = true;
 		public static final Boolean defaultUploadToServer = false;
 		public static final Boolean defaultHaltAtFailure = false;
+		public static final String defaultAccountInfo = "";
+		
         /**
 		 * Validates for the 'CcThreshhold' field
 		 * @param value

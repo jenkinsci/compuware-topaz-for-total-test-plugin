@@ -311,6 +311,11 @@ public class TotalTestCTRunner {
 		if (!Strings.isNullOrEmpty(tttBuilder.getSonarVersion())) {
 			args.add("-v").add(tttBuilder.getSonarVersion());
 		}
+		
+		if (!Strings.isNullOrEmpty(tttBuilder.getAccountInfo()))
+		{
+			args.add("-a").add(tttBuilder.getAccountInfo());
+		}
 
 	}
 
@@ -414,16 +419,17 @@ public class TotalTestCTRunner {
 		}
 		return cliDirectoryName;		
 	}
-/**
- * 
- * @param launcher
- * @param listener
- * @param remoteFileSeparator
- * @param osFile
- * @return
- * @throws IOException
- * @throws InterruptedException
- */
+	
+	/**
+	 * 
+	 * @param launcher
+	 * @param listener
+	 * @param remoteFileSeparator
+	 * @param osFile
+	 * @return
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	private FilePath getCliRemoteFilePath(final Launcher launcher, final TaskListener listener,
 			String remoteFileSeparator, String osFile) throws IOException, InterruptedException {
 		FilePath fRootPath = null;

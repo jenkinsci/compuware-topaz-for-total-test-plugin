@@ -43,5 +43,8 @@
     	<f:entry title="${%reportFolder}" field="reportFolder">
         	<f:textbox default="${descriptor.defaultReportFolder}"/>
     	</f:entry>
+		<f:entry title="${%accountInfo}" field="accountInfo">
+        	<f:textbox default="${descriptor.defaultAccountInfo}"/>
+    	</f:entry>
     </f:advanced>
 </j:jelly>
