@@ -26,20 +26,16 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
-
 import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
 import com.google.common.base.Strings;
-
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -50,7 +46,8 @@ import hudson.remoting.VirtualChannel;
 import hudson.util.ArgumentListBuilder;
 import jenkins.model.Jenkins;
 
-public class TotalTestCTRunner {
+public class TotalTestCTRunner
+{
 	private static final String COMPUWARE_TOTALTEST_PLUGIN = "compuware-topaz-for-total-test";
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat";
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh";
@@ -65,17 +62,20 @@ public class TotalTestCTRunner {
 	private FilePath workspaceFilePath;
 	private Run<?, ?> build;
 
-	public TotalTestCTRunner(TotalTestCTBuilder tttBuilder) {
+	public TotalTestCTRunner(TotalTestCTBuilder tttBuilder)
+	{
 		this.tttBuilder = tttBuilder;
 	}
 
 	public boolean run(final Run<?, ?> build, final Launcher launcher, final FilePath workspaceFilePath,
-			final TaskListener listener) throws IOException, InterruptedException {
+			final TaskListener listener) throws IOException, InterruptedException
+	{
 		// initialization
 		ArgumentListBuilder args = new ArgumentListBuilder();
 		EnvVars env = build.getEnvironment(listener);
 		vChannel = launcher.getChannel();
-		if (vChannel == null) {
+		if (vChannel == null)
+		{
 			listener.getLogger().println("Error: No channel could be retrieved");
 			return false;
 		}
@@ -93,36 +93,39 @@ public class TotalTestCTRunner {
 		FilePath cliScriptPath = getCliRemoteFilePath(launcher, listener, remoteFileSeparator, osScriptFile);
 		args.add(cliScriptPath.getRemote());
 		addArguments(args, listener);
-		
+
 		FilePath fRootPath = new FilePath(new File(getCliFilePath(launcher)));
 		FilePath workDir = new FilePath(vChannel, fRootPath.getRemote());
 		workDir.mkdirs();
 
 		listener.getLogger().println("----------------------------------");
-		listener.getLogger()
-				.println("Now executing Total Test Testing CLI and printing out the execution log...");
+		listener.getLogger().println("Now executing Total Test Testing CLI and printing out the execution log...");
 		listener.getLogger().println("----------------------------------\n\n");
 
 		int exitValue = launcher.launch().cmds(args).envs(env).stdout(listener.getLogger()).pwd(workDir).join();
 		listener.getLogger().println(osScriptFile + " exited with exit value = " + exitValue);
 
-		if (exitValue == 0) {
+		if (exitValue == 0)
+		{
 			listener.getLogger().println("\n\n----------------------------------");
-			listener.getLogger()
-					.println("Total Test Testing CLI finished executing, now analysing the result...");
+			listener.getLogger().println("Total Test Testing CLI finished executing, now analysing the result...");
 			listener.getLogger().println("----------------------------------\n\n");
 			exitValue = readTestResult(launcher);
 
-			if (exitValue != 0) {
+			if (exitValue != 0)
+			{
 				boolean isStopIfTestFailsOrThresholdReached = tttBuilder.getStopIfTestFailsOrThresholdReached();
 
-				if (!isStopIfTestFailsOrThresholdReached) {
-					listener.getLogger().println(
-							"Test result failed but build continues (isStopIfTestFailsOrThresholdReached is false)");
+				if (!isStopIfTestFailsOrThresholdReached)
+				{
+					listener.getLogger()
+							.println("Test result failed but build continues (isStopIfTestFailsOrThresholdReached is false)");
 					exitValue = 0;
 				}
 			}
-		} else {
+		}
+		else
+		{
 			listener.getLogger().println(
 					"Something went wrong when executing the Total Test Testing CLI, and therefore there is no test results to analyze");
 		}
@@ -136,18 +139,23 @@ public class TotalTestCTRunner {
 	 * @param listener
 	 *            Build listener
 	 */
-	private void logJenkinsAndPluginVersion(final TaskListener listener) {
+	private void logJenkinsAndPluginVersion(final TaskListener listener)
+	{
 		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION);
 		Jenkins jenkinsInstance = Jenkins.getInstance();
 		if (jenkinsInstance != null) // NOSONAR
 		{
 			Plugin pluginV1 = jenkinsInstance.getPlugin(COMPUWARE_TOTALTEST_PLUGIN); // $NON-NLS-1$
-			if (pluginV1 != null) {
+			if (pluginV1 != null)
+			{
 				listener.getLogger().println("Total Test Jenkins Plugin: " //$NON-NLS-1$
 						+ pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion()); //$NON-NLS-1$
-			} else {
+			}
+			else
+			{
 				Plugin pluginV2 = jenkinsInstance.getPlugin(COMPUWARE_TOTALTEST_PLUGIN); // $NON-NLS-1$
-				if (pluginV2 != null) {
+				if (pluginV2 != null)
+				{
 					listener.getLogger().println("Total Test Testing Jenkins Plugin: " //$NON-NLS-1$
 							+ pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$
 				}
@@ -155,10 +163,10 @@ public class TotalTestCTRunner {
 		}
 	}
 
-	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException {
+	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException
+	{
 		int result = 0;
-		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, remoteFileSeparator,
-				"generated.cli.xasuiteres");
+		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, remoteFileSeparator, "generated.cli.xasuiteres");
 		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote());
 		String content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), "UTF-8");
 
@@ -167,26 +175,32 @@ public class TotalTestCTRunner {
 
 		String xaSuiteResult = null;
 
-		try {
+		try
+		{
 			Document document = getXaSuiteResultAsDocument(content);
 			xaSuiteResult = getXaSuiteResult(document);
 			listener.getLogger().println("Result state from suite: " + xaSuiteResult);
 
-			if (!xaSuiteResult.equalsIgnoreCase("SUCCESS")) {
+			if (!xaSuiteResult.equalsIgnoreCase("SUCCESS"))
+			{
 				result = -1;
 			}
 
-			if (result != -1 && tttBuilder.getCcThreshhold() > 0) {
+			if (result != -1 && tttBuilder.getCcThreshhold() > 0)
+			{
 				listener.getLogger().println(
 						"The suite executed successfully, now checking that code coverage level is higher than the treshhold on "
 								+ tttBuilder.getCcThreshhold() + " %");
 				boolean isCCThresholdOk = getXaSuiteCodeCoverage(document);
-				if (!isCCThresholdOk) {
+				if (!isCCThresholdOk)
+				{
 					listener.getLogger().println("Code coverage treshhold not reached");
 					result = -1;
 				}
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			listener.getLogger().println("Exception in parsing XaSuiteResult. " + e.getMessage());
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
@@ -196,7 +210,8 @@ public class TotalTestCTRunner {
 		return result;
 	}
 
-	private Document getXaSuiteResultAsDocument(String xml) throws Exception {
+	private Document getXaSuiteResultAsDocument(String xml) throws Exception
+	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Reader r = new StringReader(xml);
@@ -205,7 +220,8 @@ public class TotalTestCTRunner {
 		return document;
 	}
 
-	private String getXaSuiteResult(Document document) throws Exception {
+	private String getXaSuiteResult(Document document) throws Exception
+	{
 		String resultType = null;
 
 		XPathFactory xpf = XPathFactory.newInstance();
@@ -216,27 +232,29 @@ public class TotalTestCTRunner {
 		return resultType;
 	}
 
-	private boolean getXaSuiteCodeCoverage(Document document) throws Exception {
+	private boolean getXaSuiteCodeCoverage(Document document) throws Exception
+	{
 		boolean isCCThresholdOk = true;
 
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath xpath = xpf.newXPath();
 		Element percentageElement = (Element) xpath.evaluate("/XaSuiteResult/CC/data", document, XPathConstants.NODE);
 
-		if (percentageElement != null) {
+		if (percentageElement != null)
+		{
 			String sPercentage = percentageElement.getAttribute("percentage");
 
 			int percentage = Integer.parseInt(sPercentage);
 
-			if (percentage < tttBuilder.getCcThreshhold()) {
-				listener.getLogger()
-						.println("XaUnitResult percentage on " + sPercentage
-								+ " is less than Code Coverage threshold on " + tttBuilder.getCcThreshhold()
-								+ ". Aborting build.");
+			if (percentage < tttBuilder.getCcThreshhold())
+			{
+				listener.getLogger().println("XaUnitResult percentage on " + sPercentage
+						+ " is less than Code Coverage threshold on " + tttBuilder.getCcThreshhold() + ". Aborting build.");
 				isCCThresholdOk = false;
 			}
 
-			if (isCCThresholdOk) {
+			if (isCCThresholdOk)
+			{
 				listener.getLogger().println("XaUnitResults Code Coverage threshold is " + tttBuilder.getCcThreshhold()
 						+ " which is below the result on " + sPercentage);
 			}
@@ -245,71 +263,88 @@ public class TotalTestCTRunner {
 		return isCCThresholdOk;
 	}
 
-	private void addArguments(final ArgumentListBuilder args, final TaskListener listener) {
+	private void addArguments(final ArgumentListBuilder args, final TaskListener listener)
+	{
 		args.add("-e").add(tttBuilder.getEnvironmentId(), false);
-		
-		String tttServerUrl = tttBuilder.getServerUrl();	
-		
-		if (!tttServerUrl.endsWith("/")) {
+
+		String tttServerUrl = tttBuilder.getServerUrl();
+
+		if (!tttServerUrl.endsWith("/"))
+		{
 			tttServerUrl += "/";
 		}
-		
+
 		tttServerUrl += TOTAL_TEST_WEBAPP + "/";
-		listener.getLogger().println("Set the repository URL : " + tttServerUrl);	
-		
+		listener.getLogger().println("Set the repository URL : " + tttServerUrl);
+
 		args.add("-s").add(tttServerUrl, false);
 		args.add("-u").add(
-		    TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
+				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
 				false);
 		args.add("-p").add(
-		    TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword(), true);
-		
+				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword(), true);
+
 		String folder = tttBuilder.getFolderPath();
-		if (folder == null || folder.isEmpty() || folder.trim().isEmpty()) {
+		if (folder == null || folder.isEmpty() || folder.trim().isEmpty())
+		{
 			folder = ".";
-		}		
-	    
+		}
+
 		listener.getLogger().println("The folder path: " + folder);
 		args.add("-f").add(folder, false);
-		
+
 		String rootFolder = workspaceFilePath.getRemote();
-			
-		if (!".".equals(folder) ) {
-		  File fFolderPath = new File(tttBuilder.getFolderPath());
-		
-		  if (!fFolderPath.isAbsolute()) {
-			args.add("-r").add(rootFolder);
-			listener.getLogger().println("Set the root folder : " + rootFolder);
-		  }		
-		} else {
+
+		if (!".".equals(folder))
+		{
+			File fFolderPath = new File(tttBuilder.getFolderPath());
+
+			if (!fFolderPath.isAbsolute())
+			{
+				args.add("-r").add(rootFolder);
+				listener.getLogger().println("Set the root folder : " + rootFolder);
+			}
+		}
+		else
+		{
 			args.add("-r").add(workspaceFilePath.getRemote());
 			listener.getLogger().println("Set the root folder : " + rootFolder);
 		}
 
-		if (tttBuilder.getRecursive()) {
+		if (tttBuilder.getRecursive())
+		{
 			args.add("-R");
 		}
 
-		if (tttBuilder.getUploadToServer()) {
+		if (tttBuilder.getUploadToServer())
+		{
 			args.add("-x");
 		}
 
-		if (tttBuilder.getHaltAtFailure()) {
+		if (tttBuilder.getHaltAtFailure())
+		{
 			args.add("-h");
 		}
 
-		if (!Strings.isNullOrEmpty(tttBuilder.getSourceFolder())
-				&& !tttBuilder.getSourceFolder().equalsIgnoreCase("COBOL")) {
+		if (!Strings.isNullOrEmpty(tttBuilder.getSourceFolder()) && !tttBuilder.getSourceFolder().equalsIgnoreCase("COBOL"))
+		{
 			args.add("-S").add(tttBuilder.getSourceFolder());
 		}
 
-		if (!Strings.isNullOrEmpty(tttBuilder.getReportFolder())) {
+		if (!Strings.isNullOrEmpty(tttBuilder.getReportFolder()))
+		{
 			args.add("-g").add(tttBuilder.getReportFolder());
 			args.add("-G");
 		}
 
-		if (!Strings.isNullOrEmpty(tttBuilder.getSonarVersion())) {
+		if (!Strings.isNullOrEmpty(tttBuilder.getSonarVersion()))
+		{
 			args.add("-v").add(tttBuilder.getSonarVersion());
+		}
+
+		if (!Strings.isNullOrEmpty(tttBuilder.getAccountInfo()))
+		{
+			args.add("-a").add(tttBuilder.getAccountInfo());
 		}
 
 	}
@@ -328,31 +363,39 @@ public class TotalTestCTRunner {
 	 *             If unable to get CLI directory.
 	 */
 	private FilePath getRemoteFilePath(final Launcher launcher, final TaskListener listener, String remoteFileSeparator,
-			String osFile) throws IOException, InterruptedException {
+			String osFile) throws IOException, InterruptedException
+	{
 		FilePath remoteFile = null;
 		FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
-		
-		String ffolder = tttBuilder.getFolderPath();		
-		
-		if (ffolder != null && !ffolder.isEmpty() && !".".equals(ffolder)) {
+
+		String ffolder = tttBuilder.getFolderPath();
+
+		if (ffolder != null && !ffolder.isEmpty() && !".".equals(ffolder))
+		{
 			File theFolder = new File(ffolder);
-			if (theFolder.isAbsolute() && theFolder.isDirectory()) {
-				workDir = new FilePath(vChannel, ffolder);				 
+			if (theFolder.isAbsolute() && theFolder.isDirectory())
+			{
+				workDir = new FilePath(vChannel, ffolder);
 			}
 		}
-		
-		if (!workDir.exists()) {
+
+		if (!workDir.exists())
+		{
 			throw new FileNotFoundException("workDir location does not exist. Location: " + workDir.getRemote());
 		}
-		
+
 		String filenameAndPath = workDir.getRemote();
 		listener.getLogger().println("worspace path: " + filenameAndPath);
-		
-		if (tttBuilder.getReportFolder() != null && tttBuilder.getReportFolder().trim().length() > 0) {
+
+		if (tttBuilder.getReportFolder() != null && tttBuilder.getReportFolder().trim().length() > 0)
+		{
 			File reportFolder = new File(tttBuilder.getReportFolder().trim());
-			if (reportFolder != null && reportFolder.isAbsolute() && reportFolder.isDirectory()) {				
-				filenameAndPath = new FilePath(vChannel, tttBuilder.getReportFolder().trim()).getRemote();				
-			} else {				
+			if (reportFolder != null && reportFolder.isAbsolute() && reportFolder.isDirectory())
+			{
+				filenameAndPath = new FilePath(vChannel, tttBuilder.getReportFolder().trim()).getRemote();
+			}
+			else
+			{
 				filenameAndPath = filenameAndPath + remoteFileSeparator + tttBuilder.getReportFolder().trim();
 			}
 		}
@@ -360,10 +403,13 @@ public class TotalTestCTRunner {
 		File theFolder = new File(filenameAndPath);
 		String fileFound = searchFileFromDir(theFolder, osFile);
 
-		if (fileFound != null) {
+		if (fileFound != null)
+		{
 			filenameAndPath = fileFound;
 			listener.getLogger().println("Founded file path: " + filenameAndPath);
-		} else {
+		}
+		else
+		{
 			filenameAndPath = filenameAndPath + remoteFileSeparator + osFile;
 			listener.getLogger().println("The file path: " + filenameAndPath + " is missing.");
 		}
@@ -382,63 +428,79 @@ public class TotalTestCTRunner {
 	 * @param search
 	 * @return
 	 */
-	private static String searchFileFromDir(File file, String search) {
-		if (file != null && search != null) {
-			if (file.isDirectory()) {
+	private static String searchFileFromDir(File file, String search)
+	{
+		if (file != null && search != null)
+		{
+			if (file.isDirectory())
+			{
 				File[] files = file.listFiles();
-				if (files != null) {
-					for (File f : files) {
+				if (files != null)
+				{
+					for (File f : files)
+					{
 						String fName = searchFileFromDir(f, search);
 						if (fName != null)
 							return fName;
 					}
 				}
-			} else {
-				if (search.equals(file.getName())) {
+			}
+			else
+			{
+				if (search.equals(file.getName()))
+				{
 					return file.getAbsolutePath();
 				}
 			}
 		}
 		return null;
 	}
+
 	/**
 	 * 
 	 * @param launcher
 	 * @return
 	 */
-	private String getCliFilePath(final Launcher launcher) {
+	private String getCliFilePath(final Launcher launcher)
+	{
 		String cliDirectoryName = null;
 		CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
-		if (globalConfig != null) {
+		if (globalConfig != null)
+		{
 			cliDirectoryName = globalConfig.getTopazCLILocation(launcher);
 		}
-		return cliDirectoryName;		
+		return cliDirectoryName;
 	}
-/**
- * 
- * @param launcher
- * @param listener
- * @param remoteFileSeparator
- * @param osFile
- * @return
- * @throws IOException
- * @throws InterruptedException
- */
-	private FilePath getCliRemoteFilePath(final Launcher launcher, final TaskListener listener,
-			String remoteFileSeparator, String osFile) throws IOException, InterruptedException {
+
+	/**
+	 * 
+	 * @param launcher
+	 * @param listener
+	 * @param remoteFileSeparator
+	 * @param osFile
+	 * @return
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	private FilePath getCliRemoteFilePath(final Launcher launcher, final TaskListener listener, String remoteFileSeparator,
+			String osFile) throws IOException, InterruptedException
+	{
 		FilePath fRootPath = null;
 
 		String cliDirectoryName = getCliFilePath(launcher);
-		if (cliDirectoryName != null) {
+		if (cliDirectoryName != null)
+		{
 			listener.getLogger().println("TotalTest CLI file path from common configuration: " + cliDirectoryName);
 			fRootPath = new FilePath(new File(cliDirectoryName));
-		} else {
+		}
+		else
+		{
 			throw new FileNotFoundException("rootPath was not specified in the common configuarion.");
 		}
 
-		if (fRootPath.exists() == false) {
-			throw new FileNotFoundException(
-					"rootPath to cli location does not exist. Location: " + fRootPath.getRemote());
+		if (fRootPath.exists() == false)
+		{
+			throw new FileNotFoundException("rootPath to cli location does not exist. Location: " + fRootPath.getRemote());
 		}
 
 		String filenameAndPath = fRootPath + remoteFileSeparator + osFile;

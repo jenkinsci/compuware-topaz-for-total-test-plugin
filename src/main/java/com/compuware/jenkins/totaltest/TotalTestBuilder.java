@@ -764,11 +764,11 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		 * Fills in the Host Connection selection box with applicable connections.
 		 * 
 		 * @param context
-		 *            filter for host connections
+		 * 		An instance of <code>context</code> for the Jenkin's context
 		 * @param connectionId
 		 *            an existing host connection identifier; can be null
 		 * @param project
-		 *            the Jenkins project
+		 * 		An instance of <code>Item</code> for the project.
 		 * 
 		 * @return host connection selections
 		 */
@@ -797,9 +797,16 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		}
 
 		/**
-		 * Fills in the Code page selection box with code pages.
-		 *
-		 * @return code page selections
+		 * Fill in the Code Coverage program types.
+		 * 
+		 * @param context
+		 * 		An instance of <code>context</code> for the Jenkin's context
+		 * @param ccPgmType
+		 * 		The type of program to test.
+		 * @param project
+		 * 		An instance of <code>Item</code> for the project.
+		 * 
+		 * @return	A <code>ListBoxModel</code> instance contain the Code Coverage program types.
 		 */
 		public ListBoxModel doFillCcPgmTypeItems(@AncestorInPath Jenkins context, @QueryParameter String ccPgmType, @AncestorInPath Item project)
 		{
@@ -815,11 +822,11 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		 * Fills in the Login Credential selection box with applicable Jenkins credentials
 		 * 
 		 * @param context
-		 *            Jenkins context.
+		 * 		An instance of <code>context</code> for the Jenkin's context
 		 * @param credentialsId
 		 * 			  The credendtial id for the user.
 		 * @param project
-		 * 			  The Jenkins project.
+		 * 		An instance of <code>Item</code> for the project.
 		 * 
 		 * @return credential selections
 		 * 
