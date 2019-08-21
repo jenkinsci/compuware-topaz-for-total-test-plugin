@@ -17,6 +17,8 @@
 
 package com.compuware.jenkins.totaltest;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,10 +28,16 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.cloudbees.plugins.credentials.matchers.IdMatcher;
-
+import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
+import com.compuware.jenkins.common.utils.CLIVersionUtils;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.Plugin;
 import hudson.model.Item;
 import hudson.model.TaskListener;
+import hudson.remoting.VirtualChannel;
 import hudson.security.ACL;
+import jenkins.model.Jenkins;
 
 public class TotalTestRunnerUtils
 {
@@ -242,5 +250,113 @@ public class TotalTestRunnerUtils
 		}
 		
 		return quotedValue;
+	}
+	
+	
+	/**
+	 * Logs the Jenkins and Total Test Plugin versions
+	 * 
+	 * @param listener
+	 *          An instance of <code>TaskListener</code> for the task.
+	 */
+	public static void logJenkinsAndPluginVersion(final TaskListener listener)
+	{
+		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION);
+		Jenkins jenkinsInstance = Jenkins.getInstance();
+		if (jenkinsInstance != null) //NOSONAR
+		{
+			Plugin pluginV1 = jenkinsInstance.getPlugin("compuware-topaz-for-total-test"); //$NON-NLS-1$
+			if (pluginV1 != null)
+			{
+				listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion());  //$NON-NLS-1$  //$NON-NLS-2$
+			}
+			else
+			{
+				Plugin pluginV2 = jenkinsInstance.getPlugin("compuware-totaltest");  //$NON-NLS-1$
+				if (pluginV2 != null)
+				{
+					listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$  //$NON-NLS-2$
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns the path of the Topaz Workbench CLI, as defined in the global
+	 * Jenkins' System settings.
+	 * 
+	 * @param launcher
+	 *          An instance <code>Launcher</code> for launching the script.
+	 *          
+	 * @return	The path to The Topaz Workbench CLI
+	 */
+	public static String getTopaWorkbenchCLIPath(final Launcher launcher)
+	{
+		String cliDirectoryName = null;
+		CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+		if (globalConfig != null)
+		{
+			cliDirectoryName = globalConfig.getTopazCLILocation(launcher);
+		}
+		
+		return cliDirectoryName;
+	}
+	
+	/**
+	 * Returns the path to the script to execute Total Test CLI
+	 * 
+	 * @param launcher
+	 *          An instance <code>Launcher</code> for launching the script.
+	 * @param listener
+	 * 			An instance of <code>TaskListener</code> for the task.
+	 * @param fileSeparator
+	 * 			The file separator for the system on which the script will run.
+	 * @param osScriptFile
+	 * 			The name of the operating system dependent script file to run.
+	 * @param minCLIRelease
+	 * 			The minimum CLI release required to run the script.
+	 *            
+	 * @return	An instance of <code>FilePath</code> for the CLI directory
+	 * 
+	 * @throws IOException
+	 * 			If the CLI directory does not exist.
+	 * @throws InterruptedException
+	 * 			If unable to get CLI directory.
+	 */
+	public static FilePath getCLIScriptPath(final Launcher launcher, final TaskListener listener, final String fileSeparator, 
+			final String osScriptFile, final String minCLIRelease) throws IOException, InterruptedException
+	{
+		FilePath topazWorkbenchCLIPath = null;
+		FilePath cliScriptPath = null;
+		
+        VirtualChannel vChannel = launcher.getChannel();
+
+		String cliDirectoryName = getTopaWorkbenchCLIPath(launcher);
+		if (cliDirectoryName != null)
+		{
+			topazWorkbenchCLIPath = new FilePath(vChannel,cliDirectoryName);
+		}
+
+		
+		if (topazWorkbenchCLIPath == null)
+		{
+        	throw new FileNotFoundException("ERROR: Topaz Workench CLI location was not specified. Check 'Compuware Configuration' section under 'Configure System'"); //$NON-NLS-1$
+		}
+		else
+		{
+			if (topazWorkbenchCLIPath.exists() == false) //NOSONAR
+			{
+		       	throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + topazWorkbenchCLIPath.getRemote() + ". Check 'Compuware Configuration' section under 'Configure System'");  //NOSONAR
+			}
+			
+			String cliScriptFile = topazWorkbenchCLIPath.getRemote()  + fileSeparator + osScriptFile;
+			cliScriptPath = new FilePath(vChannel, cliScriptFile);
+			listener.getLogger().println("Topaz for Total Test CLI script path: " + cliScriptPath.getRemote()); //$NON-NLS-1$
+			
+			String cliVersion = CLIVersionUtils.getCLIVersion(topazWorkbenchCLIPath, minCLIRelease);
+			CLIVersionUtils.checkCLICompatibility(cliVersion, minCLIRelease);
+		}
+		
+		return cliScriptPath;
 	}
 }

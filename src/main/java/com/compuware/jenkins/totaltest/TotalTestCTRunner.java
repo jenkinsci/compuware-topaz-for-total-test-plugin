@@ -31,24 +31,23 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
-import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
+
 import com.google.common.base.Strings;
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.Plugin;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import hudson.util.ArgumentListBuilder;
-import jenkins.model.Jenkins;
 
 public class TotalTestCTRunner
 {
-	private static final String COMPUWARE_TOTALTEST_PLUGIN = "compuware-topaz-for-total-test";
+	private  static final String TTT_MINIMUM_CLI_VERSION = "19.5.1";
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat";
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh";
 	private static final String TOTAL_TEST_WEBAPP = "totaltestapi";
@@ -85,16 +84,16 @@ public class TotalTestCTRunner
 		remoteProperties = vChannel.call(new RemoteSystemProperties());
 		remoteFileSeparator = remoteProperties.getProperty("file.separator");
 
-		boolean isShell = launcher.isUnix();
-		String osScriptFile = isShell ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
+		boolean isLinux = launcher.isUnix();
+		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
 
-		logJenkinsAndPluginVersion(listener);
+		TotalTestRunnerUtils.logJenkinsAndPluginVersion(listener);
 
-		FilePath cliScriptPath = getCliRemoteFilePath(launcher, listener, remoteFileSeparator, osScriptFile);
+		FilePath cliScriptPath = TotalTestRunnerUtils.getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile, TTT_MINIMUM_CLI_VERSION);
 		args.add(cliScriptPath.getRemote());
 		addArguments(args, listener);
 
-		FilePath fRootPath = new FilePath(new File(getCliFilePath(launcher)));
+		FilePath fRootPath = new FilePath(new File(TotalTestRunnerUtils.getTopaWorkbenchCLIPath(launcher)));
 		FilePath workDir = new FilePath(vChannel, fRootPath.getRemote());
 		workDir.mkdirs();
 
@@ -131,36 +130,6 @@ public class TotalTestCTRunner
 		}
 
 		return exitValue == 0;
-	}
-
-	/**
-	 * Logs the Jenkins and Total Test Plugin versions
-	 * 
-	 * @param listener
-	 *            Build listener
-	 */
-	private void logJenkinsAndPluginVersion(final TaskListener listener)
-	{
-		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION);
-		Jenkins jenkinsInstance = Jenkins.getInstance();
-		if (jenkinsInstance != null) // NOSONAR
-		{
-			Plugin pluginV1 = jenkinsInstance.getPlugin(COMPUWARE_TOTALTEST_PLUGIN); // $NON-NLS-1$
-			if (pluginV1 != null)
-			{
-				listener.getLogger().println("Total Test Jenkins Plugin: " //$NON-NLS-1$
-						+ pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion()); //$NON-NLS-1$
-			}
-			else
-			{
-				Plugin pluginV2 = jenkinsInstance.getPlugin(COMPUWARE_TOTALTEST_PLUGIN); // $NON-NLS-1$
-				if (pluginV2 != null)
-				{
-					listener.getLogger().println("Total Test Testing Jenkins Plugin: " //$NON-NLS-1$
-							+ pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$
-				}
-			}
-		}
 	}
 
 	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException
@@ -262,7 +231,7 @@ public class TotalTestCTRunner
 
 		return isCCThresholdOk;
 	}
-
+	
 	private void addArguments(final ArgumentListBuilder args, final TaskListener listener)
 	{
 		args.add("-e").add(tttBuilder.getEnvironmentId(), false);
@@ -454,62 +423,5 @@ public class TotalTestCTRunner
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * 
-	 * @param launcher
-	 * @return
-	 */
-	private String getCliFilePath(final Launcher launcher)
-	{
-		String cliDirectoryName = null;
-		CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
-		if (globalConfig != null)
-		{
-			cliDirectoryName = globalConfig.getTopazCLILocation(launcher);
-		}
-		return cliDirectoryName;
-	}
-
-	/**
-	 * 
-	 * @param launcher
-	 * @param listener
-	 * @param remoteFileSeparator
-	 * @param osFile
-	 * @return
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	private FilePath getCliRemoteFilePath(final Launcher launcher, final TaskListener listener, String remoteFileSeparator,
-			String osFile) throws IOException, InterruptedException
-	{
-		FilePath fRootPath = null;
-
-		String cliDirectoryName = getCliFilePath(launcher);
-		if (cliDirectoryName != null)
-		{
-			listener.getLogger().println("TotalTest CLI file path from common configuration: " + cliDirectoryName);
-			fRootPath = new FilePath(new File(cliDirectoryName));
-		}
-		else
-		{
-			throw new FileNotFoundException("rootPath was not specified in the common configuarion.");
-		}
-
-		if (fRootPath.exists() == false)
-		{
-			throw new FileNotFoundException("rootPath to cli location does not exist. Location: " + fRootPath.getRemote());
-		}
-
-		String filenameAndPath = fRootPath + remoteFileSeparator + osFile;
-		listener.getLogger().println("TotalTest CLI file path: " + filenameAndPath);
-
-		VirtualChannel vChannel = launcher.getChannel();
-		FilePath remoteFile = new FilePath(vChannel, filenameAndPath);
-		listener.getLogger().println("TotalTest CLI script file remote path: " + remoteFile.getRemote());
-
-		return remoteFile;
 	}
 }
