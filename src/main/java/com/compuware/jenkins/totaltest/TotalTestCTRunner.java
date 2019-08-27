@@ -47,10 +47,10 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestCTRunner
 {
-	private  static final String TTT_MINIMUM_CLI_VERSION = "19.5.1";
-	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat";
-	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh";
-	private static final String TOTAL_TEST_WEBAPP = "totaltestapi";
+	private  static final String TTT_MINIMUM_CLI_VERSION = "19.5.1"; //$NON-NLS-1$
+	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
+	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
+	private static final String TOTAL_TEST_WEBAPP = "totaltestapi"; //$NON-NLS-1$
 
 	private final TotalTestCTBuilder tttBuilder;
 
@@ -75,14 +75,14 @@ public class TotalTestCTRunner
 		vChannel = launcher.getChannel();
 		if (vChannel == null)
 		{
-			listener.getLogger().println("Error: No channel could be retrieved");
+			listener.getLogger().println("Error: No channel could be retrieved"); //$NON-NLS-1$
 			return false;
 		}
 		this.listener = listener;
 		this.workspaceFilePath = workspaceFilePath;
 		this.build = build;
 		remoteProperties = vChannel.call(new RemoteSystemProperties());
-		remoteFileSeparator = remoteProperties.getProperty("file.separator");
+		remoteFileSeparator = remoteProperties.getProperty("file.separator"); //$NON-NLS-1$
 
 		boolean isLinux = launcher.isUnix();
 		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
@@ -96,18 +96,18 @@ public class TotalTestCTRunner
 		FilePath workDir = new FilePath (vChannel, workspaceFilePath.getRemote());
 		workDir.mkdirs();
 
-		listener.getLogger().println("----------------------------------");
-		listener.getLogger().println("Now executing Total Test Testing CLI and printing out the execution log...");
-		listener.getLogger().println("----------------------------------\n\n");
+		listener.getLogger().println("----------------------------------"); //$NON-NLS-1$
+		listener.getLogger().println("Now executing Total Test Testing CLI and printing out the execution log..."); //$NON-NLS-1$
+		listener.getLogger().println("----------------------------------\n\n"); //$NON-NLS-1$
 
 		int exitValue = launcher.launch().cmds(args).envs(env).stdout(listener.getLogger()).pwd(workDir).join();
-		listener.getLogger().println(osScriptFile + " exited with exit value = " + exitValue);
+		listener.getLogger().println(osScriptFile + " exited with exit value = " + exitValue); //$NON-NLS-1$
 
 		if (exitValue == 0)
 		{
-			listener.getLogger().println("\n\n----------------------------------");
-			listener.getLogger().println("Total Test Testing CLI finished executing, now analysing the result...");
-			listener.getLogger().println("----------------------------------\n\n");
+			listener.getLogger().println("\n\n----------------------------------"); //$NON-NLS-1$
+			listener.getLogger().println("Total Test Testing CLI finished executing, now analysing the result..."); //$NON-NLS-1$
+			listener.getLogger().println("----------------------------------\n\n"); //$NON-NLS-1$
 			exitValue = readTestResult(launcher);
 
 			if (exitValue != 0)
@@ -117,7 +117,7 @@ public class TotalTestCTRunner
 				if (!isStopIfTestFailsOrThresholdReached)
 				{
 					listener.getLogger()
-							.println("Test result failed but build continues (isStopIfTestFailsOrThresholdReached is false)");
+							.println("Test result failed but build continues (isStopIfTestFailsOrThresholdReached is false)"); //$NON-NLS-1$
 					exitValue = 0;
 				}
 			}
@@ -125,7 +125,7 @@ public class TotalTestCTRunner
 		else
 		{
 			listener.getLogger().println(
-					"Something went wrong when executing the Total Test Testing CLI, and therefore there is no test results to analyze");
+					"Something went wrong when executing the Total Test Testing CLI, and therefore there is no test results to analyze"); //$NON-NLS-1$
 		}
 
 		return exitValue == 0;
@@ -134,11 +134,11 @@ public class TotalTestCTRunner
 	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException
 	{
 		int result = 0;
-		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, remoteFileSeparator, "generated.cli.xasuiteres");
-		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote());
-		String content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), "UTF-8");
+		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, remoteFileSeparator, "generated.cli.xasuiteres"); //$NON-NLS-1$
+		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+		String content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), "UTF-8"); //$NON-NLS-1$
 
-		listener.getLogger().println("Result content:");
+		listener.getLogger().println("Result content:"); //$NON-NLS-1$
 		listener.getLogger().println(content);
 
 		String xaSuiteResult = null;
@@ -147,9 +147,9 @@ public class TotalTestCTRunner
 		{
 			Document document = getXaSuiteResultAsDocument(content);
 			xaSuiteResult = getXaSuiteResult(document);
-			listener.getLogger().println("Result state from suite: " + xaSuiteResult);
+			listener.getLogger().println("Result state from suite: " + xaSuiteResult); //$NON-NLS-1$
 
-			if (!xaSuiteResult.equalsIgnoreCase("SUCCESS"))
+			if (!xaSuiteResult.equalsIgnoreCase("SUCCESS")) //$NON-NLS-1$
 			{
 				result = -1;
 			}
@@ -157,19 +157,19 @@ public class TotalTestCTRunner
 			if (result != -1 && tttBuilder.getCcThreshhold() > 0)
 			{
 				listener.getLogger().println(
-						"The suite executed successfully, now checking that code coverage level is higher than the treshhold on "
-								+ tttBuilder.getCcThreshhold() + " %");
+						"The suite executed successfully, now checking that code coverage level is higher than the treshhold on " //$NON-NLS-1$
+								+ tttBuilder.getCcThreshhold() + " %"); //$NON-NLS-1$
 				boolean isCCThresholdOk = getXaSuiteCodeCoverage(document);
 				if (!isCCThresholdOk)
 				{
-					listener.getLogger().println("Code coverage treshhold not reached");
+					listener.getLogger().println("Code coverage treshhold not reached"); //$NON-NLS-1$
 					result = -1;
 				}
 			}
 		}
 		catch (Exception e)
 		{
-			listener.getLogger().println("Exception in parsing XaSuiteResult. " + e.getMessage());
+			listener.getLogger().println("Exception in parsing XaSuiteResult. " + e.getMessage()); //$NON-NLS-1$
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
@@ -194,8 +194,8 @@ public class TotalTestCTRunner
 
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath xpath = xpf.newXPath();
-		Element xaSuiteResultElement = (Element) xpath.evaluate("/XaSuiteResult", document, XPathConstants.NODE);
-		resultType = xaSuiteResultElement.getAttribute("resultType");
+		Element xaSuiteResultElement = (Element) xpath.evaluate("/XaSuiteResult", document, XPathConstants.NODE); //$NON-NLS-1$
+		resultType = xaSuiteResultElement.getAttribute("resultType"); //$NON-NLS-1$
 
 		return resultType;
 	}
@@ -206,25 +206,25 @@ public class TotalTestCTRunner
 
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath xpath = xpf.newXPath();
-		Element percentageElement = (Element) xpath.evaluate("/XaSuiteResult/CC/data", document, XPathConstants.NODE);
+		Element percentageElement = (Element) xpath.evaluate("/XaSuiteResult/CC/data", document, XPathConstants.NODE); //$NON-NLS-1$
 
 		if (percentageElement != null)
 		{
-			String sPercentage = percentageElement.getAttribute("percentage");
+			String sPercentage = percentageElement.getAttribute("percentage"); //$NON-NLS-1$
 
 			int percentage = Integer.parseInt(sPercentage);
 
 			if (percentage < tttBuilder.getCcThreshhold())
 			{
-				listener.getLogger().println("XaUnitResult percentage on " + sPercentage
-						+ " is less than Code Coverage threshold on " + tttBuilder.getCcThreshhold() + ". Aborting build.");
+				listener.getLogger().println("XaUnitResult percentage on " + sPercentage //$NON-NLS-1$
+						+ " is less than Code Coverage threshold on " + tttBuilder.getCcThreshhold() + ". Aborting build."); //$NON-NLS-1$ //$NON-NLS-2$
 				isCCThresholdOk = false;
 			}
 
 			if (isCCThresholdOk)
 			{
-				listener.getLogger().println("XaUnitResults Code Coverage threshold is " + tttBuilder.getCcThreshhold()
-						+ " which is below the result on " + sPercentage);
+				listener.getLogger().println("XaUnitResults Code Coverage threshold is " + tttBuilder.getCcThreshhold() //$NON-NLS-1$
+						+ " which is below the result on " + sPercentage); //$NON-NLS-1$
 			}
 		}
 
@@ -233,101 +233,102 @@ public class TotalTestCTRunner
 	
 	private void addArguments(final ArgumentListBuilder args, final TaskListener listener)
 	{
-		args.add("-e").add(tttBuilder.getEnvironmentId(), false);
+		args.add("-e").add(tttBuilder.getEnvironmentId(), false); //$NON-NLS-1$
 
 		String tttServerUrl = tttBuilder.getServerUrl();
 
-		if (!tttServerUrl.endsWith("/"))
+		if (!tttServerUrl.endsWith("/")) //$NON-NLS-1$
 		{
-			tttServerUrl += "/";
+			tttServerUrl += "/"; //$NON-NLS-1$
 		}
 
-		tttServerUrl += TOTAL_TEST_WEBAPP + "/";
-		listener.getLogger().println("Set the repository URL : " + tttServerUrl);
+		tttServerUrl += TOTAL_TEST_WEBAPP + "/"; //$NON-NLS-1$
+		listener.getLogger().println("Set the repository URL : " + tttServerUrl); //$NON-NLS-1$
 
-		args.add("-s").add(tttServerUrl, false);
-		args.add("-u").add(
+		args.add("-s").add(tttServerUrl, false); //$NON-NLS-1$
+		args.add("-u").add( //$NON-NLS-1$
 				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
 				false);
-		args.add("-p").add(
+		args.add("-p").add( //$NON-NLS-1$
 				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword(), true);
 
 		String folder = tttBuilder.getFolderPath();
-		final String relativePath = "."; //NON-NLS-1$
+		final String relativePath = "."; //NON-NLS-1$ //$NON-NLS-1$
 		if (folder == null || folder.isEmpty() || folder.trim().isEmpty())
 		{
 			folder = relativePath;
 		}
 
-		listener.getLogger().println("The folder path: " + folder);
-		args.add("-f").add(folder, false);
+		listener.getLogger().println("The folder path: " + folder); //$NON-NLS-1$
+		args.add("-f").add(folder, false); //$NON-NLS-1$
 
 		String workDir = workspaceFilePath.getRemote();
-		FilePath remoteWorkDir = new FilePath(vChannel, workDir);
-		FilePath remoteFolderPath = new FilePath(vChannel, folder);
-		
-		File fRemoteWorkDir = new File(remoteWorkDir.getRemote());
-		File fFolderPath = new File(remoteFolderPath.getRemote());
+//		FilePath remoteWorkDir = new FilePath(vChannel, workDir);
+//		FilePath remoteFolderPath = new FilePath(vChannel, folder);
+//		
+//		File fRemoteWorkDir = new File(remoteWorkDir.getRemote()); // Don't use getRemote() here since this is already the remote.
+//		File fFolderPath = new File(remoteFolderPath.getRemote()); // Don't use getRemote() here since this is already the remote.
 
-		if (!folder.startsWith(relativePath))
-		{
+		File fFolderPath = new File(folder);
+//		if (!folder.startsWith(relativePath))
+//		{
+//			if (!fFolderPath.isAbsolute())
+//			{
+//				args.add("-r").add(workDir); //$NON-NLS-1$
+//				listener.getLogger().println("Set the root folder : " + workDir); //$NON-NLS-1$
+//			}
+//			else
+//			{
+//				listener.getLogger().println("Absolute folder used for the Root folder : " + folder); //$NON-NLS-1$
+//			}
+//		}
+//		else
+//		{
 			if (!fFolderPath.isAbsolute())
 			{
-				args.add("-r").add(fRemoteWorkDir);
-				listener.getLogger().println("Set the root folder : " + fRemoteWorkDir); //$NON-NLS-1$
+				args.add("-r").add(workDir); //$NON-NLS-1$
+				listener.getLogger().println("Set the root folder : " + workDir); //$NON-NLS-1$
 			}
 			else
 			{
-				listener.getLogger().println("Absolute folder used for the Root folder : " + fFolderPath); //$NON-NLS-1$
+				listener.getLogger().println("Absolute folder used for the Root folder : " + folder); //$NON-NLS-1$
 			}
-		}
-		else
-		{
-			if (!fFolderPath.isAbsolute())
-			{
-				args.add("-r").add(fRemoteWorkDir);
-				listener.getLogger().println("Set the root folder : " + fRemoteWorkDir); //$NON-NLS-1$
-			}
-			else
-			{
-				listener.getLogger().println("Absolute folder used for the Root folder : " + fFolderPath); //$NON-NLS-1$
-			}
-		}
+//		}
 
 		if (tttBuilder.getRecursive())
 		{
-			args.add("-R");
+			args.add("-R"); //$NON-NLS-1$
 		}
 
 		if (tttBuilder.getUploadToServer())
 		{
-			args.add("-x");
+			args.add("-x"); //$NON-NLS-1$
 		}
 
 		if (tttBuilder.getHaltAtFailure())
 		{
-			args.add("-h");
+			args.add("-h"); //$NON-NLS-1$
 		}
 
-		if (!Strings.isNullOrEmpty(tttBuilder.getSourceFolder()) && !tttBuilder.getSourceFolder().equalsIgnoreCase("COBOL"))
+		if (!Strings.isNullOrEmpty(tttBuilder.getSourceFolder()) && !tttBuilder.getSourceFolder().equalsIgnoreCase("COBOL")) //$NON-NLS-1$
 		{
-			args.add("-S").add(tttBuilder.getSourceFolder());
+			args.add("-S").add(tttBuilder.getSourceFolder()); //$NON-NLS-1$
 		}
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getReportFolder()))
 		{
-			args.add("-g").add(tttBuilder.getReportFolder());
-			args.add("-G");
+			args.add("-g").add(tttBuilder.getReportFolder()); //$NON-NLS-1$
+			args.add("-G"); //$NON-NLS-1$
 		}
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getSonarVersion()))
 		{
-			args.add("-v").add(tttBuilder.getSonarVersion());
+			args.add("-v").add(tttBuilder.getSonarVersion()); //$NON-NLS-1$
 		}
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getAccountInfo()))
 		{
-			args.add("-a").add(tttBuilder.getAccountInfo());
+			args.add("-a").add(tttBuilder.getAccountInfo()); //$NON-NLS-1$
 		}
 
 	}
@@ -353,7 +354,7 @@ public class TotalTestCTRunner
 
 		String ffolder = tttBuilder.getFolderPath();
 
-		if (ffolder != null && !ffolder.isEmpty() && !".".equals(ffolder))
+		if (ffolder != null && !ffolder.isEmpty() && !".".equals(ffolder)) //$NON-NLS-1$
 		{
 			File theFolder = new File(ffolder);
 			if (theFolder.isAbsolute() && theFolder.isDirectory())
@@ -364,11 +365,11 @@ public class TotalTestCTRunner
 
 		if (!workDir.exists())
 		{
-			throw new FileNotFoundException("workDir location does not exist. Location: " + workDir.getRemote());
+			throw new FileNotFoundException("workDir location does not exist. Location: " + workDir.getRemote()); //$NON-NLS-1$
 		}
 
 		String filenameAndPath = workDir.getRemote();
-		listener.getLogger().println("worspace path: " + filenameAndPath);
+		listener.getLogger().println("worspace path: " + filenameAndPath); //$NON-NLS-1$
 
 		if (tttBuilder.getReportFolder() != null && tttBuilder.getReportFolder().trim().length() > 0)
 		{
@@ -382,24 +383,24 @@ public class TotalTestCTRunner
 				filenameAndPath = filenameAndPath + remoteFileSeparator + tttBuilder.getReportFolder().trim();
 			}
 		}
-		listener.getLogger().println("Search " + osFile + " from the folder path: " + filenameAndPath);
+		listener.getLogger().println("Search " + osFile + " from the folder path: " + filenameAndPath); //$NON-NLS-1$ //$NON-NLS-2$
 		File theFolder = new File(filenameAndPath);
 		String fileFound = searchFileFromDir(theFolder, osFile);
 
 		if (fileFound != null)
 		{
 			filenameAndPath = fileFound;
-			listener.getLogger().println("Founded file path: " + filenameAndPath);
+			listener.getLogger().println("Founded file path: " + filenameAndPath); //$NON-NLS-1$
 		}
 		else
 		{
 			filenameAndPath = filenameAndPath + remoteFileSeparator + osFile;
-			listener.getLogger().println("The file path: " + filenameAndPath + " is missing.");
+			listener.getLogger().println("The file path: " + filenameAndPath + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		VirtualChannel vChannel = launcher.getChannel();
 		remoteFile = new FilePath(vChannel, filenameAndPath);
-		listener.getLogger().println("TotalTest  CLI script file remote path: " + remoteFile.getRemote());
+		listener.getLogger().println("TotalTest  CLI script file remote path: " + remoteFile.getRemote()); //$NON-NLS-1$
 
 		return remoteFile;
 	}

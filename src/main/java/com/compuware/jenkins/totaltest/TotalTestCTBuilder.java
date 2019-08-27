@@ -244,7 +244,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener)
 			throws InterruptedException, IOException
 	{
-		listener.getLogger().println("Running " + Messages.displayName() + "\n");
+		listener.getLogger().println("Running " + Messages.displayName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		try
 		{
@@ -254,12 +254,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			boolean success = runner.run(build, launcher, workspace, listener);
 			if (success == false)
 			{
-				listener.error("Test failure");
-				throw new AbortException("Test failure");
+				listener.error("Test failure"); //$NON-NLS-1$
+				throw new AbortException("Test failure"); //$NON-NLS-1$
 			}
 			else
 			{
-				listener.getLogger().println("Test Success...");
+				listener.getLogger().println("Test Success..."); //$NON-NLS-1$
 			}
 
 		}
@@ -284,22 +284,22 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	{
 		if (!getEnvironmentId().isEmpty())
 		{
-			listener.getLogger().println("environmentId = " + environmentId);
+			listener.getLogger().println("environmentId = " + environmentId); //$NON-NLS-1$
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"Missing parameter Environment Id - please get the environment ID from the repository server");
+					"Missing parameter Environment Id - please get the environment ID from the repository server"); //$NON-NLS-1$
 		}
 
 		if (!getServerUrl().isEmpty())
 		{
-			listener.getLogger().println("serverUrl = " + serverUrl);
+			listener.getLogger().println("serverUrl = " + serverUrl); //$NON-NLS-1$
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"Missing parameter CES server URL - please use the Compuware configuration tool to configure");
+					"Missing parameter CES server URL - please use the Compuware configuration tool to configure"); //$NON-NLS-1$
 		}
 
 		if (!getCredentialsId().isEmpty())
@@ -307,40 +307,40 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 			if (TotalTestRunnerUtils.getLoginInformation(project, getCredentialsId()) != null)
 			{
-				listener.getLogger().println("Credentials entered...");
+				listener.getLogger().println("Credentials entered..."); //$NON-NLS-1$
 			}
 			else
 			{
 				throw new IllegalArgumentException(
-						"Credential ID entered is not valid - enter valid ID from Jenkins Credentials plugin");
+						"Credential ID entered is not valid - enter valid ID from Jenkins Credentials plugin"); //$NON-NLS-1$
 			}
 		}
 		else
 		{
-			throw new IllegalArgumentException("Missing Credentials ID - configure plugin correctly");
+			throw new IllegalArgumentException("Missing Credentials ID - configure plugin correctly"); //$NON-NLS-1$
 		}
 		
 		if (!getAccountInfo().isEmpty() && getAccountInfo().length() > MAX_ACCOUNTING_LEN)
 		{
-			throw new IllegalArgumentException("Entered accounting information is greater than 52 characters.");
+			throw new IllegalArgumentException("Entered accounting information is greater than 52 characters."); //$NON-NLS-1$
 		}
 
-		listener.getLogger().println("ccThreshhold = " + ccThreshhold);
+		listener.getLogger().println("ccThreshhold = " + ccThreshhold); //$NON-NLS-1$
 	}
 
 	@Symbol("totaltest")
 	@Extension
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder>
 	{
-		public static final String defaultFolderPath = "";
+		public static final String defaultFolderPath = ""; //$NON-NLS-1$
 		public static final int defaultCCThreshhold = 0;
-		public static final String defaultSourceFolder = "COBOL";
-		public static final String defaultReportFolder = "TTTReport";
+		public static final String defaultSourceFolder = "COBOL"; //$NON-NLS-1$
+		public static final String defaultReportFolder = "TTTReport"; //$NON-NLS-1$
 		public static final Boolean defaultRecursive = true;
 		public static final Boolean defaultStopIfTestFailsOrThresholdReached = true;
 		public static final Boolean defaultUploadToServer = false;
 		public static final Boolean defaultHaltAtFailure = false;
-		public static final String defaultAccountInfo = "";
+		public static final String defaultAccountInfo = ""; //$NON-NLS-1$
 
 		/**
 		 * Validates for the 'CcThreshhold' field
@@ -503,7 +503,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 			StandardListBoxModel model = new StandardListBoxModel();
 
-			model.add(new Option("", "", false));
+			model.add(new Option("", "", false)); //$NON-NLS-1$ //$NON-NLS-2$
 
 			for (StandardUsernamePasswordCredentials c : creds)
 			{
@@ -515,7 +515,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 				}
 
 				String description = Util.fixEmptyAndTrim(c.getDescription());
-				model.add(new Option(c.getUsername() + (description != null ? " (" + description + ")" : ""), c.getId(),
+				model.add(new Option(c.getUsername() + (description != null ? " (" + description + ")" : ""), c.getId(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						isSelected));
 			}
 
@@ -535,7 +535,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		{
 
 			ListBoxModel model = new ListBoxModel();
-			model.add(new Option("", "", false));
+			model.add(new Option("", "", false)); //$NON-NLS-1$ //$NON-NLS-2$
 			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
 			if (globalConfig != null)
 			{
