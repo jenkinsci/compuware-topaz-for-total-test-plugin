@@ -45,8 +45,8 @@ public class TotalTestRunnerUtils
 	private static final String ASTERISK = "*"; //$NON-NLS-1$
 	private static final String COMMA = ","; //$NON-NLS-1$
 	private static final String COLON = ":"; //$NON-NLS-1$
-	private static final String DOUBLE_QUOTE = "\"";
-	private static final String DOUBLE_QUOTE_ESCAPED = "\"\"";
+	private static final String DOUBLE_QUOTE = "\""; //$NON-NLS-1$
+	private static final String DOUBLE_QUOTE_ESCAPED = "\"\""; //$NON-NLS-1$
 	
 	private static final String ALL_SCENARIOS = "ALL_SCENARIOS"; //$NON-NLS-1$
 	private static final String ALL_SUITES = "ALL_SUITES"; //$NON-NLS-1$
@@ -261,7 +261,7 @@ public class TotalTestRunnerUtils
 	 */
 	public static void logJenkinsAndPluginVersion(final TaskListener listener)
 	{
-		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION);
+		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION); //$NON-NLS-1$
 		Jenkins jenkinsInstance = Jenkins.getInstance();
 		if (jenkinsInstance != null) //NOSONAR
 		{
@@ -346,7 +346,7 @@ public class TotalTestRunnerUtils
 		{
 			if (topazWorkbenchCLIPath.exists() == false) //NOSONAR
 			{
-		       	throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + topazWorkbenchCLIPath.getRemote() + ". Check 'Compuware Configuration' section under 'Configure System'");  //NOSONAR
+		       	throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + topazWorkbenchCLIPath.getRemote() + ". Check 'Compuware Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$  //$NON-NLS-2$
 			}
 			
 			String cliScriptFile = topazWorkbenchCLIPath.getRemote()  + fileSeparator + osScriptFile;
