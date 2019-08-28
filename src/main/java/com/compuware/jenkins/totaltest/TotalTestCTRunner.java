@@ -263,37 +263,17 @@ public class TotalTestCTRunner
 		args.add("-f").add(folder, false); //$NON-NLS-1$
 
 		String workDir = workspaceFilePath.getRemote();
-//		FilePath remoteWorkDir = new FilePath(vChannel, workDir);
-//		FilePath remoteFolderPath = new FilePath(vChannel, folder);
-//		
-//		File fRemoteWorkDir = new File(remoteWorkDir.getRemote()); // Don't use getRemote() here since this is already the remote.
-//		File fFolderPath = new File(remoteFolderPath.getRemote()); // Don't use getRemote() here since this is already the remote.
-
 		File fFolderPath = new File(folder);
-//		if (!folder.startsWith(relativePath))
-//		{
-//			if (!fFolderPath.isAbsolute())
-//			{
-//				args.add("-r").add(workDir); //$NON-NLS-1$
-//				listener.getLogger().println("Set the root folder : " + workDir); //$NON-NLS-1$
-//			}
-//			else
-//			{
-//				listener.getLogger().println("Absolute folder used for the Root folder : " + folder); //$NON-NLS-1$
-//			}
-//		}
-//		else
-//		{
-			if (!fFolderPath.isAbsolute())
-			{
-				args.add("-r").add(workDir); //$NON-NLS-1$
-				listener.getLogger().println("Set the root folder : " + workDir); //$NON-NLS-1$
-			}
-			else
-			{
-				listener.getLogger().println("Absolute folder used for the Root folder : " + folder); //$NON-NLS-1$
-			}
-//		}
+		
+		if (!fFolderPath.isAbsolute())
+		{
+			args.add("-r").add(workDir); //$NON-NLS-1$
+			listener.getLogger().println("Set the root folder : " + workDir); //$NON-NLS-1$
+		}
+		else
+		{
+			listener.getLogger().println("Absolute folder used for the Root folder : " + folder); //$NON-NLS-1$
+		}
 
 		if (tttBuilder.getRecursive())
 		{

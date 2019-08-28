@@ -18,23 +18,27 @@
 package com.compuware.jenkins.totaltest;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
 import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
 import com.compuware.jenkins.common.configuration.HostConnection;
+import com.compuware.jenkins.common.utils.CLIVersionUtils;
 
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Plugin;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import hudson.util.ArgumentListBuilder;
+import jenkins.model.Jenkins;
 
 public class TotalTestRunner
 {
-	public static final String TTT_MINIMUM_CLI_VERSION = "18.2.4";
+	public static final String TTT_MINIMUM_CLI_VERSION = "18.2.4"; //$NON-NLS-1$
 	
 	private static final String COMMA = ","; //$NON-NLS-1$
 	
@@ -111,31 +115,31 @@ public class TotalTestRunner
         Properties remoteProperties = vChannel.call(new RemoteSystemProperties());
         String remoteFileSeparator = remoteProperties.getProperty(PROPERTY_FILE_SEPARATOR);
         
-		boolean isLinux = launcher.isUnix();
-		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
+		boolean isShell = launcher.isUnix();
+		String osScriptFile = isShell ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
 		
-		TotalTestRunnerUtils.logJenkinsAndPluginVersion(listener);
+		logJenkinsAndPluginVersion(listener);
 		
-		FilePath cliScriptPath = TotalTestRunnerUtils.getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile, TTT_MINIMUM_CLI_VERSION);
+		FilePath cliScriptPath = getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile);
 		
 		args.add(cliScriptPath.getRemote());
 		
 		String topazCliWorkspace = workspaceFilePath.getRemote() + remoteFileSeparator + TOPAZ_CLI_WORKSPACE;
 		listener.getLogger().println("Topaz for Total Test CLI workspace: " + topazCliWorkspace); //$NON-NLS-1$
 		
-		addArgument(args, COMMAND, RUNTEST, isLinux);
+		addArgument(args, COMMAND, RUNTEST, isShell);
 		
 		args.add(JENKINS);
 		
-		addHostArguments(build, args, isLinux);
+		addHostArguments(build, args, isShell);
 		
-		addProjectArguments(launcher, workspaceFilePath.getRemote() + remoteFileSeparator, args, isLinux);
+		addProjectArguments(launcher, workspaceFilePath.getRemote() + remoteFileSeparator, args, isShell);
 	
-		addExecutionArguments(args, isLinux);
+		addExecutionArguments(args, isShell);
 		
-		addCodeCoverageArguments(args, isLinux);
+		addCodeCoverageArguments(args, isShell);
 		
-		addExternalToolArguments(workspaceFilePath, args, isLinux);
+		addExternalToolArguments(workspaceFilePath, args, isShell);
 		
 		args.add(DATA, topazCliWorkspace);
 		
@@ -143,9 +147,90 @@ public class TotalTestRunner
 		workDir.mkdirs();
 		int exitValue = launcher.launch().cmds(args).envs(env).stdout(listener.getLogger()).pwd(workDir).join();
 
-		listener.getLogger().println(osScriptFile + " exited with exit value = " + exitValue); //$NON-NLS-1$ //$NON-NLS-2$
+		listener.getLogger().println(osScriptFile + " exited with exit value = " + exitValue); //$NON-NLS-1$
 
 		return exitValue == 0;
+	}
+	
+	/**
+	 * Returns the path to the script to execute Total Test CLI
+	 * 
+	 * @param launcher
+	 *            The machine that the files will be checked out.
+	 *            
+	 * @return	An instance of <code>FilePath</code> for the CLI directory
+	 * 
+	 * @throws IOException
+	 * 			If the CLI directory does not exist.
+	 * @throws InterruptedException
+	 * 			If unable to get CLI directory.
+	 */
+	private FilePath getCLIScriptPath(final Launcher launcher, final TaskListener listener, String remoteFileSeparator, String osScriptFile) throws IOException, InterruptedException
+	{
+		FilePath cliBatchFileRemote = null;
+		FilePath globalCLIDirectory = null;
+		CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+		if (globalConfig != null)
+		{
+			String cliDirectoryName = globalConfig.getTopazCLILocation(launcher);
+			if (cliDirectoryName != null)
+			{
+		        VirtualChannel vChannel = launcher.getChannel();
+				globalCLIDirectory = new FilePath(vChannel,cliDirectoryName);
+			}
+		}
+		
+		if (globalCLIDirectory == null)
+		{
+        	throw new FileNotFoundException("ERROR: Topaz Workench CLI location was not specified. Check 'Compuware Configuration' section under 'Configure System'"); //$NON-NLS-1$
+		}
+		else
+		{
+			if (globalCLIDirectory.exists() == false) //NOSONAR
+			{
+		       	throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + globalCLIDirectory.getRemote() + ". Check 'Compuware Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$ //$NON-NLS-2$
+			}
+
+			String cliScriptFile = globalCLIDirectory  + remoteFileSeparator + osScriptFile;
+			listener.getLogger().println("Topaz for Total Test CLI script file path: " + cliScriptFile); //$NON-NLS-1$
+			
+	        VirtualChannel vChannel = launcher.getChannel();
+			cliBatchFileRemote = new FilePath(vChannel, cliScriptFile);
+			listener.getLogger().println("Topaz for Total Test CLI script file remote path: " + cliBatchFileRemote.getRemote()); //$NON-NLS-1$
+			
+			String cliVersion = CLIVersionUtils.getCLIVersion(globalCLIDirectory, TTT_MINIMUM_CLI_VERSION);
+			CLIVersionUtils.checkCLICompatibility(cliVersion, TTT_MINIMUM_CLI_VERSION);
+		}
+		
+		return cliBatchFileRemote;
+	}
+	
+	/**
+	 * Logs the Jenkins and Total Test Plugin versions
+	 * 
+	 * @param listener
+	 *            Build listener
+	 */
+	private void logJenkinsAndPluginVersion(final TaskListener listener)
+	{
+		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION); //$NON-NLS-1$
+		Jenkins jenkinsInstance = Jenkins.getInstance();
+		if (jenkinsInstance != null) //NOSONAR
+		{
+			Plugin pluginV1 = jenkinsInstance.getPlugin("compuware-topaz-for-total-test"); //$NON-NLS-1$
+			if (pluginV1 != null)
+			{
+				listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion());  //$NON-NLS-1$  //$NON-NLS-2$
+			}
+			else
+			{
+				Plugin pluginV2 = jenkinsInstance.getPlugin("compuware-totaltest");  //$NON-NLS-1$
+				if (pluginV2 != null)
+				{
+					listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$  //$NON-NLS-2$
+				}
+			}
+		}
 	}
 	
 	/**
@@ -187,7 +272,7 @@ public class TotalTestRunner
 		
 		if ((connection == null) && (tttBuilder.getHostPort() == null)) //NOSONAR
 		{
-			throw new IOException("ERROR: No host connection defined. Check project and global configurations to unsure host connection is set.");
+			throw new IOException("ERROR: No host connection defined. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
 		}
 		else if (connection != null)
 		{
@@ -202,12 +287,12 @@ public class TotalTestRunner
 			
 			if (protocol == null || protocol.isEmpty())
 			{
-				protocol = "None"; //NOSONAR
+				protocol = "None"; //NOSONAR //$NON-NLS-1$
 			}
 		}
 		else if (tttBuilder.getHostPort() != null) //NOSONAR
 		{
-			String[] hostAndPort = tttBuilder.getHostPort().split(":"); //NOSONAR
+			String[] hostAndPort = tttBuilder.getHostPort().split(":"); //NOSONAR //$NON-NLS-1$
 			if (hostAndPort.length == 2)
 			{
 				host = hostAndPort[0];
@@ -215,7 +300,7 @@ public class TotalTestRunner
 			}
 			else
 			{
-				throw new IOException("ERROR: Invalid host information. Check project and global configurations to unsure host connection is set.");
+				throw new IOException("ERROR: Invalid host information. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
 			}
 		}
 		
@@ -247,41 +332,42 @@ public class TotalTestRunner
 	private void addProjectArguments(final Launcher launcher, final String workspaceFilePath, final ArgumentListBuilder args, final boolean isShell) throws IOException, InterruptedException
 	{
 		FilePath projectPath = null;
+		String projectFolder = tttBuilder.getProjectFolder();
 		
-		if (tttBuilder.getProjectFolder() != null)
+		if (projectFolder != null)
 		{
-			File projectFile = new File(tttBuilder.getProjectFolder());
-			if (projectFile.isAbsolute())
+			VirtualChannel vChannel = launcher.getChannel();
+			FilePath remoteProjectFolder = new FilePath(vChannel, projectFolder);
+			boolean isAbsolute = remoteProjectFolder.absolutize().getRemote().equalsIgnoreCase(remoteProjectFolder.getRemote());
+			
+			if (isAbsolute)
 			{
-				VirtualChannel vChannel = launcher.getChannel();
-				FilePath absProjectPath = new FilePath(vChannel, projectFile.getAbsolutePath());
-				if (absProjectPath.exists() && absProjectPath.isDirectory())
+				if (remoteProjectFolder.exists() && remoteProjectFolder.isDirectory())
 				{
-					projectPath = absProjectPath;
+					projectPath = remoteProjectFolder;
 				}
 				else
 				{
-					throw new IOException("ERROR: Test Project Folder '" + projectFile.getAbsolutePath() + "' does not exist or is not a directory.");
+					throw new IOException("ERROR: Test Project Folder '" + remoteProjectFolder.getRemote() + "' does not exist or is not a directory.");  //$NON-NLS-1$//$NON-NLS-2$
 				}
 			}
 			else
 			{
-				VirtualChannel vChannel = launcher.getChannel();
-				File workspaceProjecFile = new File(workspaceFilePath + tttBuilder.getProjectFolder());
-				FilePath workspaceProjectPath = new FilePath(vChannel, workspaceProjecFile.getAbsolutePath());
-				if (workspaceProjectPath.exists() && workspaceProjectPath.isDirectory())
+				FilePath workspaceProjectPath = new FilePath(vChannel, workspaceFilePath + projectFolder);
+				FilePath absolutizeWorkspaceProjectPath = workspaceProjectPath.absolutize();
+				if (absolutizeWorkspaceProjectPath.exists() && absolutizeWorkspaceProjectPath.isDirectory())
 				{
-					projectPath = workspaceProjectPath;
+					projectPath = absolutizeWorkspaceProjectPath;
 				}
 				else
 				{
-					throw new IOException("ERROR: Test Project Folder '" + workspaceProjecFile + "' does not exist or is not a directory.");
+					throw new IOException("ERROR: Test Project Folder '" + absolutizeWorkspaceProjectPath.getRemote() + "' does not exist or is not a directory."); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
 		else
 		{
-			throw new IOException("ERROR: 'Test Project Folder' was not specified.");
+			throw new IOException("ERROR: 'Test Project Folder' was not specified."); //$NON-NLS-1$
 		}
 		
 		addArgument(args,PROJECT, projectPath.getRemote(), isShell);
