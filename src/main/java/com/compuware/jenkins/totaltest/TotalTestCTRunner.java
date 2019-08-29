@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -47,32 +48,55 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestCTRunner
 {
-	private  static final String TTT_MINIMUM_CLI_VERSION = "19.5.1"; //$NON-NLS-1$
+	private  static final String TTT_MINIMUM_CLI_VERSION = "19.5.3"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_WEBAPP = "totaltestapi"; //$NON-NLS-1$
 
 	private final TotalTestCTBuilder tttBuilder;
 
-	private Properties remoteProperties;
 	private String remoteFileSeparator;
-	private VirtualChannel vChannel;
 	private TaskListener listener;
 	private FilePath workspaceFilePath;
 	private Run<?, ?> build;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param tttBuilder
+	 * 			  An instance of <code>TotalTestCTBuilder</code> containing the arguments.
+	 */
 	public TotalTestCTRunner(TotalTestCTBuilder tttBuilder)
 	{
 		this.tttBuilder = tttBuilder;
 	}
 
+	/**
+	 * Runs the Total Test Functional Test CLI
+	 * 
+	 * @param build
+	 *			  The current running Jenkins build
+	 * @param launcher
+	 *            The machine that the files will be checked out.
+	 * @param workspaceFilePath
+	 *            a directory to check out the source code.
+	 * @param listener
+	 *            Build listener
+	 *            
+	 * @return <code>boolean</code> if the build was successful
+	 * 
+	 * @throws IOException
+	 * 			If an error occurred execute Total Test run.
+	 * @throws InterruptedException
+	 * 			If the Total Test run was interrupted.
+	 */
 	public boolean run(final Run<?, ?> build, final Launcher launcher, final FilePath workspaceFilePath,
 			final TaskListener listener) throws IOException, InterruptedException
 	{
 		// initialization
 		ArgumentListBuilder args = new ArgumentListBuilder();
 		EnvVars env = build.getEnvironment(listener);
-		vChannel = launcher.getChannel();
+		VirtualChannel vChannel = launcher.getChannel();
 		if (vChannel == null)
 		{
 			listener.getLogger().println("Error: No channel could be retrieved"); //$NON-NLS-1$
@@ -81,7 +105,7 @@ public class TotalTestCTRunner
 		this.listener = listener;
 		this.workspaceFilePath = workspaceFilePath;
 		this.build = build;
-		remoteProperties = vChannel.call(new RemoteSystemProperties());
+		Properties remoteProperties = vChannel.call(new RemoteSystemProperties());
 		remoteFileSeparator = remoteProperties.getProperty("file.separator"); //$NON-NLS-1$
 
 		boolean isLinux = launcher.isUnix();
@@ -131,12 +155,23 @@ public class TotalTestCTRunner
 		return exitValue == 0;
 	}
 
+	/**
+	 * Read the test results
+	 * 
+	 * @param launcher
+	 *              The machine that the files will be checked out..
+	 *            
+	 * @return		<code>int</code> 0 if the readTestRestult successful, otherwise -1
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException
 	{
 		int result = 0;
 		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, remoteFileSeparator, "generated.cli.xasuiteres"); //$NON-NLS-1$
 		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
-		String content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), "UTF-8"); //$NON-NLS-1$
+		String content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), StandardCharsets.UTF_8);
 
 		listener.getLogger().println("Result content:"); //$NON-NLS-1$
 		listener.getLogger().println(content);
@@ -178,29 +213,57 @@ public class TotalTestCTRunner
 		return result;
 	}
 
-	private Document getXaSuiteResultAsDocument(String xml) throws Exception
+	/**
+	 * Return the results Document.
+	 * 
+	 * @param xml
+	 * 			  The results xml to create results document.
+	 * 
+	 * @return	  <code>Document</code> that is generaged from the result xml
+	 * 
+	 * @throws Exception
+	 */
+	private Document getXaSuiteResultAsDocument(String xml) throws Exception //NOSONAR
 	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Reader r = new StringReader(xml);
-		Document document = db.parse(new InputSource(r));
-
-		return document;
+		return db.parse(new InputSource(r));
 	}
 
-	private String getXaSuiteResult(Document document) throws Exception
+	/**
+	 * Return the Suite results Document.
+	 * 
+	 * @param document
+	 * 			The results document to get the status from.
+	 * 
+	 * @return	 <code>String</code> representing the results.
+	 * 
+	 * @throws Exception
+	 */
+	private String getXaSuiteResult(Document document) throws Exception	//NOSONAR
 	{
 		String resultType = null;
 
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath xpath = xpf.newXPath();
-		Element xaSuiteResultElement = (Element) xpath.evaluate("/XaSuiteResult", document, XPathConstants.NODE); //$NON-NLS-1$
+		Element xaSuiteResultElement = (Element) xpath.evaluate("/XaSuiteResult", document, XPathConstants.NODE); //NOSONAR //$NON-NLS-1$
 		resultType = xaSuiteResultElement.getAttribute("resultType"); //$NON-NLS-1$
 
 		return resultType;
 	}
 
-	private boolean getXaSuiteCodeCoverage(Document document) throws Exception
+	/**
+	 * Return if there is Code Doverage data.
+	 * 
+	 * @param document
+	 * 			Document to look for Code Coverage data.
+	 * 
+	 * @return <code>boolean</code> if the document has Code Coverage data.
+	 * 
+	 * @throws Exception
+	 */
+	private boolean getXaSuiteCodeCoverage(Document document) throws Exception // NOSONAR
 	{
 		boolean isCCThresholdOk = true;
 
@@ -230,7 +293,16 @@ public class TotalTestCTRunner
 
 		return isCCThresholdOk;
 	}
+
 	
+	/**
+	 * Adds an arguments to the argument list.
+	 * 
+	 * @param args
+	 *		  The argument list to add to.
+	 * @param listener
+	 * 		  Build listener
+	 */
 	private void addArguments(final ArgumentListBuilder args, final TaskListener listener)
 	{
 		args.add("-e").add(tttBuilder.getEnvironmentId(), false); //$NON-NLS-1$
@@ -318,8 +390,14 @@ public class TotalTestCTRunner
 	 * 
 	 * @param launcher
 	 *            The machine that the files will be checked out.
-	 * 
-	 * @return An instance of <code>FilePath</code> for the CLI directory
+	 * @param listener
+	 *            Build listener
+	 * @param remoteFileSeparator
+	 * 			  The file seperator on the remote system
+	 * @param osFile
+	 * 			  The file name of the file on the remote system
+	 *            
+	 * @return	  An instance of <code>FilePath</code> for the CLI directory
 	 * 
 	 * @throws IOException
 	 *             If the CLI directory does not exist.
@@ -330,6 +408,7 @@ public class TotalTestCTRunner
 			String osFile) throws IOException, InterruptedException
 	{
 		FilePath remoteFile = null;
+		VirtualChannel vChannel = launcher.getChannel();
 		FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
 
 		String ffolder = tttBuilder.getFolderPath();
@@ -354,7 +433,7 @@ public class TotalTestCTRunner
 		if (tttBuilder.getReportFolder() != null && tttBuilder.getReportFolder().trim().length() > 0)
 		{
 			File reportFolder = new File(tttBuilder.getReportFolder().trim());
-			if (reportFolder != null && reportFolder.isAbsolute() && reportFolder.isDirectory())
+			if (reportFolder.isAbsolute() && reportFolder.isDirectory())
 			{
 				filenameAndPath = new FilePath(vChannel, tttBuilder.getReportFolder().trim()).getRemote();
 			}
@@ -378,7 +457,6 @@ public class TotalTestCTRunner
 			listener.getLogger().println("The file path: " + filenameAndPath + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
-		VirtualChannel vChannel = launcher.getChannel();
 		remoteFile = new FilePath(vChannel, filenameAndPath);
 		listener.getLogger().println("TotalTest  CLI script file remote path: " + remoteFile.getRemote()); //$NON-NLS-1$
 
@@ -389,8 +467,12 @@ public class TotalTestCTRunner
 	 * find a file by name in the folder
 	 * 
 	 * @param file
+	 * 			  The file to search.
+	 * 
 	 * @param search
-	 * @return
+	 * 			  The folder where we should search.
+	 * 
+	 * @return	  <code>String</code> The absolute path to the file.
 	 */
 	private static String searchFileFromDir(File file, String search)
 	{

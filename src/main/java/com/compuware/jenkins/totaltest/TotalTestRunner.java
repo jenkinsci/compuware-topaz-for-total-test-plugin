@@ -28,12 +28,10 @@ import com.compuware.jenkins.common.utils.CLIVersionUtils;
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.Plugin;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import hudson.util.ArgumentListBuilder;
-import jenkins.model.Jenkins;
 
 public class TotalTestRunner
 {
@@ -81,13 +79,19 @@ public class TotalTestRunner
 	
 	private final TotalTestBuilder tttBuilder;
 	
+	/**
+	 * Constructor
+	 * 
+	 * @param tttBuilder
+	 * 			  An instance of <code>TotalTestBuilder</code> containing the arguments.
+	 */
 	public TotalTestRunner(TotalTestBuilder tttBuilder)
 	{
 		this.tttBuilder = tttBuilder;
 	}
 	
 	/**
-	 * Runs the Total Test CLI
+	 * Runs the Total Test Unit Test CLI
 	 * 
 	 * @param build
 	 *			  The current running Jenkins build
@@ -117,7 +121,7 @@ public class TotalTestRunner
 		boolean isLinux = launcher.isUnix();
 		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
 		
-		logJenkinsAndPluginVersion(listener);
+		TotalTestRunnerUtils.logJenkinsAndPluginVersion(listener);
 		
 		FilePath cliScriptPath = getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile);
 		
@@ -156,6 +160,12 @@ public class TotalTestRunner
 	 * 
 	 * @param launcher
 	 *            The machine that the files will be checked out.
+	 * @param listener
+	 *            Build listener
+	 * @param remoteFileSeparator
+	 * 			  The remote file seperator
+	 * @param osScriptFile
+	 * 			  The name of the operating system dependent script file to run.
 	 *            
 	 * @return	An instance of <code>FilePath</code> for the CLI directory
 	 * 
@@ -202,34 +212,6 @@ public class TotalTestRunner
 		}
 		
 		return cliBatchFileRemote;
-	}
-	
-	/**
-	 * Logs the Jenkins and Total Test Plugin versions
-	 * 
-	 * @param listener
-	 *            Build listener
-	 */
-	private void logJenkinsAndPluginVersion(final TaskListener listener)
-	{
-		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION); //$NON-NLS-1$
-		Jenkins jenkinsInstance = Jenkins.getInstance();
-		if (jenkinsInstance != null) //NOSONAR
-		{
-			Plugin pluginV1 = jenkinsInstance.getPlugin("compuware-topaz-for-total-test"); //$NON-NLS-1$
-			if (pluginV1 != null)
-			{
-				listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion());  //$NON-NLS-1$  //$NON-NLS-2$
-			}
-			else
-			{
-				Plugin pluginV2 = jenkinsInstance.getPlugin("compuware-totaltest");  //$NON-NLS-1$
-				if (pluginV2 != null)
-				{
-					listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$  //$NON-NLS-2$
-				}
-			}
-		}
 	}
 	
 	/**
@@ -321,6 +303,10 @@ public class TotalTestRunner
 	 * <li>JCL
 	 * </ul>
 	 * 
+	 * @param launcher
+	 *            The machine that the files will be checked out.
+	 * @param workspaceFilePath
+	 *            a directory to check out the source code.
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
 	 * @param isLinux
@@ -488,8 +474,6 @@ public class TotalTestRunner
 	 * 			The argument value.
 	 * @param isLinux
 	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
-	 * @param mask
-	 * 			<code>true</code> to mask value when output, <code>true</code> to display normally
 	 */
 	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue, final boolean isLinux)
 	{

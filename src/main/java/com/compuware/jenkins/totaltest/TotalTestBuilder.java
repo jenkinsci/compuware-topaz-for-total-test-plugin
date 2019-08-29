@@ -279,7 +279,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	 */
 	public String getCcPgmType()
 	{
-		return (ccPgmType == null || ccPgmType.equals("") ? TOTALTEST : ccPgmType);
+		return (ccPgmType == null || ccPgmType.equals("") ? TOTALTEST : ccPgmType); //$NON-NLS-1$
 	}
 	
 	/**
@@ -665,7 +665,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 				{		
 					return FormValidation.error(Messages.checkHLQLengthError());
 				}
-				else if (trimmedValue.contains(" "))
+				else if (trimmedValue.contains(" ")) //$NON-NLS-1$
 				{
 					return FormValidation.error(Messages.checkHLQSpacesError());
 				}
@@ -697,7 +697,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 			{
 				return FormValidation.error(Messages.checkCCRepoLengthError());
 			}
-			else if (trimmedValue.contains(" "))
+			else if (trimmedValue.contains(" ")) //$NON-NLS-1$
 			{
 				return FormValidation.error(Messages.checkCCRepoSpacesError());
 			}
@@ -811,9 +811,9 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		public ListBoxModel doFillCcPgmTypeItems(@AncestorInPath Jenkins context, @QueryParameter String ccPgmType, @AncestorInPath Item project)
 		{
 			ListBoxModel ccPgmTypeModel = new ListBoxModel();
-			ccPgmTypeModel.add(new Option("Live DB2 - IKJEFT01", DB2, (DB2.equalsIgnoreCase(ccPgmType) ? true : false)));
-			ccPgmTypeModel.add(new Option("Live IMS - DFSRCC00", IMS, (IMS.equalsIgnoreCase(ccPgmType) ? true : false)));
-			ccPgmTypeModel.add(new Option("TotalTest - TTTRUNNR", TOTALTEST, (ccPgmType == null || ccPgmType.equals("") || TOTALTEST.equalsIgnoreCase(ccPgmType) ? true : false)));
+			ccPgmTypeModel.add(new Option("Live DB2 - IKJEFT01", DB2, (DB2.equalsIgnoreCase(ccPgmType) ? true : false))); //NOSONAR //$NON-NLS-1$
+			ccPgmTypeModel.add(new Option("Live IMS - DFSRCC00", IMS, (IMS.equalsIgnoreCase(ccPgmType) ? true : false))); //NOSONAR //$NON-NLS-1$
+			ccPgmTypeModel.add(new Option("TotalTest - TTTRUNNR", TOTALTEST, (ccPgmType == null || ccPgmType.equals("") || TOTALTEST.equalsIgnoreCase(ccPgmType) ? true : false))); //NOSONAR //$NON-NLS-1$ //$NON-NLS-2$
 
 			return ccPgmTypeModel;
 		}
