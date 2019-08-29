@@ -189,7 +189,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * The location of ths Source Folder
 	 * 
-	 * @return	<code>String</code> The value set for the Source folder>.
+	 * @return	<code>String</code> The value set for the Source folder.
 	 */
 	public String getSourceFolder()
 	{
@@ -277,7 +277,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Set the flag to halt when a failure has been detected.
 	 * 
-	 * @param haultAtFailure
+	 * @param haltAtFailure
 	 * 			  <code>true</code> if the test should stop at failure, otherwise <code>false</code>.
 	 */
 	@DataBoundSetter
@@ -313,7 +313,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Set the flag to stop execution of the test if a failure or threashold has been reached.
 	 * 
-	 * @param stopIfTestFailsOrThreasholdReached
+	 * @param stopIfTestFailsOrThresholdReached
 	 * 			  <code>true</code> if if the test should be stopped with failuresy, otherwise <code>false</code>.
 	 */
 	@DataBoundSetter
