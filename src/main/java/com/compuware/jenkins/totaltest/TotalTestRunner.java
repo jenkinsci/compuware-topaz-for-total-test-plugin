@@ -114,8 +114,8 @@ public class TotalTestRunner
         Properties remoteProperties = vChannel.call(new RemoteSystemProperties());
         String remoteFileSeparator = remoteProperties.getProperty(PROPERTY_FILE_SEPARATOR);
         
-		boolean isShell = launcher.isUnix();
-		String osScriptFile = isShell ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
+		boolean isLinux = launcher.isUnix();
+		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
 		
 		logJenkinsAndPluginVersion(listener);
 		
@@ -126,19 +126,19 @@ public class TotalTestRunner
 		String topazCliWorkspace = workspaceFilePath.getRemote() + remoteFileSeparator + TOPAZ_CLI_WORKSPACE;
 		listener.getLogger().println("Topaz for Total Test CLI workspace: " + topazCliWorkspace); //$NON-NLS-1$
 		
-		addArgument(args, COMMAND, RUNTEST, isShell);
+		addArgument(args, COMMAND, RUNTEST, isLinux);
 		
 		args.add(JENKINS);
 		
-		addHostArguments(build, args, isShell);
+		addHostArguments(build, args, isLinux);
 		
-		addProjectArguments(launcher, workspaceFilePath.getRemote() + remoteFileSeparator, args, isShell);
+		addProjectArguments(launcher, workspaceFilePath.getRemote() + remoteFileSeparator, args, isLinux);
 	
-		addExecutionArguments(args, isShell);
+		addExecutionArguments(args, isLinux);
 		
-		addCodeCoverageArguments(args, isShell);
+		addCodeCoverageArguments(args, isLinux);
 		
-		addExternalToolArguments(workspaceFilePath, args, isShell);
+		addExternalToolArguments(workspaceFilePath, args, isLinux);
 		
 		args.add(DATA, topazCliWorkspace);
 		
@@ -248,14 +248,14 @@ public class TotalTestRunner
 	 *			  The current running Jenkins build
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isShell
+	 * @param isLinux
 	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 * 
 	 * @throws IOException
 	 * 			If not host connection defined.
 	 */
 	@SuppressWarnings("deprecation")
-	private void addHostArguments(final Run<?,?> build, final ArgumentListBuilder args, final boolean isShell) throws IOException
+	private void addHostArguments(final Run<?,?> build, final ArgumentListBuilder args, final boolean isLinux) throws IOException
 	{
 		String host = null;
 		String port = null;
@@ -303,12 +303,12 @@ public class TotalTestRunner
 			}
 		}
 		
-		addArgument(args, HOST, host, isShell);
-		addArgument(args, PORT, port, isShell);
-		addArgument(args, TARGET_ENCODING, codePage, isShell);
-		addArgument(args, PROTOCOL, protocol, isShell);
-		addArgument(args, USER, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(), isShell);
-		addArgument(args, PASSWORD, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword().getPlainText(), isShell, true);
+		addArgument(args, HOST, host, isLinux);
+		addArgument(args, PORT, port, isLinux);
+		addArgument(args, TARGET_ENCODING, codePage, isLinux);
+		addArgument(args, PROTOCOL, protocol, isLinux);
+		addArgument(args, USER, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(), isLinux);
+		addArgument(args, PASSWORD, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword().getPlainText(), isLinux, true);
 	}
 	
 	/**
@@ -323,12 +323,12 @@ public class TotalTestRunner
 	 * 
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isShell
+	 * @param isLinux
 	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 * @throws InterruptedException 
 	 * @throws IOException 
 	 */
-	private void addProjectArguments(final Launcher launcher, final String workspaceFilePath, final ArgumentListBuilder args, final boolean isShell) throws IOException, InterruptedException
+	private void addProjectArguments(final Launcher launcher, final String workspaceFilePath, final ArgumentListBuilder args, final boolean isLinux) throws IOException, InterruptedException
 	{
 		FilePath projectPath = null;
 		String projectFolder = tttBuilder.getProjectFolder();
@@ -369,19 +369,19 @@ public class TotalTestRunner
 			throw new IOException("ERROR: 'Test Project Folder' was not specified."); //$NON-NLS-1$
 		}
 		
-		addArgument(args,PROJECT, projectPath.getRemote(), isShell);
+		addArgument(args,PROJECT, projectPath.getRemote(), isLinux);
 		 
 		String testSuiteEntry = tttBuilder.getTestSuite();
 		if (TotalTestRunnerUtils.isAllTestScenariosOrSuites(testSuiteEntry) || TotalTestRunnerUtils.isTestNameList(testSuiteEntry))
 		{
-			addArgument(args, TEST_NAME_LIST, testSuiteEntry, isShell);
+			addArgument(args, TEST_NAME_LIST, testSuiteEntry, isLinux);
 		}
 		else
 		{
-			addArgument(args, TESTSUITE, testSuiteEntry, isShell);
+			addArgument(args, TESTSUITE, testSuiteEntry, isLinux);
 		}
 		
-		addArgument(args, JCL, tttBuilder.getJcl(), isShell);
+		addArgument(args, JCL, tttBuilder.getJcl(), isLinux);
 	}
 	
 	/**
@@ -398,32 +398,32 @@ public class TotalTestRunner
 	 * 
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isShell
+	 * @param isLinux
 	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 */
-	private void addCodeCoverageArguments(final ArgumentListBuilder args, final boolean isShell)
+	private void addCodeCoverageArguments(final ArgumentListBuilder args, final boolean isLinux)
 	{
 		String ccRepo = tttBuilder.getCcRepo();
 		if ((ccRepo != null) && (ccRepo.length() != 0))
 		{
-			addArgument(args, CODE_COVERAGE_REPO, ccRepo.toUpperCase(), isShell);
+			addArgument(args, CODE_COVERAGE_REPO, ccRepo.toUpperCase(), isLinux);
 			
 			String ccSystem = (tttBuilder.getCcSystem() != null ? tttBuilder.getCcSystem().toUpperCase() : null);
 			if ((ccSystem != null) && (ccSystem.length() != 0))
 			{
-				addArgument(args, CODE_COVERAGE_SYSTEM, ccSystem, isShell);
+				addArgument(args, CODE_COVERAGE_SYSTEM, ccSystem, isLinux);
 			}
 			
 			String ccTestId = (tttBuilder.getCcTestId() != null ? tttBuilder.getCcTestId().toUpperCase() : null);
 			if ((ccTestId != null) && (ccTestId.length() != 0))
 			{
-				addArgument(args, CODE_COVERAGE_TESTID, ccTestId, isShell);
+				addArgument(args, CODE_COVERAGE_TESTID, ccTestId, isLinux);
 			}
 			
-			addArgument(args, CODE_COVERAGE_TYPE, tttBuilder.getCcPgmType(), isShell);
+			addArgument(args, CODE_COVERAGE_TYPE, tttBuilder.getCcPgmType(), isLinux);
 
 			
-			addArgument(args, CODE_COVERAGE_CLEAR, Boolean.toString(tttBuilder.isCcClearStats()), isShell);
+			addArgument(args, CODE_COVERAGE_CLEAR, Boolean.toString(tttBuilder.isCcClearStats()), isLinux);
 		}
 	}
 
@@ -439,20 +439,20 @@ public class TotalTestRunner
 	 * 
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isShell
+	 * @param isLinux
 	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 */	
-	private void addExecutionArguments(final ArgumentListBuilder args, final boolean isShell)
+	private void addExecutionArguments(final ArgumentListBuilder args, final boolean isLinux)
 	{
 		String dsnhlq =  tttBuilder.getHlq();
 		if ((dsnhlq != null) && (dsnhlq.length() != 0))
 		{
-			addArgument(args, DSN_HLQ , dsnhlq.toUpperCase(), isShell);
+			addArgument(args, DSN_HLQ , dsnhlq.toUpperCase(), isLinux);
 		}
 		
-		addArgument(args, USE_STUBS, Boolean.toString(tttBuilder.isUseStubs()), isShell);
+		addArgument(args, USE_STUBS, Boolean.toString(tttBuilder.isUseStubs()), isLinux);
 		
-		addArgument(args, DELETE_TEMPORARY, Boolean.toString(tttBuilder.isDeleteTemp()), isShell);
+		addArgument(args, DELETE_TEMPORARY, Boolean.toString(tttBuilder.isDeleteTemp()), isLinux);
 	}
 	
 	/**
@@ -468,13 +468,13 @@ public class TotalTestRunner
 	 * 			An instance of <code>FilePath</code> for the workspace directory
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isShell
+	 * @param isLinux
 	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 */	
-	private void addExternalToolArguments(final FilePath workspaceFilePath, final ArgumentListBuilder args, final boolean isShell)
+	private void addExternalToolArguments(final FilePath workspaceFilePath, final ArgumentListBuilder args, final boolean isLinux)
 	{
-		addArgument(args, EXTERNAL_TOOLS_WS, workspaceFilePath.getRemote(), isShell);
-		addArgument(args, POST_RUN_COMMANDS, COPY_JUNIT + COMMA + COPY_SONAR, isShell);
+		addArgument(args, EXTERNAL_TOOLS_WS, workspaceFilePath.getRemote(), isLinux);
+		addArgument(args, POST_RUN_COMMANDS, COPY_JUNIT + COMMA + COPY_SONAR, isLinux);
 	}
 	
 	/**
@@ -486,14 +486,14 @@ public class TotalTestRunner
 	 * 			The argument name.
 	 * @param argumentValue
 	 * 			The argument value.
-	 * @param isShell
+	 * @param isLinux
 	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 * @param mask
 	 * 			<code>true</code> to mask value when output, <code>true</code> to display normally
 	 */
-	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue, final boolean isShell)
+	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue, final boolean isLinux)
 	{
-		addArgument(args, argument, argumentValue, isShell, false);
+		addArgument(args, argument, argumentValue, isLinux, false);
 	}
 	
 	/**
@@ -505,14 +505,14 @@ public class TotalTestRunner
 	 * 			The argument name.
 	 * @param argumentValue
 	 * 			The argument value.
-	 * @param isShell
+	 * @param isLinux
 	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 * @param mask
 	 * 			<code>true</code> to mask value when output, <code>true</code> to display normally
 	 */
-	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue, final boolean isShell, boolean mask)
+	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue, final boolean isLinux, boolean mask)
 	{
-		args.add(TotalTestRunnerUtils.escapeForScript(argument + "=" + argumentValue, isShell), mask); //$NON-NLS //$NON-NLS-1$
+		args.add(TotalTestRunnerUtils.escapeForScript(argument + "=" + argumentValue), mask); //$NON-NLS //$NON-NLS-1$
 	}
 }
 

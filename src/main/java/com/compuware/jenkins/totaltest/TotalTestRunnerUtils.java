@@ -174,12 +174,10 @@ public class TotalTestRunnerUtils
 	 * 
 	 * @param input
 	 *            the <code>String</code> to escape
-	 * @param isShell
-	 *            <code>true</code> if the script is a Shell script, <code>false</code> if it is a Batch script
 	 * 
 	 * @return the escaped <code>String</code>
 	 */
-	public static String escapeForScript(final String input, final boolean isShell)
+	public static String escapeForScript(final String input)
 	{
 		String output = null;
 
@@ -189,7 +187,7 @@ public class TotalTestRunnerUtils
 			output = StringUtils.replace(input, DOUBLE_QUOTE, DOUBLE_QUOTE_ESCAPED);
 
 			// wrap the input in quotes
-			output = wrapInQuotes(output, isShell);
+			output = wrapInQuotes(output);
 		}
 
 		return output;
@@ -241,7 +239,7 @@ public class TotalTestRunnerUtils
 	 *            the string to wrap in quotes
 	 * @return the quoted string
 	 */
-	private static String wrapInQuotes(final String text, final boolean isShell)
+	private static String wrapInQuotes(final String text)
 	{
 		String quotedValue = text;
 		if (text != null)
