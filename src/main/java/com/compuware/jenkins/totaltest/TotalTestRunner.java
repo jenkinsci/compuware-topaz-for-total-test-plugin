@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2015 - 2018 Compuware Corporation
+ * Copyright (c) 2015 - 2019 Compuware Corporation
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -17,7 +17,6 @@
 
 package com.compuware.jenkins.totaltest;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
@@ -513,7 +512,7 @@ public class TotalTestRunner
 	 */
 	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue, final boolean isShell, boolean mask)
 	{
-		args.add(TotalTestRunnerUtils.escapeForScript(argument + "=" + argumentValue, isShell), mask); //$NON-NLS
+		args.add(TotalTestRunnerUtils.escapeForScript(argument + "=" + argumentValue, isShell), mask); //$NON-NLS //$NON-NLS-1$
 	}
 }
 
