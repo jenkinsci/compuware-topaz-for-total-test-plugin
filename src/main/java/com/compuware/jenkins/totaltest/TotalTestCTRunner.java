@@ -428,7 +428,7 @@ public class TotalTestCTRunner
 		}
 
 		String filenameAndPath = workDir.getRemote();
-		listener.getLogger().println("worspace path: " + filenameAndPath); //$NON-NLS-1$
+		listener.getLogger().println("workspace path: " + filenameAndPath); //$NON-NLS-1$
 
 		if (tttBuilder.getReportFolder() != null && tttBuilder.getReportFolder().trim().length() > 0)
 		{
