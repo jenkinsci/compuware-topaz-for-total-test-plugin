@@ -16,7 +16,6 @@
  */
 package com.compuware.jenkins.totaltest;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -55,7 +54,6 @@ public class TotalTestCTRunner
 
 	private final TotalTestCTBuilder tttBuilder;
 
-	private String remoteFileSeparator;
 	private TaskListener listener;
 	private FilePath workspaceFilePath;
 	private Run<?, ?> build;
@@ -106,7 +104,7 @@ public class TotalTestCTRunner
 		this.workspaceFilePath = workspaceFilePath;
 		this.build = build;
 		Properties remoteProperties = vChannel.call(new RemoteSystemProperties());
-		remoteFileSeparator = remoteProperties.getProperty("file.separator"); //$NON-NLS-1$
+		String remoteFileSeparator = remoteProperties.getProperty("file.separator"); //$NON-NLS-1$
 
 		boolean isLinux = launcher.isUnix();
 		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
@@ -169,7 +167,7 @@ public class TotalTestCTRunner
 	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException
 	{
 		int result = 0;
-		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, remoteFileSeparator, "generated.cli.xasuiteres"); //$NON-NLS-1$
+		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, "generated.cli.xasuiteres"); //$NON-NLS-1$
 		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
 		String content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), StandardCharsets.UTF_8);
 
@@ -302,8 +300,10 @@ public class TotalTestCTRunner
 	 *		  The argument list to add to.
 	 * @param listener
 	 * 		  Build listener
+	 * @throws InterruptedException 
+	 * @throws IOException 
 	 */
-	private void addArguments(final ArgumentListBuilder args, final TaskListener listener)
+	private void addArguments(final ArgumentListBuilder args, final TaskListener listener) throws IOException, InterruptedException
 	{
 		args.add("-e").add(tttBuilder.getEnvironmentId(), false); //$NON-NLS-1$
 
@@ -325,26 +325,26 @@ public class TotalTestCTRunner
 				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword(), true);
 
 		String folder = tttBuilder.getFolderPath();
-		final String relativePath = "."; //NON-NLS-1$ //$NON-NLS-1$
-		if (folder == null || folder.isEmpty() || folder.trim().isEmpty())
+		if (Strings.isNullOrEmpty(folder) || folder.trim().isEmpty())
 		{
-			folder = relativePath;
+			folder = "."; //$NON-NLS-1$
 		}
 
 		listener.getLogger().println("The folder path: " + folder); //$NON-NLS-1$
 		args.add("-f").add(folder, false); //$NON-NLS-1$
 
 		String workDir = workspaceFilePath.getRemote();
-		File fFolderPath = new File(folder);
-		
-		if (!fFolderPath.isAbsolute())
+		if (!Strings.isNullOrEmpty(workDir))
 		{
-			args.add("-r").add(workDir); //$NON-NLS-1$
-			listener.getLogger().println("Set the root folder : " + workDir); //$NON-NLS-1$
-		}
-		else
-		{
-			listener.getLogger().println("Absolute folder used for the Root folder : " + folder); //$NON-NLS-1$
+			if (workDir.compareTo(workspaceFilePath.absolutize().getRemote()) != 0)
+			{
+				args.add("-r").add(workDir); //$NON-NLS-1$
+				listener.getLogger().println("Set the root folder : " + workDir); //$NON-NLS-1$
+			}
+			else
+			{
+				listener.getLogger().println("Absolute folder used for the Root folder : " + workDir); //$NON-NLS-1$
+			}
 		}
 
 		if (tttBuilder.getRecursive())
@@ -392,8 +392,6 @@ public class TotalTestCTRunner
 	 *            The machine that the files will be checked out.
 	 * @param listener
 	 *            Build listener
-	 * @param remoteFileSeparator
-	 * 			  The file seperator on the remote system
 	 * @param osFile
 	 * 			  The file name of the file on the remote system
 	 *            
@@ -404,21 +402,20 @@ public class TotalTestCTRunner
 	 * @throws InterruptedException
 	 *             If unable to get CLI directory.
 	 */
-	private FilePath getRemoteFilePath(final Launcher launcher, final TaskListener listener, String remoteFileSeparator,
-			String osFile) throws IOException, InterruptedException
+	private FilePath getRemoteFilePath(final Launcher launcher, final TaskListener listener, String osFile) throws IOException, InterruptedException
 	{
 		FilePath remoteFile = null;
 		VirtualChannel vChannel = launcher.getChannel();
 		FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
 
-		String ffolder = tttBuilder.getFolderPath();
+		String folderPathString = tttBuilder.getFolderPath();
 
-		if (ffolder != null && !ffolder.isEmpty() && !".".equals(ffolder)) //$NON-NLS-1$
+		if (folderPathString != null && !folderPathString.isEmpty() && !".".equals(folderPathString)) //$NON-NLS-1$
 		{
-			File theFolder = new File(ffolder);
-			if (theFolder.isAbsolute() && theFolder.isDirectory())
+			FilePath absoluteFolder = new FilePath (vChannel, folderPathString).absolutize();
+			if (absoluteFolder.isDirectory())
 			{
-				workDir = new FilePath(vChannel, ffolder);
+				workDir = absoluteFolder;
 			}
 		}
 
@@ -427,37 +424,40 @@ public class TotalTestCTRunner
 			throw new FileNotFoundException("workDir location does not exist. Location: " + workDir.getRemote()); //$NON-NLS-1$
 		}
 
-		String filenameAndPath = workDir.getRemote();
-		listener.getLogger().println("workspace path: " + filenameAndPath); //$NON-NLS-1$
+		listener.getLogger().println("workspace path: " + workDir.getRemote()); //$NON-NLS-1$
+		
+		String reportFolder = tttBuilder.getReportFolder().trim();
+		FilePath absoluteReportFolderPath = null;
 
-		if (tttBuilder.getReportFolder() != null && tttBuilder.getReportFolder().trim().length() > 0)
+		if (reportFolder != null && !reportFolder.isEmpty())
 		{
-			File reportFolder = new File(tttBuilder.getReportFolder().trim());
-			if (reportFolder.isAbsolute() && reportFolder.isDirectory())
-			{
-				filenameAndPath = new FilePath(vChannel, tttBuilder.getReportFolder().trim()).getRemote();
-			}
-			else
-			{
-				filenameAndPath = filenameAndPath + remoteFileSeparator + tttBuilder.getReportFolder().trim();
-			}
-		}
-		listener.getLogger().println("Search " + osFile + " from the folder path: " + filenameAndPath); //$NON-NLS-1$ //$NON-NLS-2$
-		File theFolder = new File(filenameAndPath);
-		String fileFound = searchFileFromDir(theFolder, osFile);
+			FilePath reportFolderPath = new FilePath(vChannel, reportFolder);
+			absoluteReportFolderPath = reportFolderPath.absolutize();
 
-		if (fileFound != null)
-		{
-			filenameAndPath = fileFound;
-			listener.getLogger().println("Founded file path: " + filenameAndPath); //$NON-NLS-1$
+			if (!absoluteReportFolderPath.exists() || !absoluteReportFolderPath.isDirectory())
+			{
+				absoluteReportFolderPath = new FilePath(workDir, reportFolder).absolutize();
+			}
 		}
 		else
 		{
-			filenameAndPath = filenameAndPath + remoteFileSeparator + osFile;
-			listener.getLogger().println("The file path: " + filenameAndPath + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
+			absoluteReportFolderPath = new FilePath(vChannel, reportFolder).absolutize();
+		}
+		
+		listener.getLogger().println("Search " + osFile + " from the folder path: " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$ //$NON-NLS-2$
+		FilePath fileFound = searchFileFromDir(absoluteReportFolderPath, osFile, listener);
+
+		if (fileFound != null)
+		{
+			remoteFile = fileFound;
+			listener.getLogger().println("Found file path: " + remoteFile.getRemote()); //$NON-NLS-1$
+		}
+		else
+		{
+			remoteFile = new FilePath(workDir, osFile).absolutize();
+			listener.getLogger().println("The file path: " + remoteFile.getRemote() + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
-		remoteFile = new FilePath(vChannel, filenameAndPath);
 		listener.getLogger().println("TotalTest  CLI script file remote path: " + remoteFile.getRemote()); //$NON-NLS-1$
 
 		return remoteFile;
@@ -466,39 +466,46 @@ public class TotalTestCTRunner
 	/**
 	 * find a file by name in the folder
 	 * 
-	 * @param file
-	 * 			  The file to search.
-	 * 
+	 * @param directoryPath
+	 * 			  The folder where we should searc.
 	 * @param search
-	 * 			  The folder where we should search.
+	 * 			  The file to search for.
+	 * @param listener
+	 *            Build listener
 	 * 
 	 * @return	  <code>String</code> The absolute path to the file.
 	 */
-	private static String searchFileFromDir(File file, String search)
+	private static FilePath searchFileFromDir(FilePath directoryPath, String search, final TaskListener listener)
 	{
-		if (file != null && search != null)
+		FilePath returnFile = null;
+		
+		if (!Strings.isNullOrEmpty(search))
 		{
-			if (file.isDirectory())
-			{
-				File[] files = file.listFiles();
-				if (files != null)
+			try {
+				for (FilePath childPath : directoryPath.list())
 				{
-					for (File f : files)
+					if (childPath.isDirectory())
 					{
-						String fName = searchFileFromDir(f, search);
-						if (fName != null)
-							return fName;
+						// Recurse into this directory
+						returnFile = searchFileFromDir(childPath, search, listener);
+					}
+					else if (search.equals(childPath.getName()))
+					{
+						returnFile = childPath.absolutize();
+					}
+					
+					if (null != returnFile)
+					{
+						break;
 					}
 				}
-			}
-			else
-			{
-				if (search.equals(file.getName()))
-				{
-					return file.getAbsolutePath();
-				}
+			} catch (IOException e) {
+				listener.getLogger().println("Exception locating " + search + " from " + directoryPath.getRemote() + ":" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			} catch (InterruptedException e) { //NOSONAR
+				listener.getLogger().println("Exception locating " + search + " from " + directoryPath.getRemote() + ":" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
-		return null;
+		
+		return returnFile;
 	}
 }
