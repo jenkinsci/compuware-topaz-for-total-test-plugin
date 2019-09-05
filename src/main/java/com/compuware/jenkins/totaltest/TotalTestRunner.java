@@ -338,7 +338,7 @@ public class TotalTestRunner
 			}
 			else
 			{
-				FilePath workspaceProjectPath = new FilePath(vChannel, workspaceFilePath + projectFolder);
+				FilePath workspaceProjectPath = new FilePath(new FilePath(vChannel, workspaceFilePath).absolutize(), projectFolder);
 				FilePath absolutizeWorkspaceProjectPath = workspaceProjectPath.absolutize();
 				if (absolutizeWorkspaceProjectPath.exists() && absolutizeWorkspaceProjectPath.isDirectory())
 				{
