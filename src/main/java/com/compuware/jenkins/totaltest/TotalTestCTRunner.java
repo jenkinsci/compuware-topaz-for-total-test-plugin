@@ -169,7 +169,19 @@ public class TotalTestCTRunner
 		int result = 0;
 		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, "generated.cli.xasuiteres"); //$NON-NLS-1$
 		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
-		String content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), StandardCharsets.UTF_8);
+		String content = null;
+		
+		// For performance reasons we will create the content String from the testSuiteResultPath if the file is remote
+		// (running on a slave) otherwise we use the better performing Files.readAllBytes.
+		// The performance difference is aprox. 2x faster with Files.readAllBytes than FilePath.Read when running locally.
+		if (testSuiteResultPath.isRemote())
+		{
+			content = new String(testSuiteResultPath.readToString().getBytes(), StandardCharsets.UTF_8);
+		}
+		else
+		{
+			content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), StandardCharsets.UTF_8);
+		}
 
 		listener.getLogger().println("Result content:"); //$NON-NLS-1$
 		listener.getLogger().println(content);
