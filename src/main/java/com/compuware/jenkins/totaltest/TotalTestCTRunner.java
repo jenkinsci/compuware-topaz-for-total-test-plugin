@@ -16,13 +16,13 @@
  */
 package com.compuware.jenkins.totaltest;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -31,85 +31,105 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
-import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
+
 import com.google.common.base.Strings;
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.Plugin;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import hudson.util.ArgumentListBuilder;
-import jenkins.model.Jenkins;
 
 public class TotalTestCTRunner
 {
-	private static final String COMPUWARE_TOTALTEST_PLUGIN = "compuware-topaz-for-total-test";
-	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat";
-	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh";
-	private static final String TOTAL_TEST_WEBAPP = "totaltestapi";
+	private  static final String TTT_MINIMUM_CLI_VERSION = "19.5.3"; //$NON-NLS-1$
+	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
+	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
+	private static final String TOTAL_TEST_WEBAPP = "totaltestapi"; //$NON-NLS-1$
 
 	private final TotalTestCTBuilder tttBuilder;
 
-	private Properties remoteProperties;
-	private String remoteFileSeparator;
-	private VirtualChannel vChannel;
 	private TaskListener listener;
 	private FilePath workspaceFilePath;
 	private Run<?, ?> build;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param tttBuilder
+	 * 			  An instance of <code>TotalTestCTBuilder</code> containing the arguments.
+	 */
 	public TotalTestCTRunner(TotalTestCTBuilder tttBuilder)
 	{
 		this.tttBuilder = tttBuilder;
 	}
 
+	/**
+	 * Runs the Total Test Functional Test CLI
+	 * 
+	 * @param build
+	 *			  The current running Jenkins build
+	 * @param launcher
+	 *            The machine that the files will be checked out.
+	 * @param workspaceFilePath
+	 *            a directory to check out the source code.
+	 * @param listener
+	 *            Build listener
+	 *            
+	 * @return <code>boolean</code> if the build was successful
+	 * 
+	 * @throws IOException
+	 * 			If an error occurred execute Total Test run.
+	 * @throws InterruptedException
+	 * 			If the Total Test run was interrupted.
+	 */
 	public boolean run(final Run<?, ?> build, final Launcher launcher, final FilePath workspaceFilePath,
 			final TaskListener listener) throws IOException, InterruptedException
 	{
 		// initialization
 		ArgumentListBuilder args = new ArgumentListBuilder();
 		EnvVars env = build.getEnvironment(listener);
-		vChannel = launcher.getChannel();
+		VirtualChannel vChannel = launcher.getChannel();
 		if (vChannel == null)
 		{
-			listener.getLogger().println("Error: No channel could be retrieved");
+			listener.getLogger().println("Error: No channel could be retrieved"); //$NON-NLS-1$
 			return false;
 		}
 		this.listener = listener;
 		this.workspaceFilePath = workspaceFilePath;
 		this.build = build;
-		remoteProperties = vChannel.call(new RemoteSystemProperties());
-		remoteFileSeparator = remoteProperties.getProperty("file.separator");
+		Properties remoteProperties = vChannel.call(new RemoteSystemProperties());
+		String remoteFileSeparator = remoteProperties.getProperty("file.separator"); //$NON-NLS-1$
 
-		boolean isShell = launcher.isUnix();
-		String osScriptFile = isShell ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
+		boolean isLinux = launcher.isUnix();
+		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
 
-		logJenkinsAndPluginVersion(listener);
+		TotalTestRunnerUtils.logJenkinsAndPluginVersion(listener);
 
-		FilePath cliScriptPath = getCliRemoteFilePath(launcher, listener, remoteFileSeparator, osScriptFile);
+		FilePath cliScriptPath = TotalTestRunnerUtils.getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile, TTT_MINIMUM_CLI_VERSION);
 		args.add(cliScriptPath.getRemote());
 		addArguments(args, listener);
 
-		FilePath fRootPath = new FilePath(new File(getCliFilePath(launcher)));
-		FilePath workDir = new FilePath(vChannel, fRootPath.getRemote());
+		FilePath workDir = new FilePath (vChannel, workspaceFilePath.getRemote());
 		workDir.mkdirs();
 
-		listener.getLogger().println("----------------------------------");
-		listener.getLogger().println("Now executing Total Test Testing CLI and printing out the execution log...");
-		listener.getLogger().println("----------------------------------\n\n");
+		listener.getLogger().println("----------------------------------"); //$NON-NLS-1$
+		listener.getLogger().println("Now executing Total Test Testing CLI and printing out the execution log..."); //$NON-NLS-1$
+		listener.getLogger().println("----------------------------------\n\n"); //$NON-NLS-1$
 
 		int exitValue = launcher.launch().cmds(args).envs(env).stdout(listener.getLogger()).pwd(workDir).join();
-		listener.getLogger().println(osScriptFile + " exited with exit value = " + exitValue);
+		listener.getLogger().println(osScriptFile + " exited with exit value = " + exitValue); //$NON-NLS-1$
 
 		if (exitValue == 0)
 		{
-			listener.getLogger().println("\n\n----------------------------------");
-			listener.getLogger().println("Total Test Testing CLI finished executing, now analysing the result...");
-			listener.getLogger().println("----------------------------------\n\n");
+			listener.getLogger().println("\n\n----------------------------------"); //$NON-NLS-1$
+			listener.getLogger().println("Total Test Testing CLI finished executing, now analysing the result..."); //$NON-NLS-1$
+			listener.getLogger().println("----------------------------------\n\n"); //$NON-NLS-1$
 			exitValue = readTestResult(launcher);
 
 			if (exitValue != 0)
@@ -119,7 +139,7 @@ public class TotalTestCTRunner
 				if (!isStopIfTestFailsOrThresholdReached)
 				{
 					listener.getLogger()
-							.println("Test result failed but build continues (isStopIfTestFailsOrThresholdReached is false)");
+							.println("Test result failed but build continues (isStopIfTestFailsOrThresholdReached is false)"); //$NON-NLS-1$
 					exitValue = 0;
 				}
 			}
@@ -127,50 +147,43 @@ public class TotalTestCTRunner
 		else
 		{
 			listener.getLogger().println(
-					"Something went wrong when executing the Total Test Testing CLI, and therefore there is no test results to analyze");
+					"Something went wrong when executing the Total Test Testing CLI, and therefore there is no test results to analyze"); //$NON-NLS-1$
 		}
 
 		return exitValue == 0;
 	}
 
 	/**
-	 * Logs the Jenkins and Total Test Plugin versions
+	 * Read the test results
 	 * 
-	 * @param listener
-	 *            Build listener
+	 * @param launcher
+	 *              The machine that the files will be checked out..
+	 *            
+	 * @return		<code>int</code> 0 if the readTestRestult successful, otherwise -1
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
 	 */
-	private void logJenkinsAndPluginVersion(final TaskListener listener)
-	{
-		listener.getLogger().println("Jenkins Version: " + Jenkins.VERSION);
-		Jenkins jenkinsInstance = Jenkins.getInstance();
-		if (jenkinsInstance != null) // NOSONAR
-		{
-			Plugin pluginV1 = jenkinsInstance.getPlugin(COMPUWARE_TOTALTEST_PLUGIN); // $NON-NLS-1$
-			if (pluginV1 != null)
-			{
-				listener.getLogger().println("Total Test Jenkins Plugin: " //$NON-NLS-1$
-						+ pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion()); //$NON-NLS-1$
-			}
-			else
-			{
-				Plugin pluginV2 = jenkinsInstance.getPlugin(COMPUWARE_TOTALTEST_PLUGIN); // $NON-NLS-1$
-				if (pluginV2 != null)
-				{
-					listener.getLogger().println("Total Test Testing Jenkins Plugin: " //$NON-NLS-1$
-							+ pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$
-				}
-			}
-		}
-	}
-
 	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException
 	{
 		int result = 0;
-		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, remoteFileSeparator, "generated.cli.xasuiteres");
-		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote());
-		String content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), "UTF-8");
+		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, "generated.cli.xasuiteres"); //$NON-NLS-1$
+		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+		String content = null;
+		
+		// For performance reasons we will create the content String from the testSuiteResultPath if the file is remote
+		// (running on a slave) otherwise we use the better performing Files.readAllBytes.
+		// The performance difference is aprox. 2x faster with Files.readAllBytes than FilePath.Read when running locally.
+		if (testSuiteResultPath.isRemote())
+		{
+			content = new String(testSuiteResultPath.readToString().getBytes(), StandardCharsets.UTF_8);
+		}
+		else
+		{
+			content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), StandardCharsets.UTF_8);
+		}
 
-		listener.getLogger().println("Result content:");
+		listener.getLogger().println("Result content:"); //$NON-NLS-1$
 		listener.getLogger().println(content);
 
 		String xaSuiteResult = null;
@@ -179,9 +192,9 @@ public class TotalTestCTRunner
 		{
 			Document document = getXaSuiteResultAsDocument(content);
 			xaSuiteResult = getXaSuiteResult(document);
-			listener.getLogger().println("Result state from suite: " + xaSuiteResult);
+			listener.getLogger().println("Result state from suite: " + xaSuiteResult); //$NON-NLS-1$
 
-			if (!xaSuiteResult.equalsIgnoreCase("SUCCESS"))
+			if (!xaSuiteResult.equalsIgnoreCase("SUCCESS")) //$NON-NLS-1$
 			{
 				result = -1;
 			}
@@ -189,19 +202,19 @@ public class TotalTestCTRunner
 			if (result != -1 && tttBuilder.getCcThreshhold() > 0)
 			{
 				listener.getLogger().println(
-						"The suite executed successfully, now checking that code coverage level is higher than the treshhold on "
-								+ tttBuilder.getCcThreshhold() + " %");
+						"The suite executed successfully, now checking that code coverage level is higher than the treshhold on " //$NON-NLS-1$
+								+ tttBuilder.getCcThreshhold() + " %"); //$NON-NLS-1$
 				boolean isCCThresholdOk = getXaSuiteCodeCoverage(document);
 				if (!isCCThresholdOk)
 				{
-					listener.getLogger().println("Code coverage treshhold not reached");
+					listener.getLogger().println("Code coverage treshhold not reached"); //$NON-NLS-1$
 					result = -1;
 				}
 			}
 		}
 		catch (Exception e)
 		{
-			listener.getLogger().println("Exception in parsing XaSuiteResult. " + e.getMessage());
+			listener.getLogger().println("Exception in parsing XaSuiteResult. " + e.getMessage()); //$NON-NLS-1$
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
@@ -210,141 +223,176 @@ public class TotalTestCTRunner
 		return result;
 	}
 
-	private Document getXaSuiteResultAsDocument(String xml) throws Exception
+	/**
+	 * Return the results Document.
+	 * 
+	 * @param xml
+	 * 			  The results xml to create results document.
+	 * 
+	 * @return	  <code>Document</code> that is generaged from the result xml
+	 * 
+	 * @throws Exception
+	 */
+	private Document getXaSuiteResultAsDocument(String xml) throws Exception //NOSONAR
 	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Reader r = new StringReader(xml);
-		Document document = db.parse(new InputSource(r));
-
-		return document;
+		return db.parse(new InputSource(r));
 	}
 
-	private String getXaSuiteResult(Document document) throws Exception
+	/**
+	 * Return the Suite results Document.
+	 * 
+	 * @param document
+	 * 			The results document to get the status from.
+	 * 
+	 * @return	 <code>String</code> representing the results.
+	 * 
+	 * @throws Exception
+	 */
+	private String getXaSuiteResult(Document document) throws Exception	//NOSONAR
 	{
 		String resultType = null;
 
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath xpath = xpf.newXPath();
-		Element xaSuiteResultElement = (Element) xpath.evaluate("/XaSuiteResult", document, XPathConstants.NODE);
-		resultType = xaSuiteResultElement.getAttribute("resultType");
+		Element xaSuiteResultElement = (Element) xpath.evaluate("/XaSuiteResult", document, XPathConstants.NODE); //NOSONAR //$NON-NLS-1$
+		resultType = xaSuiteResultElement.getAttribute("resultType"); //$NON-NLS-1$
 
 		return resultType;
 	}
 
-	private boolean getXaSuiteCodeCoverage(Document document) throws Exception
+	/**
+	 * Return if there is Code Doverage data.
+	 * 
+	 * @param document
+	 * 			Document to look for Code Coverage data.
+	 * 
+	 * @return <code>boolean</code> if the document has Code Coverage data.
+	 * 
+	 * @throws Exception
+	 */
+	private boolean getXaSuiteCodeCoverage(Document document) throws Exception // NOSONAR
 	{
 		boolean isCCThresholdOk = true;
 
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath xpath = xpf.newXPath();
-		Element percentageElement = (Element) xpath.evaluate("/XaSuiteResult/CC/data", document, XPathConstants.NODE);
+		Element percentageElement = (Element) xpath.evaluate("/XaSuiteResult/CC/data", document, XPathConstants.NODE); //$NON-NLS-1$
 
 		if (percentageElement != null)
 		{
-			String sPercentage = percentageElement.getAttribute("percentage");
+			String sPercentage = percentageElement.getAttribute("percentage"); //$NON-NLS-1$
 
 			int percentage = Integer.parseInt(sPercentage);
 
 			if (percentage < tttBuilder.getCcThreshhold())
 			{
-				listener.getLogger().println("XaUnitResult percentage on " + sPercentage
-						+ " is less than Code Coverage threshold on " + tttBuilder.getCcThreshhold() + ". Aborting build.");
+				listener.getLogger().println("XaUnitResult percentage on " + sPercentage //$NON-NLS-1$
+						+ " is less than Code Coverage threshold on " + tttBuilder.getCcThreshhold() + ". Aborting build."); //$NON-NLS-1$ //$NON-NLS-2$
 				isCCThresholdOk = false;
 			}
 
 			if (isCCThresholdOk)
 			{
-				listener.getLogger().println("XaUnitResults Code Coverage threshold is " + tttBuilder.getCcThreshhold()
-						+ " which is below the result on " + sPercentage);
+				listener.getLogger().println("XaUnitResults Code Coverage threshold is " + tttBuilder.getCcThreshhold() //$NON-NLS-1$
+						+ " which is below the result on " + sPercentage); //$NON-NLS-1$
 			}
 		}
 
 		return isCCThresholdOk;
 	}
 
-	private void addArguments(final ArgumentListBuilder args, final TaskListener listener)
+	
+	/**
+	 * Adds an arguments to the argument list.
+	 * 
+	 * @param args
+	 *		  The argument list to add to.
+	 * @param listener
+	 * 		  Build listener
+	 * @throws InterruptedException 
+	 * @throws IOException 
+	 */
+	private void addArguments(final ArgumentListBuilder args, final TaskListener listener) throws IOException, InterruptedException
 	{
-		args.add("-e").add(tttBuilder.getEnvironmentId(), false);
+		args.add("-e").add(tttBuilder.getEnvironmentId(), false); //$NON-NLS-1$
 
 		String tttServerUrl = tttBuilder.getServerUrl();
 
-		if (!tttServerUrl.endsWith("/"))
+		if (!tttServerUrl.endsWith("/")) //$NON-NLS-1$
 		{
-			tttServerUrl += "/";
+			tttServerUrl += "/"; //$NON-NLS-1$
 		}
 
-		tttServerUrl += TOTAL_TEST_WEBAPP + "/";
-		listener.getLogger().println("Set the repository URL : " + tttServerUrl);
+		tttServerUrl += TOTAL_TEST_WEBAPP + "/"; //$NON-NLS-1$
+		listener.getLogger().println("Set the repository URL : " + tttServerUrl); //$NON-NLS-1$
 
-		args.add("-s").add(tttServerUrl, false);
-		args.add("-u").add(
+		args.add("-s").add(tttServerUrl, false); //$NON-NLS-1$
+		args.add("-u").add( //$NON-NLS-1$
 				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
 				false);
-		args.add("-p").add(
+		args.add("-p").add( //$NON-NLS-1$
 				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword(), true);
 
 		String folder = tttBuilder.getFolderPath();
-		if (folder == null || folder.isEmpty() || folder.trim().isEmpty())
+		if (Strings.isNullOrEmpty(folder) || folder.trim().isEmpty())
 		{
-			folder = ".";
+			folder = "."; //$NON-NLS-1$
 		}
 
-		listener.getLogger().println("The folder path: " + folder);
-		args.add("-f").add(folder, false);
+		listener.getLogger().println("The folder path: " + folder); //$NON-NLS-1$
+		args.add("-f").add(folder, false); //$NON-NLS-1$
 
-		String rootFolder = workspaceFilePath.getRemote();
-
-		if (!".".equals(folder))
+		String workDir = workspaceFilePath.getRemote();
+		if (!Strings.isNullOrEmpty(workDir))
 		{
-			File fFolderPath = new File(tttBuilder.getFolderPath());
-
-			if (!fFolderPath.isAbsolute())
+			if (workDir.compareTo(workspaceFilePath.absolutize().getRemote()) != 0)
 			{
-				args.add("-r").add(rootFolder);
-				listener.getLogger().println("Set the root folder : " + rootFolder);
+				args.add("-r").add(workDir); //$NON-NLS-1$
+				listener.getLogger().println("Set the root folder : " + workDir); //$NON-NLS-1$
 			}
-		}
-		else
-		{
-			args.add("-r").add(workspaceFilePath.getRemote());
-			listener.getLogger().println("Set the root folder : " + rootFolder);
+			else
+			{
+				listener.getLogger().println("Absolute folder used for the Root folder : " + workDir); //$NON-NLS-1$
+			}
 		}
 
 		if (tttBuilder.getRecursive())
 		{
-			args.add("-R");
+			args.add("-R"); //$NON-NLS-1$
 		}
 
 		if (tttBuilder.getUploadToServer())
 		{
-			args.add("-x");
+			args.add("-x"); //$NON-NLS-1$
 		}
 
 		if (tttBuilder.getHaltAtFailure())
 		{
-			args.add("-h");
+			args.add("-h"); //$NON-NLS-1$
 		}
 
-		if (!Strings.isNullOrEmpty(tttBuilder.getSourceFolder()) && !tttBuilder.getSourceFolder().equalsIgnoreCase("COBOL"))
+		if (!Strings.isNullOrEmpty(tttBuilder.getSourceFolder()) && !tttBuilder.getSourceFolder().equalsIgnoreCase("COBOL")) //$NON-NLS-1$
 		{
-			args.add("-S").add(tttBuilder.getSourceFolder());
+			args.add("-S").add(tttBuilder.getSourceFolder()); //$NON-NLS-1$
 		}
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getReportFolder()))
 		{
-			args.add("-g").add(tttBuilder.getReportFolder());
-			args.add("-G");
+			args.add("-g").add(tttBuilder.getReportFolder()); //$NON-NLS-1$
+			args.add("-G"); //$NON-NLS-1$
 		}
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getSonarVersion()))
 		{
-			args.add("-v").add(tttBuilder.getSonarVersion());
+			args.add("-v").add(tttBuilder.getSonarVersion()); //$NON-NLS-1$
 		}
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getAccountInfo()))
 		{
-			args.add("-a").add(tttBuilder.getAccountInfo());
+			args.add("-a").add(tttBuilder.getAccountInfo()); //$NON-NLS-1$
 		}
 
 	}
@@ -354,69 +402,75 @@ public class TotalTestCTRunner
 	 * 
 	 * @param launcher
 	 *            The machine that the files will be checked out.
-	 * 
-	 * @return An instance of <code>FilePath</code> for the CLI directory
+	 * @param listener
+	 *            Build listener
+	 * @param osFile
+	 * 			  The file name of the file on the remote system
+	 *            
+	 * @return	  An instance of <code>FilePath</code> for the CLI directory
 	 * 
 	 * @throws IOException
 	 *             If the CLI directory does not exist.
 	 * @throws InterruptedException
 	 *             If unable to get CLI directory.
 	 */
-	private FilePath getRemoteFilePath(final Launcher launcher, final TaskListener listener, String remoteFileSeparator,
-			String osFile) throws IOException, InterruptedException
+	private FilePath getRemoteFilePath(final Launcher launcher, final TaskListener listener, String osFile) throws IOException, InterruptedException
 	{
 		FilePath remoteFile = null;
+		VirtualChannel vChannel = launcher.getChannel();
 		FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
 
-		String ffolder = tttBuilder.getFolderPath();
+		String folderPathString = tttBuilder.getFolderPath();
 
-		if (ffolder != null && !ffolder.isEmpty() && !".".equals(ffolder))
+		if (folderPathString != null && !folderPathString.isEmpty() && !".".equals(folderPathString)) //$NON-NLS-1$
 		{
-			File theFolder = new File(ffolder);
-			if (theFolder.isAbsolute() && theFolder.isDirectory())
+			FilePath absoluteFolder = new FilePath (vChannel, folderPathString).absolutize();
+			if (absoluteFolder.isDirectory())
 			{
-				workDir = new FilePath(vChannel, ffolder);
+				workDir = absoluteFolder;
 			}
 		}
 
 		if (!workDir.exists())
 		{
-			throw new FileNotFoundException("workDir location does not exist. Location: " + workDir.getRemote());
+			throw new FileNotFoundException("workDir location does not exist. Location: " + workDir.getRemote()); //$NON-NLS-1$
 		}
 
-		String filenameAndPath = workDir.getRemote();
-		listener.getLogger().println("worspace path: " + filenameAndPath);
+		listener.getLogger().println("workspace path: " + workDir.getRemote()); //$NON-NLS-1$
+		
+		String reportFolder = tttBuilder.getReportFolder().trim();
+		FilePath absoluteReportFolderPath = null;
 
-		if (tttBuilder.getReportFolder() != null && tttBuilder.getReportFolder().trim().length() > 0)
+		if (reportFolder != null && !reportFolder.isEmpty())
 		{
-			File reportFolder = new File(tttBuilder.getReportFolder().trim());
-			if (reportFolder != null && reportFolder.isAbsolute() && reportFolder.isDirectory())
-			{
-				filenameAndPath = new FilePath(vChannel, tttBuilder.getReportFolder().trim()).getRemote();
-			}
-			else
-			{
-				filenameAndPath = filenameAndPath + remoteFileSeparator + tttBuilder.getReportFolder().trim();
-			}
-		}
-		listener.getLogger().println("Search " + osFile + " from the folder path: " + filenameAndPath);
-		File theFolder = new File(filenameAndPath);
-		String fileFound = searchFileFromDir(theFolder, osFile);
+			FilePath reportFolderPath = new FilePath(vChannel, reportFolder);
+			absoluteReportFolderPath = reportFolderPath.absolutize();
 
-		if (fileFound != null)
-		{
-			filenameAndPath = fileFound;
-			listener.getLogger().println("Founded file path: " + filenameAndPath);
+			if (!absoluteReportFolderPath.exists() || !absoluteReportFolderPath.isDirectory())
+			{
+				absoluteReportFolderPath = new FilePath(workDir, reportFolder).absolutize();
+			}
 		}
 		else
 		{
-			filenameAndPath = filenameAndPath + remoteFileSeparator + osFile;
-			listener.getLogger().println("The file path: " + filenameAndPath + " is missing.");
+			absoluteReportFolderPath = new FilePath(vChannel, reportFolder).absolutize();
+		}
+		
+		listener.getLogger().println("Search " + osFile + " from the folder path: " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$ //$NON-NLS-2$
+		FilePath fileFound = searchFileFromDir(absoluteReportFolderPath, osFile, listener);
+
+		if (fileFound != null)
+		{
+			remoteFile = fileFound;
+			listener.getLogger().println("Found file path: " + remoteFile.getRemote()); //$NON-NLS-1$
+		}
+		else
+		{
+			remoteFile = new FilePath(workDir, osFile).absolutize();
+			listener.getLogger().println("The file path: " + remoteFile.getRemote() + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
-		VirtualChannel vChannel = launcher.getChannel();
-		remoteFile = new FilePath(vChannel, filenameAndPath);
-		listener.getLogger().println("TotalTest  CLI script file remote path: " + remoteFile.getRemote());
+		listener.getLogger().println("TotalTest  CLI script file remote path: " + remoteFile.getRemote()); //$NON-NLS-1$
 
 		return remoteFile;
 	}
@@ -424,92 +478,46 @@ public class TotalTestCTRunner
 	/**
 	 * find a file by name in the folder
 	 * 
-	 * @param file
+	 * @param directoryPath
+	 * 			  The folder where we should searc.
 	 * @param search
-	 * @return
+	 * 			  The file to search for.
+	 * @param listener
+	 *            Build listener
+	 * 
+	 * @return	  <code>String</code> The absolute path to the file.
 	 */
-	private static String searchFileFromDir(File file, String search)
+	private static FilePath searchFileFromDir(FilePath directoryPath, String search, final TaskListener listener)
 	{
-		if (file != null && search != null)
+		FilePath returnFile = null;
+		
+		if (!Strings.isNullOrEmpty(search))
 		{
-			if (file.isDirectory())
-			{
-				File[] files = file.listFiles();
-				if (files != null)
+			try {
+				for (FilePath childPath : directoryPath.list())
 				{
-					for (File f : files)
+					if (childPath.isDirectory())
 					{
-						String fName = searchFileFromDir(f, search);
-						if (fName != null)
-							return fName;
+						// Recurse into this directory
+						returnFile = searchFileFromDir(childPath, search, listener);
+					}
+					else if (search.equals(childPath.getName()))
+					{
+						returnFile = childPath.absolutize();
+					}
+					
+					if (null != returnFile)
+					{
+						break;
 					}
 				}
-			}
-			else
-			{
-				if (search.equals(file.getName()))
-				{
-					return file.getAbsolutePath();
-				}
+			} catch (IOException e) {
+				listener.getLogger().println("Exception locating " + search + " from " + directoryPath.getRemote() + ":" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			} catch (InterruptedException e) { //NOSONAR
+				listener.getLogger().println("Exception locating " + search + " from " + directoryPath.getRemote() + ":" + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
-		return null;
-	}
-
-	/**
-	 * 
-	 * @param launcher
-	 * @return
-	 */
-	private String getCliFilePath(final Launcher launcher)
-	{
-		String cliDirectoryName = null;
-		CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
-		if (globalConfig != null)
-		{
-			cliDirectoryName = globalConfig.getTopazCLILocation(launcher);
-		}
-		return cliDirectoryName;
-	}
-
-	/**
-	 * 
-	 * @param launcher
-	 * @param listener
-	 * @param remoteFileSeparator
-	 * @param osFile
-	 * @return
-	 * @throws IOException
-	 * @throws InterruptedException
-	 */
-	private FilePath getCliRemoteFilePath(final Launcher launcher, final TaskListener listener, String remoteFileSeparator,
-			String osFile) throws IOException, InterruptedException
-	{
-		FilePath fRootPath = null;
-
-		String cliDirectoryName = getCliFilePath(launcher);
-		if (cliDirectoryName != null)
-		{
-			listener.getLogger().println("TotalTest CLI file path from common configuration: " + cliDirectoryName);
-			fRootPath = new FilePath(new File(cliDirectoryName));
-		}
-		else
-		{
-			throw new FileNotFoundException("rootPath was not specified in the common configuarion.");
-		}
-
-		if (fRootPath.exists() == false)
-		{
-			throw new FileNotFoundException("rootPath to cli location does not exist. Location: " + fRootPath.getRemote());
-		}
-
-		String filenameAndPath = fRootPath + remoteFileSeparator + osFile;
-		listener.getLogger().println("TotalTest CLI file path: " + filenameAndPath);
-
-		VirtualChannel vChannel = launcher.getChannel();
-		FilePath remoteFile = new FilePath(vChannel, filenameAndPath);
-		listener.getLogger().println("TotalTest CLI script file remote path: " + remoteFile.getRemote());
-
-		return remoteFile;
+		
+		return returnFile;
 	}
 }

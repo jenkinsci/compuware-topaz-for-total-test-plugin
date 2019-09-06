@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import javax.servlet.ServletException;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -118,7 +117,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * environment where test is executed
+	 * Server URL accessor
 	 * 
 	 * @return <code>String</code> value of server Url
 	 */
@@ -128,7 +127,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * environment where test is executed
+	 * Environment accessor
 	 * 
 	 * @return <code>String</code> value of user Id
 	 */
@@ -137,99 +136,198 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		return credentialsId;
 	}
 
+	/**
+	 * Code Coverage accessor
+	 * 
+	 * @return <code>int</code> Code Coverage threashhold
+	 */
 	public int getCcThreshhold()
 	{
 		return ccThreshhold;
 	}
 
+	/**
+	 * Recursive search for Functional Test scenarios
+	 * 
+	 * @return	<code>true</code> if recursive is selected, otherwise <code>false</code>.
+	 */
 	public boolean getRecursive()
 	{
 		return recursive;
 	}
 
+	/**
+	 * Upload results to the server
+	 * 
+	 * @return	<code>true</code> if uploading results to the server is selected, otherwise <code>false</code>.
+	 */
 	public boolean getUploadToServer()
 	{
 		return uploadToServer;
 	}
 
+	/**
+	 * Should Functional Test scenarios execution stop when an error occurs.
+	 * 
+	 * @return	<code>true</code> if stop at first error is selected, otherwise <code>false</code>.
+	 */
 	public boolean getHaltAtFailure()
 	{
 		return haltAtFailure;
 	}
 
+	/**
+	 * Returns the Sonar version
+	 * 
+	 * @return	<code>String</code> Sonar version.
+	 */
 	public String getSonarVersion()
 	{
 		return sonarVersion;
 	}
 
+	/**
+	 * The location of ths Source Folder
+	 * 
+	 * @return	<code>String</code> The value set for the Source folder.
+	 */
 	public String getSourceFolder()
 	{
 		return sourceFolder;
 	}
 
+	/**
+	 * Returns the location of the report folder
+	 * 
+	 * @return	<code>String</code> The folder to put the Reports.
+	 */
 	public String getReportFolder()
 	{
 		return reportFolder;
 	}
 
+	/**
+	 * When to stop Functional Test suite or scenario.
+	 * 
+	 * @return	<code>true</code> if the test has failed or the threashold has been reached, otherwise <code>false</code>.
+	 */
 	public boolean getStopIfTestFailsOrThresholdReached()
 	{
 		return stopIfTestFailsOrThresholdReached;
 	}
 
+	/**
+	 * Return the accounting information to be used durring execution of the Functional Test
+	 * 
+	 * @return	The account information to be used for execution of the Functional Test
+	 */
 	public String getAccountInfo()
 	{
 		return accountInfo;
 	}
 
+	/**
+	 * Set the Source Folder location
+	 * 
+	 * @param sourceFolder
+	 * 			  The Source Folder location.
+	 */
 	@DataBoundSetter
 	public void setSourceFolder(String sourceFolder)
 	{
 		this.sourceFolder = sourceFolder;
 	}
 
+	/**
+	 * Set the Sonar Version
+	 * 
+	 * @param sonarVersion
+	 * 			  The version of Sonar.
+	 */
 	@DataBoundSetter
 	public void setSonarVersion(String sonarVersion)
 	{
 		this.sonarVersion = sonarVersion;
 	}
 
+	/**
+	 * Set the Report Folder location
+	 * 
+	 * @param reportFolder
+	 * 			  The report folder location.
+	 */
 	@DataBoundSetter
 	public void setReportFolder(String reportFolder)
 	{
 		this.reportFolder = reportFolder;
 	}
 
+	/**
+	 * Set the Code Coverage threshhold
+	 * 
+	 * @param ccThreshhold
+	 * 			  The vale to be set as the Code Coverage threashhold.
+	 */
 	@DataBoundSetter
 	public void setCcThreshhold(int ccThreshhold)
 	{
 		this.ccThreshhold = ccThreshhold;
 	}
 
+	/**
+	 * Set the flag to halt when a failure has been detected.
+	 * 
+	 * @param haltAtFailure
+	 * 			  <code>true</code> if the test should stop at failure, otherwise <code>false</code>.
+	 */
 	@DataBoundSetter
 	public void setHaltAtFailure(boolean haltAtFailure)
 	{
 		this.haltAtFailure = haltAtFailure;
 	}
 
+	/**
+	 * Set the flag to look for test scenarios recursively from the sourceFolder.
+	 * 
+	 * @param recursive
+	 * 			  <code>true</code> if files should be searched recursively, otherwise <code>false</code>.
+	 */
 	@DataBoundSetter
 	public void setRecursive(boolean recursive)
 	{
 		this.recursive = recursive;
 	}
 
+	/**
+	 * Set the flag to upload the results to the server.
+	 * 
+	 * @param uploadToServer
+	 * 			  <code>true</code> if results should be uploaded to the server, otherwise <code>false</code>.
+	 */
 	@DataBoundSetter
 	public void setUploadToServer(boolean uploadToServer)
 	{
 		this.uploadToServer = uploadToServer;
 	}
 
+	/**
+	 * Set the flag to stop execution of the test if a failure or threashold has been reached.
+	 * 
+	 * @param stopIfTestFailsOrThresholdReached
+	 * 			  <code>true</code> if if the test should be stopped with failuresy, otherwise <code>false</code>.
+	 */
 	@DataBoundSetter
 	public void setStopIfTestFailsOrThresholdReached(boolean stopIfTestFailsOrThresholdReached)
 	{
 		this.stopIfTestFailsOrThresholdReached = stopIfTestFailsOrThresholdReached;
 	}
 
+	/**
+	 * Set the accounting information for the job execution.
+	 * 
+	 * @param accountInfo
+	 * 			  The accounting information to be used when this test is executed.
+	 */
 	@DataBoundSetter
 	public void setAccountInfo(String accountInfo)
 	{
@@ -244,7 +342,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public void perform(Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener)
 			throws InterruptedException, IOException
 	{
-		listener.getLogger().println("Running " + Messages.displayName() + "\n");
+		listener.getLogger().println("Running " + Messages.displayName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		try
 		{
@@ -252,14 +350,14 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 			TotalTestCTRunner runner = new TotalTestCTRunner(this);
 			boolean success = runner.run(build, launcher, workspace, listener);
-			if (success == false)
+			if (success == false) //NOSONAR
 			{
-				listener.error("Test failure");
-				throw new AbortException("Test failure");
+				listener.error("Test failure"); //$NON-NLS-1$
+				throw new AbortException("Test failure"); //$NON-NLS-1$
 			}
 			else
 			{
-				listener.getLogger().println("Test Success...");
+				listener.getLogger().println("Test Success..."); //$NON-NLS-1$
 			}
 
 		}
@@ -284,22 +382,22 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	{
 		if (!getEnvironmentId().isEmpty())
 		{
-			listener.getLogger().println("environmentId = " + environmentId);
+			listener.getLogger().println("environmentId = " + environmentId); //$NON-NLS-1$
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"Missing parameter Environment Id - please get the environment ID from the repository server");
+					"Missing parameter Environment Id - please get the environment ID from the repository server"); //$NON-NLS-1$
 		}
 
 		if (!getServerUrl().isEmpty())
 		{
-			listener.getLogger().println("serverUrl = " + serverUrl);
+			listener.getLogger().println("serverUrl = " + serverUrl); //$NON-NLS-1$
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"Missing parameter CES server URL - please use the Compuware configuration tool to configure");
+					"Missing parameter CES server URL - please use the Compuware configuration tool to configure"); //$NON-NLS-1$
 		}
 
 		if (!getCredentialsId().isEmpty())
@@ -307,40 +405,40 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 			if (TotalTestRunnerUtils.getLoginInformation(project, getCredentialsId()) != null)
 			{
-				listener.getLogger().println("Credentials entered...");
+				listener.getLogger().println("Credentials entered..."); //$NON-NLS-1$
 			}
 			else
 			{
 				throw new IllegalArgumentException(
-						"Credential ID entered is not valid - enter valid ID from Jenkins Credentials plugin");
+						"Credential ID entered is not valid - enter valid ID from Jenkins Credentials plugin"); //$NON-NLS-1$
 			}
 		}
 		else
 		{
-			throw new IllegalArgumentException("Missing Credentials ID - configure plugin correctly");
+			throw new IllegalArgumentException("Missing Credentials ID - configure plugin correctly"); //$NON-NLS-1$
 		}
 		
 		if (!getAccountInfo().isEmpty() && getAccountInfo().length() > MAX_ACCOUNTING_LEN)
 		{
-			throw new IllegalArgumentException("Entered accounting information is greater than 52 characters.");
+			throw new IllegalArgumentException("Entered accounting information is greater than 52 characters."); //$NON-NLS-1$
 		}
 
-		listener.getLogger().println("ccThreshhold = " + ccThreshhold);
+		listener.getLogger().println("ccThreshhold = " + ccThreshhold); //$NON-NLS-1$
 	}
 
 	@Symbol("totaltest")
 	@Extension
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder>
 	{
-		public static final String defaultFolderPath = "";
-		public static final int defaultCCThreshhold = 0;
-		public static final String defaultSourceFolder = "COBOL";
-		public static final String defaultReportFolder = "TTTReport";
-		public static final Boolean defaultRecursive = true;
-		public static final Boolean defaultStopIfTestFailsOrThresholdReached = true;
-		public static final Boolean defaultUploadToServer = false;
-		public static final Boolean defaultHaltAtFailure = false;
-		public static final String defaultAccountInfo = "";
+		public static final String defaultFolderPath = ""; //NOSONAR //$NON-NLS-1$
+		public static final int defaultCCThreshhold = 0; //NOSONAR
+		public static final String defaultSourceFolder = "COBOL"; //NOSONAR //$NON-NLS-1$
+		public static final String defaultReportFolder = "TTTReport"; //NOSONAR //$NON-NLS-1$
+		public static final Boolean defaultRecursive = true; //NOSONAR
+		public static final Boolean defaultStopIfTestFailsOrThresholdReached = true; //NOSONAR
+		public static final Boolean defaultUploadToServer = false; //NOSONAR
+		public static final Boolean defaultHaltAtFailure = false; //NOSONAR
+		public static final String defaultAccountInfo = ""; //NOSONAR //$NON-NLS-1$
 
 		/**
 		 * Validates for the 'CcThreshhold' field
@@ -473,7 +571,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		{
 			if (value != null && value.trim().length() > 0)
 			{
-				if (value.length() > 52)
+				if (value.length() > 52) //NOSONAR
 				{
 					return FormValidation.error(Messages.errors_invalidAccountingLength());
 				}
@@ -494,7 +592,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 * @return credential selections
 		 * 
 		 */
-		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context,
+		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context, //NOSONAR
 				@QueryParameter final String credentialsId, @AncestorInPath final Item project)
 		{
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
@@ -503,7 +601,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 			StandardListBoxModel model = new StandardListBoxModel();
 
-			model.add(new Option("", "", false));
+			model.add(new Option("", "", false)); //$NON-NLS-1$ //$NON-NLS-2$
 
 			for (StandardUsernamePasswordCredentials c : creds)
 			{
@@ -515,7 +613,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 				}
 
 				String description = Util.fixEmptyAndTrim(c.getDescription());
-				model.add(new Option(c.getUsername() + (description != null ? " (" + description + ")" : ""), c.getId(),
+				model.add(new Option(c.getUsername() + (description != null ? " (" + description + ")" : ""), c.getId(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						isSelected));
 			}
 
@@ -535,7 +633,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		{
 
 			ListBoxModel model = new ListBoxModel();
-			model.add(new Option("", "", false));
+			model.add(new Option("", "", false)); //$NON-NLS-1$ //$NON-NLS-2$
 			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
 			if (globalConfig != null)
 			{
@@ -564,6 +662,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 * (non-Javadoc)
 		 * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)
 		 */
+		@SuppressWarnings("rawtypes")
 		@Override
 		public boolean isApplicable(Class<? extends AbstractProject> aClass)
 		{
