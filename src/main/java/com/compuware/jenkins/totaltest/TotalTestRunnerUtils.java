@@ -17,12 +17,17 @@
 
 package com.compuware.jenkins.totaltest;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.remoting.RoleChecker;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
@@ -31,6 +36,7 @@ import com.cloudbees.plugins.credentials.matchers.IdMatcher;
 import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
 import com.compuware.jenkins.common.utils.CLIVersionUtils;
 import hudson.FilePath;
+import hudson.FilePath.FileCallable;
 import hudson.Launcher;
 import hudson.Plugin;
 import hudson.model.Item;
@@ -357,4 +363,49 @@ public class TotalTestRunnerUtils
 		
 		return cliScriptPath;
 	}
+
+	/**
+	 * Returns a UTF8 string of the remote file.
+	 * 		hudson.VirtualChannel vChannel = new hudson.VirtualChannel(......);
+	 *		hudson.FilePath filePath = new hudson.FilePath(vChannel, "somefile");
+	 *		filePath.act(new TotalTestRunnerUtils.GetRemoteUTF8FileContents());
+	 * 
+	 * @return	The UFT8 string that represents the file.
+	 * 
+	 * @throws IOException
+	 * 			If the file does not exist.
+	 * @throws InterruptedException
+	 * 			If unable to get file contents.
+	 * 
+	 * @see hudson.FilePath#act(FileCallable)
+	 * 
+	 */
+	public static class GetRemoteUTF8FileContents implements FileCallable<String> {
+		private static final long serialVersionUID = 1L;
+		
+		/*
+		 * (non-Javadoc)
+		 * @see hudson.FileCallable#invoke(File file, hudson.VirtualChannel channel)
+		 */
+		@Override
+		public String invoke(File file, VirtualChannel channel) throws IOException, InterruptedException {
+			String retVal = null;
+			
+			if (file.getAbsoluteFile().exists()){
+				retVal = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())), StandardCharsets.UTF_8);
+			}
+			
+			return retVal;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.jenkinsci.remoting.RoleChecker#checkRoles(hudson.RoleChecker arg0l)
+		 */
+		@Override
+		public void checkRoles(RoleChecker arg0) throws SecurityException {
+			// TODO Auto-generated method stub
+		}
+	}
+
 }
