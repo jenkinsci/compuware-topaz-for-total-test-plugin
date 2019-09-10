@@ -372,11 +372,6 @@ public class TotalTestRunnerUtils
 	 * 
 	 * @return	The UFT8 string that represents the file.
 	 * 
-	 * @throws IOException
-	 * 			If the file does not exist.
-	 * @throws InterruptedException
-	 * 			If unable to get file contents.
-	 * 
 	 * @see hudson.FilePath#act(FileCallable)
 	 * 
 	 */
