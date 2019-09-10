@@ -370,8 +370,6 @@ public class TotalTestRunnerUtils
 	 *		hudson.FilePath filePath = new hudson.FilePath(vChannel, "somefile");
 	 *		filePath.act(new TotalTestRunnerUtils.GetRemoteUTF8FileContents());
 	 * 
-	 * @return	The UFT8 string that represents the file.
-	 * 
 	 * @see hudson.FilePath#act(FileCallable)
 	 * 
 	 */
