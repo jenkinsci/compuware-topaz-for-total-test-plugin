@@ -47,7 +47,7 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestCTRunner
 {
-	private  static final String TTT_MINIMUM_CLI_VERSION = "19.5.3"; //$NON-NLS-1$
+	private  static final String TTT_MINIMUM_CLI_VERSION = "19.6.1"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_WEBAPP = "totaltestapi"; //$NON-NLS-1$
@@ -394,6 +394,8 @@ public class TotalTestCTRunner
 		{
 			args.add("-a").add(tttBuilder.getAccountInfo()); //$NON-NLS-1$
 		}
+		
+		args.add("-l").add("jenkins"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	}
 
