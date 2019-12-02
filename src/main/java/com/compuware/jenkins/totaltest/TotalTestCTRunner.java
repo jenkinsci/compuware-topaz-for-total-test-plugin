@@ -47,10 +47,12 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestCTRunner
 {
-	private  static final String TTT_MINIMUM_CLI_VERSION = "19.6.1"; //$NON-NLS-1$
+	private  static final String TTT_MINIMUM_CLI_VERSION = "20.1.1"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_WEBAPP = "totaltestapi"; //$NON-NLS-1$
+	private static final String TOPAZ_CLI_WORKSPACE = "TopazCliWkspc"; //$NON-NLS-1$
+	private static final String DATA = "-data"; //$NON-NLS-1$
 
 	private final TotalTestCTBuilder tttBuilder;
 
@@ -113,6 +115,10 @@ public class TotalTestCTRunner
 
 		FilePath cliScriptPath = TotalTestRunnerUtils.getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile, TTT_MINIMUM_CLI_VERSION);
 		args.add(cliScriptPath.getRemote());
+		
+		String topazCliWorkspace = workspaceFilePath.getRemote() + remoteFileSeparator + TOPAZ_CLI_WORKSPACE;
+		args.add(DATA, TotalTestRunnerUtils.escapeForScript(topazCliWorkspace));
+		
 		addArguments(args, listener);
 
 		FilePath workDir = new FilePath (vChannel, workspaceFilePath.getRemote());
@@ -317,7 +323,7 @@ public class TotalTestCTRunner
 	 */
 	private void addArguments(final ArgumentListBuilder args, final TaskListener listener) throws IOException, InterruptedException
 	{
-		args.add("-e").add(tttBuilder.getEnvironmentId(), false); //$NON-NLS-1$
+		args.add("-e").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
 
 		String tttServerUrl = tttBuilder.getServerUrl();
 
@@ -329,7 +335,7 @@ public class TotalTestCTRunner
 		tttServerUrl += TOTAL_TEST_WEBAPP + "/"; //$NON-NLS-1$
 		listener.getLogger().println("Set the repository URL : " + tttServerUrl); //$NON-NLS-1$
 
-		args.add("-s").add(tttServerUrl, false); //$NON-NLS-1$
+		args.add("-s").add(TotalTestRunnerUtils.escapeForScript(tttServerUrl), false); //$NON-NLS-1$
 		args.add("-u").add( //$NON-NLS-1$
 				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
 				false);
@@ -343,14 +349,14 @@ public class TotalTestCTRunner
 		}
 
 		listener.getLogger().println("The folder path: " + folder); //$NON-NLS-1$
-		args.add("-f").add(folder, false); //$NON-NLS-1$
+		args.add("-f").add(TotalTestRunnerUtils.escapeForScript(folder), false); //$NON-NLS-1$
 
 		String workDir = workspaceFilePath.getRemote();
 		if (!Strings.isNullOrEmpty(workDir))
 		{
 			if (workDir.compareTo(workspaceFilePath.absolutize().getRemote()) != 0)
 			{
-				args.add("-r").add(workDir); //$NON-NLS-1$
+				args.add("-r").add(TotalTestRunnerUtils.escapeForScript(workDir)); //$NON-NLS-1$
 				listener.getLogger().println("Set the root folder : " + workDir); //$NON-NLS-1$
 			}
 			else
@@ -376,12 +382,12 @@ public class TotalTestCTRunner
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getSourceFolder()) && !tttBuilder.getSourceFolder().equalsIgnoreCase("COBOL")) //$NON-NLS-1$
 		{
-			args.add("-S").add(tttBuilder.getSourceFolder()); //$NON-NLS-1$
+			args.add("-S").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getSourceFolder())); //$NON-NLS-1$
 		}
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getReportFolder()))
 		{
-			args.add("-g").add(tttBuilder.getReportFolder()); //$NON-NLS-1$
+			args.add("-g").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getReportFolder())); //$NON-NLS-1$
 			args.add("-G"); //$NON-NLS-1$
 		}
 
