@@ -12,7 +12,7 @@ The following are required to use this plugin:
 -   Jenkins
 -   Jenkins Credentials Plugin
 -   Topaz Workbench CLI. Refer to the [Topaz Workbench Install
-    Guide](http://frontline.compuware.com/Doc/KB/KB1802/PDF/Topaz_Workbench_Install_Guide.pdf){.external-link} for
+    Guide](http://frontline.compuware.com/Doc/KB/KB1802/PDF/Topaz_Workbench_Install_Guide.pdf) for
     instructions.
 -   Topaz for Total Test license.
 -   Host Communications Interface
@@ -26,10 +26,10 @@ The following are required to use this plugin:
     execute the plugin.  The Topaz Workbench CLI is available on the
     Topaz Workbench installation package.  If you do not have the
     installation package, please
-    visit [go.compuware.com](http://go.compuware.com/){.external-link}. 
+    visit [go.compuware.com](http://go.compuware.com/)
     For Topaz Workbench CLI installation instructions, please refer to
     the [Topaz Workbench Install
-    Guide](http://frontline.compuware.com/Doc/KB/KB1802/PDF/Topaz_Workbench_Install_Guide.pdf){.external-link}.
+    Guide](http://frontline.compuware.com/Doc/KB/KB1802/PDF/Topaz_Workbench_Install_Guide.pdf)
 
 ### Configuring Host Connections
 
@@ -136,7 +136,7 @@ Compuware Support Center web site, and telephone customer support.
 
 You can access online information for Compuware products via our Support
 Center site
-at [https://go.compuware.com](https://go.compuware.com/){.external-link}.
+at [https://go.compuware.com](https://go.compuware.com/)
 Support Center provides access to critical information about your
 Compuware products. You can review frequently asked questions, read or
 download documentation, access product fixes, or e-mail your questions
@@ -182,7 +182,7 @@ You can contact Compuware in one of the following ways:
 
 -   All other countries: Contact your local Compuware office. Contact
     information is available
-    at [https://go.compuware.com](https://go.compuware.com/){.external-link}.
+    at [https://go.compuware.com](https://go.compuware.com/)
 
 ### Web
 
@@ -200,6 +200,11 @@ Detroit, MI 48226-5099
 ## Corporate Web Site
 
 To access Compuware's site on the Web, go
-to [https://www.compuware.com](https://www.compuware.com/){.external-link}.
+to [https://www.compuware.com](https://www.compuware.com/)
 The Compuware site provides a variety of product and support
 information.
+
+## Change Log
+
+To access the change log, go to
+[Total Test Change log](https://github.com/jenkinsci/compuware-topaz-for-total-test-plugin/blob/master/CHANGELOG.md)
