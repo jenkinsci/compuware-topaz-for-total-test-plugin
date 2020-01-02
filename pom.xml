@@ -24,7 +24,7 @@
   
   <name>Compuware Topaz for Total Test</name>
   <description>Runs the Compuware Topaz for Total Test CLI to execute tests.</description>
-  <url>https://wiki.jenkins-ci.org/display/JENKINS/Compuware+Topaz+for+Total+Test+Plugin</url>
+  <url>https://github.com/jenkinsci/compuware-topaz-for-total-test-plugin</url>
   <licenses>
     <license>
       <name>MIT License</name>
