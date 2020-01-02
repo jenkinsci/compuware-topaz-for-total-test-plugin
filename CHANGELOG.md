@@ -1,8 +1,12 @@
 # Change Log 
 
+### Version 2.3.1
+
+-   Updated for documentation in GitHub
+    
 ### Version 2.3.0
 
--   Update Functional test to execute in the standard Compuware CLI
+-   Updated Functional test to execute in the standard Compuware CLI
     environment.
 	
 **Functional test requires version 20.01.01 or higher of the Topaz
@@ -20,7 +24,7 @@ db2jcc_license_cisuz.jar.**
 
 ### Version 2.2.3
 
--   Update Functional test to generate zAdviser events for Jenkins.
+-   Updated Functional test to generate zAdviser events for Jenkins.
 
 **Support for generating Jenkins zAdviser events from Total Test
 Functional test requires version 19.06.01 or higher of the Topaz
@@ -28,7 +32,7 @@ Workbench CLI.**
 
 ### Version 2.2.2
 
--   Fix various problems running Unit test and Functional test on
+-   Fixed various problems running Unit test and Functional test on
     Jenkins slave.
 
 **Support for executing a Total Test Functional test requires version
@@ -85,11 +89,11 @@ higher.**
 
 ### Version 2.0.2
 
--   Fix creation of the -data argument for Linux.
+-   Fixed creation of the -data argument for Linux.
 
 ### Version 2.0.1
 
--   Fix display and processing of CodeCoverage information.
+-   Fixed display and processing of CodeCoverage information.
 
 ### Version 2.0.0
 
