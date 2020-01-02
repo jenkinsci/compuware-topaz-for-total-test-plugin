@@ -1,8 +1,12 @@
 # Change Log 
 
+### Version 2.3.1
+
+-   Updated for documentation in GitHub
+    
 ### Version 2.3.0
 
--   Update Functional test to execute in the standard Compuware CLI
+-   Updated Functional test to execute in the standard Compuware CLI
     environment.
 	
 **Functional test requires version 20.01.01 or higher of the Topaz
@@ -20,7 +24,7 @@ db2jcc_license_cisuz.jar.**
 
 ### Version 2.2.3
 
--   Update Functional test to generate zAdviser events for Jenkins.
+-   Updated Functional test to generate zAdviser events for Jenkins.
 
 **Support for generating Jenkins zAdviser events from Total Test
 Functional test requires version 19.06.01 or higher of the Topaz
