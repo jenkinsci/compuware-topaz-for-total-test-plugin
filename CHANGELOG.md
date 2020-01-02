@@ -32,7 +32,7 @@ Workbench CLI.**
 
 ### Version 2.2.2
 
--   Fix various problems running Unit test and Functional test on
+-   Fixed various problems running Unit test and Functional test on
     Jenkins slave.
 
 **Support for executing a Total Test Functional test requires version
@@ -89,11 +89,11 @@ higher.**
 
 ### Version 2.0.2
 
--   Fix creation of the -data argument for Linux.
+-   Fixed creation of the -data argument for Linux.
 
 ### Version 2.0.1
 
--   Fix display and processing of CodeCoverage information.
+-   Fixed display and processing of CodeCoverage information.
 
 ### Version 2.0.0
 
