@@ -5,6 +5,11 @@ speed testing development and provide higher confidence during program
 deployment process.  The plugin allows Jenkins users to run test
 scenarios and test suites.
 
+### Change Log
+
+To access the change log, go to
+[Total Test Change log](https://github.com/jenkinsci/compuware-topaz-for-total-test-plugin/blob/master/CHANGELOG.md)
+
 ### Prerequisites
 
 The following are required to use this plugin:
@@ -203,8 +208,3 @@ To access Compuware's site on the Web, go
 to [https://www.compuware.com](https://www.compuware.com/)
 The Compuware site provides a variety of product and support
 information.
-
-## Change Log
-
-To access the change log, go to
-[Total Test Change log](https://github.com/jenkinsci/compuware-topaz-for-total-test-plugin/blob/master/CHANGELOG.md)
