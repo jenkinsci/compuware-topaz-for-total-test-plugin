@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2019 Compuware Corporation
+ * Copyright (c) 2019,2020 Compuware Corporation
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -47,7 +47,7 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestCTRunner
 {
-	private  static final String TTT_MINIMUM_CLI_VERSION = "20.1.1"; //$NON-NLS-1$
+	private  static final String TTT_MINIMUM_CLI_VERSION = "19.6.4"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_WEBAPP = "totaltestapi"; //$NON-NLS-1$

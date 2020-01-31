@@ -1,8 +1,12 @@
 # Change Log 
 
+### Version 2.3.2
+
+-   Updated Functional test to execute with Topaz Workbench CLI 19.06.04 and higher.
+     
 ### Version 2.3.1
 
--   Updated for documentation in GitHub
+-   Updated for documentation in GitHub 
     
 ### Version 2.3.0
 
