@@ -72,6 +72,8 @@ public class TotalTestRunner
 	private static final String DELETE_TEMPORARY = "-deletetemp"; //$NON-NLS-1$
 	private static final String TARGET_ENCODING = "-targetencoding"; //$NON-NLS-1$
 	
+	private static final String RECURSIVE = "-recursive"; //$NON-NLS-1$
+	
 	private static final String PROPERTY_FILE_SEPARATOR = "file.separator";  //$NON-NLS-1$
 	private static final String DEFAULT_CODE_PAGE = "1047";  //$NON-NLS-1$
 
@@ -358,7 +360,7 @@ public class TotalTestRunner
 		addArgument(args,PROJECT, projectPath.getRemote(), isLinux);
 		 
 		String testSuiteEntry = tttBuilder.getTestSuite();
-		if (TotalTestRunnerUtils.isAllTestScenariosOrSuites(testSuiteEntry) || TotalTestRunnerUtils.isTestNameList(testSuiteEntry))
+		if (TotalTestRunnerUtils.isSpecicalTestName(testSuiteEntry) || TotalTestRunnerUtils.isTestNameList(testSuiteEntry))
 		{
 			addArgument(args, TEST_NAME_LIST, testSuiteEntry, isLinux);
 		}
@@ -439,6 +441,11 @@ public class TotalTestRunner
 		addArgument(args, USE_STUBS, Boolean.toString(tttBuilder.isUseStubs()), isLinux);
 		
 		addArgument(args, DELETE_TEMPORARY, Boolean.toString(tttBuilder.isDeleteTemp()), isLinux);
+		
+		if (tttBuilder.isRecursive())
+		{
+			args.add(RECURSIVE);
+		}
 	}
 	
 	/**
