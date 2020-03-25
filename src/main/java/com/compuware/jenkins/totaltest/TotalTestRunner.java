@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2015 - 2019 Compuware Corporation
+ * Copyright (c) 2015 - 2020 Compuware Corporation
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -35,7 +35,7 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestRunner
 {
-	public static final String TTT_MINIMUM_CLI_VERSION = "18.2.4"; //$NON-NLS-1$
+	public static final String TTT_MINIMUM_CLI_VERSION = "20.03.01"; //$NON-NLS-1$
 	
 	private static final String COMMA = ","; //$NON-NLS-1$
 	
