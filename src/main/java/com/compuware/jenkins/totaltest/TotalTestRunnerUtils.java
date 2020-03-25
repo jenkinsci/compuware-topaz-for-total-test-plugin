@@ -56,6 +56,7 @@ public class TotalTestRunnerUtils
 	
 	private static final String ALL_SCENARIOS = "ALL_SCENARIOS"; //$NON-NLS-1$
 	private static final String ALL_SUITES = "ALL_SUITES"; //$NON-NLS-1$
+	private static final String AUTO_SELECT = "AUTO_SELECT"; //$NON-NLS-1$
 	
 	/**
 	 * Gets the host name;
@@ -209,10 +210,10 @@ public class TotalTestRunnerUtils
 	 * 
 	 * @return	<code>true</code> if either ALL_SCENARIOS or ALL_SUITES was specified, otherwise <code>false</code>.
 	 */
-	public static boolean isAllTestScenariosOrSuites(String testName)
+	public static boolean isSpecicalTestName(String testName)
 	{
-		if (ALL_SCENARIOS.equalsIgnoreCase(testName) || ALL_SUITES.equalsIgnoreCase(testName))
-		{
+		if (ALL_SCENARIOS.equalsIgnoreCase(testName) || ALL_SUITES.equalsIgnoreCase(testName) || AUTO_SELECT.equalsIgnoreCase(testName))
+		{ 
 			return true;
 		}
 		
