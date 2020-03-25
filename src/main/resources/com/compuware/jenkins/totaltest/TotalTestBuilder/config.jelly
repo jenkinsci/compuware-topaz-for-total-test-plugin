@@ -46,6 +46,9 @@
      			<f:entry field="deleteTemp">
 					<f:checkbox title="${%deleteTemp}" default="true"/>
 				</f:entry>
+     			<f:entry field="recursive">
+					<f:checkbox title="${%recursive}" default="false"/>
+				</f:entry>
 				<f:entry title="${%hlq}" field="hlq">
 					<f:textbox/>
 				</f:entry>
