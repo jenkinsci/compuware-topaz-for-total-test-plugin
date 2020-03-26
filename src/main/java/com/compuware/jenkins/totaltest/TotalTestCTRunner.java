@@ -59,6 +59,7 @@ public class TotalTestCTRunner
 	private TaskListener listener;
 	private FilePath workspaceFilePath;
 	private Run<?, ?> build;
+	private String remoteFileSeparator;
 
 	/**
 	 * Constructor
@@ -106,7 +107,7 @@ public class TotalTestCTRunner
 		this.workspaceFilePath = workspaceFilePath;
 		this.build = build;
 		Properties remoteProperties = vChannel.call(new RemoteSystemProperties());
-		String remoteFileSeparator = remoteProperties.getProperty("file.separator"); //$NON-NLS-1$
+		remoteFileSeparator = remoteProperties.getProperty("file.separator"); //$NON-NLS-1$
 
 		boolean isLinux = launcher.isUnix();
 		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
@@ -173,7 +174,29 @@ public class TotalTestCTRunner
 	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException
 	{
 		int result = 0;
-		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, "generated.cli.xasuiteres"); //$NON-NLS-1$
+		String resultFileName = "generated.cli.xasuiteres"; //$NON-NLS-1$
+		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, resultFileName);
+		if (testSuiteResultPath == null)
+		{
+			resultFileName = "generated.cli.suiteresult"; //$NON-NLS-1$
+			testSuiteResultPath = getRemoteFilePath(launcher, listener, resultFileName);
+		}
+		
+		
+		if (testSuiteResultPath != null)
+		{
+			listener.getLogger().println("Found file path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+		}
+		else
+		{
+			VirtualChannel vChannel = launcher.getChannel();
+			FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
+			testSuiteResultPath = new FilePath(workDir, resultFileName).absolutize();
+			listener.getLogger().println("The file path: " + testSuiteResultPath.getRemote() + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		listener.getLogger().println("TotalTest  CLI script file remote path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+
 		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
 		
 		try
@@ -424,7 +447,6 @@ public class TotalTestCTRunner
 	 */
 	private FilePath getRemoteFilePath(final Launcher launcher, final TaskListener listener, String osFile) throws IOException, InterruptedException
 	{
-		FilePath remoteFile = null;
 		VirtualChannel vChannel = launcher.getChannel();
 		FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
 
@@ -454,9 +476,13 @@ public class TotalTestCTRunner
 			FilePath reportFolderPath = new FilePath(vChannel, reportFolder);
 			absoluteReportFolderPath = reportFolderPath.absolutize();
 
-			if (!absoluteReportFolderPath.exists() || !absoluteReportFolderPath.isDirectory())
+			if (absoluteReportFolderPath != null && absoluteReportFolderPath.isDirectory())
 			{
 				absoluteReportFolderPath = new FilePath(workDir, reportFolder).absolutize();
+			}
+			else
+			{
+				absoluteReportFolderPath = new FilePath(workDir, folderPathString + remoteFileSeparator + reportFolder).absolutize();
 			}
 		}
 		else
@@ -466,21 +492,8 @@ public class TotalTestCTRunner
 		
 		listener.getLogger().println("Search " + osFile + " from the folder path: " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$ //$NON-NLS-2$
 		FilePath fileFound = searchFileFromDir(absoluteReportFolderPath, osFile, listener);
-
-		if (fileFound != null)
-		{
-			remoteFile = fileFound;
-			listener.getLogger().println("Found file path: " + remoteFile.getRemote()); //$NON-NLS-1$
-		}
-		else
-		{
-			remoteFile = new FilePath(workDir, osFile).absolutize();
-			listener.getLogger().println("The file path: " + remoteFile.getRemote() + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		listener.getLogger().println("TotalTest  CLI script file remote path: " + remoteFile.getRemote()); //$NON-NLS-1$
-
-		return remoteFile;
+		
+		return fileFound;
 	}
 
 	/**
