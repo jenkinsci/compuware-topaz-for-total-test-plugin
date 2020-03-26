@@ -1,9 +1,9 @@
-# Change Log 
+# Change Logï¿½
 
 ### Version 2.3.3
 
 -	Fixed Functional test exception when analysing test results.
--	Updated Functional test to support new result extension .suiteresult
+-	Updated Functional test to support WorkbenchCLI 20.02 new result extension .suiteresult
 
 ### Version 2.3.2
 
@@ -64,14 +64,14 @@ Workbench CLI.**
         version 19.04.03 or higher of the Topaz Workbench CLI.**
 -   Added support for secure connections when executing Topaz for Total
     Test Unit Test test cases.
-    -   **Support for secure connections requires Compuware Common
+    -   **Support for secure connections requiresï¿½Compuware Common
         Configuration 1.0.7 or higher.**
 
 ### Version 2.1.3
 
 -   Added support for Compuware Common Configuration 1.0.7
 
-** Lower versions of Topaz for Total Test plugins do not support
+**ï¿½Lower versions of Topaz for Total Test plugins do not support
 Compuware Common Configuration 1.0.7.**
 
 ### Version 2.1.2
@@ -80,10 +80,10 @@ Compuware Common Configuration 1.0.7.**
 
 ### Version 2.1.1
 
--   Added "-jenkins" to the generated Topaz Workbench CLI  command line
+-   Added "-jenkins" to the generatedï¿½Topaz Workbench CLIï¿½ command line
     for zAdviser support.
 
-** zAdviser support requires **Topaz Workbench CLI **version 19.2.1 or
+**ï¿½zAdviser support requires **Topaz Workbench CLIï¿½**version 19.2.1 or
 higher.**
 
 ### Version 2.1.0
@@ -106,13 +106,13 @@ higher.**
 
 ### Version 2.0.0
 
--   The plugin now integrates with the [Compuware Common
-    Configuration](https://plugins.jenkins.io/compuware-common-configuration){.external-link} plugin
+-   The plugin now integrates with theï¿½[Compuware Common
+    Configuration](https://plugins.jenkins.io/compuware-common-configuration){.external-link}ï¿½plugin
     which allows the Host Connection configurations and Topaz Workbench
     CLI to be defined centrally for other Compuware Jenkins plugins
     instead of needing to be specified in each Jenkins project's
-    configuration.  Host Connection configuration is now defined in the
-    Jenkins/Manage Jenkins/Configure System screen. 
+    configuration.ï¿½ Host Connection configuration is now defined in the
+    Jenkins/Manage Jenkins/Configure System screen.ï¿½
 
 ### Version 1.8.2
 
