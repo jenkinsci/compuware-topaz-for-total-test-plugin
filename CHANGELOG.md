@@ -1,5 +1,10 @@
 # Change Log 
 
+### Version 2.3.3
+
+-	Fixed Functional test exception when analysing test results.
+-	Updated Functional test to support new result extension .suiteresult
+
 ### Version 2.3.2
 
 -   Updated Functional test to execute with Topaz Workbench CLI 19.06.04 and higher.
