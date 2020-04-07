@@ -482,7 +482,8 @@ public class TotalTestCTRunner
 			}
 			else
 			{
-				absoluteReportFolderPath = new FilePath(workDir, folderPathString + remoteFileSeparator + reportFolder).absolutize();
+//				absoluteReportFolderPath = new FilePath(workDir, folderPathString + remoteFileSeparator + reportFolder).absolutize();
+				absoluteReportFolderPath = new FilePath(workDir, reportFolder + remoteFileSeparator + folderPathString).absolutize();
 			}
 		}
 		else
