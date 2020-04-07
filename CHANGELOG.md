@@ -1,6 +1,6 @@
 # Change Log�
 
-### Version 2.3.3
+### Version 2.3.4
 
 -	Fixed update to Functional test to support WorkbenchCLI 20.02 new result extension .suiteresult
 
