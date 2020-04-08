@@ -1,8 +1,12 @@
 # Change Log�
 
+### Version 2.3.5
+
+-	Fixed Functional test exception when analyzing test results.
+
 ### Version 2.3.4
 
--	Fixed Functional test exception when analysing test results.
+-	Fixed Functional test exception when analyzing test results.
 -	Updated Functional test to support WorkbenchCLI 20.02 new result extension .suiteresult
 
 ### Version 2.3.2
