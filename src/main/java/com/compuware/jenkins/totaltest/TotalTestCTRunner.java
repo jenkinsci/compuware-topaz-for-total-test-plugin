@@ -449,9 +449,8 @@ public class TotalTestCTRunner
 	{
 		VirtualChannel vChannel = launcher.getChannel();
 		FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
-
+		
 		String folderPathString = tttBuilder.getFolderPath();
-
 		if (folderPathString != null && !folderPathString.isEmpty() && !".".equals(folderPathString)) //$NON-NLS-1$
 		{
 			FilePath absoluteFolder = new FilePath (vChannel, folderPathString).absolutize();
@@ -470,25 +469,22 @@ public class TotalTestCTRunner
 		
 		String reportFolder = tttBuilder.getReportFolder().trim();
 		FilePath absoluteReportFolderPath = null;
-
+		
 		if (reportFolder != null && !reportFolder.isEmpty())
 		{
 			FilePath reportFolderPath = new FilePath(vChannel, reportFolder);
-			absoluteReportFolderPath = reportFolderPath.absolutize();
-
-			if (absoluteReportFolderPath != null && absoluteReportFolderPath.isDirectory())
+			if (reportFolderPath.exists() && reportFolderPath.isDirectory())
 			{
-				absoluteReportFolderPath = new FilePath(workDir, reportFolder).absolutize();
+				absoluteReportFolderPath = reportFolderPath.absolutize();
 			}
 			else
 			{
-//				absoluteReportFolderPath = new FilePath(workDir, folderPathString + remoteFileSeparator + reportFolder).absolutize();
-				absoluteReportFolderPath = new FilePath(workDir, reportFolder + remoteFileSeparator + folderPathString).absolutize();
+				absoluteReportFolderPath = new FilePath(workDir, reportFolder).absolutize();
 			}
 		}
 		else
 		{
-			absoluteReportFolderPath = new FilePath(vChannel, reportFolder).absolutize();
+			absoluteReportFolderPath = workDir.absolutize();
 		}
 		
 		listener.getLogger().println("Search " + osFile + " from the folder path: " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$ //$NON-NLS-2$
