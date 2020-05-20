@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2015 - 2018 Compuware Corporation
+ * Copyright (c) 2015 - 2020 Compuware Corporation
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -91,6 +91,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	private String datasetHLQ;
 	private boolean useStubs;
 	private boolean deleteTemp;
+	private boolean recursive;
 
 	private String ccRepo;
 	private String ccSystem;
@@ -383,6 +384,28 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		return datasetHLQ;
 	}
 	
+	/**
+	 * Sets whether should recursively check for Unit Test projects
+	 * 
+	 * @param recursive
+	 * 			<code>true</code> if should recursively check for Unit Test, otherwise <code>false</code>
+	 */
+	@DataBoundSetter
+	public void setRecursive(final boolean recursive)
+	{
+		this.recursive = recursive;
+	}
+	
+	/**
+	 * Returns whether recursively checking for Unit Test projects
+	 * 
+	 * @return	<code>true</code> indicates temporary files should be deleted.
+	 */
+	public boolean isRecursive()
+	{
+		return recursive;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see jenkins.tasks.SimpleBuildStep#perform(hudson.model.Run, hudson.FilePath, hudson.Launcher, hudson.model.TaskListener)
@@ -462,7 +485,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		if (getTestSuite().isEmpty() == false) // NOSONAR
 		{
 			String [] nameList = getTestSuite().split(COMMA);
-			if ((nameList.length == 1) && (TotalTestRunnerUtils.isAllTestScenariosOrSuites(nameList[0].trim())))
+			if ((nameList.length == 1) && (TotalTestRunnerUtils.isSpecicalTestName(nameList[0].trim())))
 			{
 				listener.getLogger().println(Messages.testsuite() + EQUAL + getTestSuite());	
 				return;
@@ -472,7 +495,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 			{
 				String lcName = name.trim().toLowerCase();
 				
-				if (TotalTestRunnerUtils.isAllTestScenariosOrSuites(lcName))
+				if (TotalTestRunnerUtils.isSpecicalTestName(lcName))
 				{
 					throw new IllegalArgumentException(Messages.testSuiteAllScenariosSuitesError(name));
 				}
@@ -607,7 +630,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 			}
 			
 			String [] nameList = trimmedValue.split(COMMA);
-			if ((nameList.length == 1) && (TotalTestRunnerUtils.isAllTestScenariosOrSuites(nameList[0].trim())))
+			if ((nameList.length == 1) && (TotalTestRunnerUtils.isSpecicalTestName(nameList[0].trim())))
 			{
 				return FormValidation.ok();
 			}
@@ -615,7 +638,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 			for (String name : nameList)
 			{
 				String lcName = name.trim().toLowerCase();
-				if (TotalTestRunnerUtils.isAllTestScenariosOrSuites(lcName))
+				if (TotalTestRunnerUtils.isSpecicalTestName(lcName))
 				{
 					return FormValidation.error(Messages.testSuiteAllScenariosSuitesError(name));
 				}
