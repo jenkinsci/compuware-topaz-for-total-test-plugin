@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2019 Compuware Corporation
+ * Copyright (c) 2019,2020 Compuware Corporation
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -83,8 +83,9 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * source path.
 	 */
 	private String sourceFolder = DescriptorImpl.defaultSourceFolder;
-	private String reportFolder = DescriptorImpl.defaultReportFolder;
+	private String reportFolder = null;
 	private String accountInfo = DescriptorImpl.defaultAccountInfo;
+	private boolean compareJUnits = false;
 
 	@DataBoundConstructor
 	public TotalTestCTBuilder(String environmentId, String folderPath, String serverUrl, String credentialsId)
@@ -334,6 +335,29 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		this.accountInfo = accountInfo;
 	}
 
+	/**
+	 * Set the if comparing JUnits.
+	 * 
+	 * @param compareJUnits
+	 * 			  <code>true</code> if JUnits should be compare, otherwise <code>false</code>.
+	 */
+	@DataBoundSetter
+	public void setCompareJUnits(boolean compareJUnits)
+	{
+		this.compareJUnits = compareJUnits;
+	}
+	
+	/**
+	 * Returns if comparing JUnits
+	 * 
+	 * @return	<code>true</code> indicates comparing JUnits. <code>false</code>
+	 * 			indicates not comparing JUnits.
+	 */
+	public boolean getCompareJUnits()
+	{
+		return this.compareJUnits;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see jenkins.tasks.SimpleBuildStep#perform(hudson.model.Run, hudson.FilePath, hudson.Launcher, hudson.model.TaskListener)
@@ -523,28 +547,28 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			return FormValidation.ok();
 		}
 
-		/**
-		 * Validates for the 'reportFolder' field
-		 * 
-		 * @param value
-		 *            Value passed from the config.jelly "fileExtension" field
-		 * @return validation message
-		 */
-		public FormValidation doCheckReportFolder(@QueryParameter final String value)
-		{
-			if (value == null || value.isEmpty() || value.trim().length() == 0)
-			{
-				return FormValidation.error(Messages.errors_missingReportFolder());
-			}
-
-			File theFolder = new File(value);
-			if (theFolder.isFile())
-			{
-				return FormValidation.error(Messages.errors_wrongReportFolder());
-			}
-
-			return FormValidation.ok();
-		}
+//		/**
+//		 * Validates for the 'reportFolder' field
+//		 * 
+//		 * @param value
+//		 *            Value passed from the config.jelly "fileExtension" field
+//		 * @return validation message
+//		 */
+//		public FormValidation doCheckReportFolder(@QueryParameter final String value)
+//		{
+//			if (value == null || value.isEmpty() || value.trim().length() == 0)
+//			{
+//				return FormValidation.error(Messages.errors_missingReportFolder());
+//			}
+//
+//			File theFolder = new File(value);
+//			if (theFolder.isFile())
+//			{
+//				return FormValidation.error(Messages.errors_wrongReportFolder());
+//			}
+//
+//			return FormValidation.ok();
+//		}
 
 		/**
 		 * Validates for the 'folderPath' field

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2015 - 2020 Compuware Corporation
+ * Copyright (c) 2015,2020 Compuware Corporation
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -283,7 +283,7 @@ public class TotalTestRunner
 			}
 			else
 			{
-				throw new IOException("ERROR: Invalid host information. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
+				throw new IOException("ERROR: No host connection defined. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
 			}
 		}
 		

@@ -47,12 +47,14 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestCTRunner
 {
-	private  static final String TTT_MINIMUM_CLI_VERSION = "19.6.4"; //$NON-NLS-1$
+	private static final String TTT_MINIMUM_CLI_VERSION = "20.3.1"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_WEBAPP = "totaltestapi"; //$NON-NLS-1$
 	private static final String TOPAZ_CLI_WORKSPACE = "TopazCliWkspc"; //$NON-NLS-1$
 	private static final String DATA = "-data"; //$NON-NLS-1$
+	private static final String FOLDER_OUTPUT = "Output"; //$NON-NLS-1$
+	private static final String RESULT_FILE_NAME = "generated.cli.suiteresult";  //$NON-NLS-1$
 
 	private final TotalTestCTBuilder tttBuilder;
 
@@ -174,13 +176,8 @@ public class TotalTestCTRunner
 	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException
 	{
 		int result = 0;
-		String resultFileName = "generated.cli.xasuiteres"; //$NON-NLS-1$
-		FilePath testSuiteResultPath = getRemoteFilePath(launcher, listener, resultFileName);
-		if (testSuiteResultPath == null)
-		{
-			resultFileName = "generated.cli.suiteresult"; //$NON-NLS-1$
-			testSuiteResultPath = getRemoteFilePath(launcher, listener, resultFileName);
-		}
+		String resultFileName = RESULT_FILE_NAME;
+		FilePath testSuiteResultPath = getOutputFilePath(launcher, listener, resultFileName);
 		
 		
 		if (testSuiteResultPath != null)
@@ -425,11 +422,16 @@ public class TotalTestCTRunner
 		}
 		
 		args.add("-l").add("jenkins"); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		if (tttBuilder.getCompareJUnits())
+		{
+			args.add("-cju"); //$NON-NLS-1$
+		}
 
 	}
 
 	/**
-	 * Returns the path to the remote file
+	 * Returns the path to the Output directory.
 	 * 
 	 * @param launcher
 	 *            The machine that the files will be checked out.
@@ -445,7 +447,7 @@ public class TotalTestCTRunner
 	 * @throws InterruptedException
 	 *             If unable to get CLI directory.
 	 */
-	private FilePath getRemoteFilePath(final Launcher launcher, final TaskListener listener, String osFile) throws IOException, InterruptedException
+	private FilePath getOutputFilePath(final Launcher launcher, final TaskListener listener, String osFile) throws IOException, InterruptedException
 	{
 		VirtualChannel vChannel = launcher.getChannel();
 		FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
@@ -467,25 +469,9 @@ public class TotalTestCTRunner
 
 		listener.getLogger().println("workspace path: " + workDir.getRemote()); //$NON-NLS-1$
 		
-		String reportFolder = tttBuilder.getReportFolder().trim();
+		String outputFolder = FOLDER_OUTPUT;
 		FilePath absoluteReportFolderPath = null;
-		
-		if (reportFolder != null && !reportFolder.isEmpty())
-		{
-			FilePath reportFolderPath = new FilePath(vChannel, reportFolder);
-			if (reportFolderPath.exists() && reportFolderPath.isDirectory())
-			{
-				absoluteReportFolderPath = reportFolderPath.absolutize();
-			}
-			else
-			{
-				absoluteReportFolderPath = new FilePath(workDir, reportFolder).absolutize();
-			}
-		}
-		else
-		{
-			absoluteReportFolderPath = workDir.absolutize();
-		}
+		absoluteReportFolderPath = new FilePath(workDir, outputFolder).absolutize();
 		
 		listener.getLogger().println("Search " + osFile + " from the folder path: " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$ //$NON-NLS-2$
 		FilePath fileFound = searchFileFromDir(absoluteReportFolderPath, osFile, listener);
