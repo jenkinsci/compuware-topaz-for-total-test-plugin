@@ -43,9 +43,9 @@
 		<f:entry title="${%sourceFolder}" field="sourceFolder">
         	<f:textbox default="${descriptor.defaultSourceFolder}" />
     	</f:entry>
-    	<f:invisibleEntry title="${%reportFolder}" field="reportFolder">
+    	<f:entry title="${%reportFolder}" field="reportFolder">
         	<f:textbox default="${descriptor.defaultReportFolder}"/>
-    	</f:invisibleEntry>
+    	</f:entry>
 		<f:entry title="${%accountInfo}" field="accountInfo">
         	<f:textbox default="${descriptor.defaultAccountInfo}"/>
     	</f:entry>

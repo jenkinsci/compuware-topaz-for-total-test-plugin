@@ -2,6 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2019,2020 Compuware Corporation
+ * (c) Copyright 2019-2020 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -83,7 +84,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * source path.
 	 */
 	private String sourceFolder = DescriptorImpl.defaultSourceFolder;
-	private String reportFolder = null;
+	private String reportFolder = DescriptorImpl.defaultReportFolder;
 	private String accountInfo = DescriptorImpl.defaultAccountInfo;
 	private boolean compareJUnits = false;
 
@@ -547,28 +548,28 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			return FormValidation.ok();
 		}
 
-//		/**
-//		 * Validates for the 'reportFolder' field
-//		 * 
-//		 * @param value
-//		 *            Value passed from the config.jelly "fileExtension" field
-//		 * @return validation message
-//		 */
-//		public FormValidation doCheckReportFolder(@QueryParameter final String value)
-//		{
-//			if (value == null || value.isEmpty() || value.trim().length() == 0)
-//			{
-//				return FormValidation.error(Messages.errors_missingReportFolder());
-//			}
-//
-//			File theFolder = new File(value);
-//			if (theFolder.isFile())
-//			{
-//				return FormValidation.error(Messages.errors_wrongReportFolder());
-//			}
-//
-//			return FormValidation.ok();
-//		}
+		/**
+		 * Validates for the 'reportFolder' field
+		 * 
+		 * @param value
+		 *            Value passed from the config.jelly "fileExtension" field
+		 * @return validation message
+		 */
+		public FormValidation doCheckReportFolder(@QueryParameter final String value)
+		{
+			if (value == null || value.isEmpty() || value.trim().length() == 0)
+			{
+				return FormValidation.error(Messages.errors_missingReportFolder());
+			}
+
+			File theFolder = new File(value);
+			if (theFolder.isFile())
+			{
+				return FormValidation.error(Messages.errors_wrongReportFolder());
+			}
+
+			return FormValidation.ok();
+		}
 
 		/**
 		 * Validates for the 'folderPath' field

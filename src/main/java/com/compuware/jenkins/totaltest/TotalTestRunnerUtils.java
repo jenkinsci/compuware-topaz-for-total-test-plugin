@@ -1,7 +1,8 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2015 - 2019 Compuware Corporation
+ * Copyright (c) 2015,2020 Compuware Corporation
+ * (c) Copyright 2019-2020 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -47,6 +48,10 @@ import jenkins.model.Jenkins;
 
 public class TotalTestRunnerUtils
 {
+	public static final String TTT_MINIMUM_CLI_VERSION = "19.06.03"; //$NON-NLS-1$
+	public static final String TTT_NEW_EXTENSIONS_CLI_VERSION = "20.02.01"; //$NON-NLS-1$
+	public static final String TTT_OUTPUTFOLDER_CLI_VERSION = "20.03.01"; //$NON-NLS-1$
+
 	private static final String QUESTION = "?"; //$NON-NLS-1$
 	private static final String ASTERISK = "*"; //$NON-NLS-1$
 	private static final String COMMA = ","; //$NON-NLS-1$
@@ -306,6 +311,31 @@ public class TotalTestRunnerUtils
 		
 		return cliDirectoryName;
 	}
+
+	/**
+	 * Returns the path to the script to execute Total Test CLI
+	 * 
+	 * @param launcher
+	 *          An instance <code>Launcher</code> for launching the script.
+	 * @param listener
+	 * 			An instance of <code>TaskListener</code> for the task.
+	 * @param fileSeparator
+	 * 			The file separator for the system on which the script will run.
+	 * @param osScriptFile
+	 * 			The name of the operating system dependent script file to run.
+	 *            
+	 * @return	An instance of <code>FilePath</code> for the CLI directory
+	 * 
+	 * @throws IOException
+	 * 			If the CLI directory does not exist.
+	 * @throws InterruptedException
+	 * 			If unable to get CLI directory.
+	 */
+	public static FilePath getCLIScriptPath(final Launcher launcher, final TaskListener listener, final String fileSeparator, 
+			final String osScriptFile) throws IOException, InterruptedException
+	{
+		return getCLIScriptPath(launcher, listener, fileSeparator, osScriptFile, TTT_MINIMUM_CLI_VERSION);
+	}
 	
 	/**
 	 * Returns the path to the script to execute Total Test CLI
@@ -358,11 +388,130 @@ public class TotalTestRunnerUtils
 			cliScriptPath = new FilePath(vChannel, cliScriptFile);
 			listener.getLogger().println("Topaz for Total Test CLI script path: " + cliScriptPath.getRemote()); //$NON-NLS-1$
 			
-			String cliVersion = CLIVersionUtils.getCLIVersion(topazWorkbenchCLIPath, minCLIRelease);
+			String cliVersion = getCLIVersion(launcher, fileSeparator);
 			CLIVersionUtils.checkCLICompatibility(cliVersion, minCLIRelease);
 		}
 		
 		return cliScriptPath;
+	}
+	
+	/**
+	 * Returns the version of the Total Test CLI
+	 * 
+	 * @param launcher
+	 *            The machine that the files will be checked out.
+	 * @param remoteFileSeparator
+	 * 			  The remote file separator
+	 *            
+	 * @return	An instance of <code>FilePath</code> for the CLI directory
+	 * 
+	 * @throws IOException
+	 * 			If the CLI directory does not exist.
+	 * @throws InterruptedException
+	 * 			If unable to get CLI directory.
+	 */
+	public static String getCLIVersion(final Launcher launcher, String remoteFileSeparator) throws IOException, InterruptedException
+	{
+		String cliVersion = null;
+		FilePath globalCLIDirectory = null;
+		CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+		if (globalConfig != null)
+		{
+			String cliDirectoryName = globalConfig.getTopazCLILocation(launcher);
+			if (cliDirectoryName != null)
+			{
+		        VirtualChannel vChannel = launcher.getChannel();
+				globalCLIDirectory = new FilePath(vChannel,cliDirectoryName);
+			}
+		}
+		
+		if (globalCLIDirectory == null)
+		{
+			throw new FileNotFoundException("ERROR: Topaz Workench CLI location was not specified. Check 'Compuware Configuration' section under 'Configure System'"); //$NON-NLS-1$
+		}
+		else
+		{
+			if (globalCLIDirectory.exists() == false) //NOSONAR
+			{
+				throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + globalCLIDirectory.getRemote() + ". Check 'Compuware Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				cliVersion = CLIVersionUtils.getCLIVersion(globalCLIDirectory, TTT_MINIMUM_CLI_VERSION);
+			}
+		}
+		
+		return cliVersion;
+	}
+
+	/**
+	 * Returns if the Total Test CLI will use the defulat Output folder
+	 * 
+	 * @param launcher
+	 *            The machine that the files will be checked out.
+	 * @param remoteFileSeparator
+	 * 			  The remote file separator
+	 *            
+	 * @return	true if this uses the default folder
+	 */
+	public static boolean usesDefaultOutputFolder (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
+	{
+		boolean defaultOuputFolder = true;
+		try
+		{
+			String cliVersion = getCLIVersion(launcher, remoteFileSeparator);
+			
+			try
+			{
+				CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_OUTPUTFOLDER_CLI_VERSION);
+			}
+			catch (Exception e)
+			{
+				defaultOuputFolder = false;
+			}
+
+		}
+		catch (Exception e)
+		{
+			defaultOuputFolder = false;
+		}
+
+		return defaultOuputFolder;
+	}
+
+	/**
+	 * Returns if the Total Test CLI will use the defulat Output folder
+	 * 
+	 * @param launcher
+	 *            The machine that the files will be checked out.
+	 * @param remoteFileSeparator
+	 * 			  The remote file separator
+	 *            
+	 * @return	true if this uses the default folder
+	 */
+	public static boolean usesNewFileExtensions (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
+	{
+		boolean newFileExtensions = true;
+		try
+		{
+			String cliVersion = getCLIVersion(launcher, remoteFileSeparator);
+			
+			try
+			{
+				CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_NEW_EXTENSIONS_CLI_VERSION);
+			}
+			catch (Exception e)
+			{
+				newFileExtensions = false;
+			}
+
+		}
+		catch (Exception e)
+		{
+			newFileExtensions = false;
+		}
+
+		return newFileExtensions;
 	}
 
 	/**

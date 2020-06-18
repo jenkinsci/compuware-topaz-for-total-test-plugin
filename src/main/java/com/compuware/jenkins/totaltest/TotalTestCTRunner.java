@@ -2,6 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2019,2020 Compuware Corporation
+ * (c) Copyright 2019-2020 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -47,14 +48,23 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestCTRunner
 {
-	private static final String TTT_MINIMUM_CLI_VERSION = "20.3.1"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_WEBAPP = "totaltestapi"; //$NON-NLS-1$
 	private static final String TOPAZ_CLI_WORKSPACE = "TopazCliWkspc"; //$NON-NLS-1$
 	private static final String DATA = "-data"; //$NON-NLS-1$
 	private static final String FOLDER_OUTPUT = "Output"; //$NON-NLS-1$
-	private static final String RESULT_FILE_NAME = "generated.cli.suiteresult";  //$NON-NLS-1$
+	private static final String GENERATED_SUITE_RESULT_FILE_NAME = "generated.cli.suiteresult";  //$NON-NLS-1$
+	private static final String GENERATED_SUITE_RESULT_FILE_NAME_OLD = "generated.cli.xasuiteres"; //$NON-NLS-1$
+	private static final String FILE_EXT_XAUNIT ="scenario"; //$NON-NLS-1$
+	private static final String FILE_EXT_XAUNIT_OLD = "xaunit"; //$NON-NLS-1$
+	private static final String FILE_EXT_XASUITE = "suite"; //$NON-NLS-1$
+	private static final String FILE_EXT_RESULT = "result"; //$NON-NLS-1$
+	private static final String FILE_EXT_RESULT_OLD = "xares"; //$NON-NLS-1$
+	private static final String FILE_EXT_XASUITE_RESULT = "suiteresult"; //$NON-NLS-1$
+	private static final String FILE_EXT_XASUITE_RESULT_OLD ="xasuiteres"; //$NON-NLS-1$
+	private static final String FILE_EXT_CONTEXT="context"; //$NON-NLS-1$
+  	private static final String FILE_EXT_CONTEXT_OLD="xactx"; //$NON-NLS-1$
 
 	private final TotalTestCTBuilder tttBuilder;
 
@@ -116,13 +126,13 @@ public class TotalTestCTRunner
 
 		TotalTestRunnerUtils.logJenkinsAndPluginVersion(listener);
 
-		FilePath cliScriptPath = TotalTestRunnerUtils.getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile, TTT_MINIMUM_CLI_VERSION);
+		FilePath cliScriptPath = TotalTestRunnerUtils.getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile);
 		args.add(cliScriptPath.getRemote());
 		
 		String topazCliWorkspace = workspaceFilePath.getRemote() + remoteFileSeparator + TOPAZ_CLI_WORKSPACE;
 		args.add(DATA, TotalTestRunnerUtils.escapeForScript(topazCliWorkspace));
 		
-		addArguments(args, listener);
+		addArguments(args, launcher, listener, remoteFileSeparator);
 
 		FilePath workDir = new FilePath (vChannel, workspaceFilePath.getRemote());
 		workDir.mkdirs();
@@ -166,7 +176,7 @@ public class TotalTestCTRunner
 	 * Read the test results
 	 * 
 	 * @param launcher
-	 *              The machine that the files will be checked out..
+	 *              The machine that the files will be checked out.
 	 *            
 	 * @return		<code>int</code> 0 if the readTestRestult successful, otherwise -1
 	 * 
@@ -176,28 +186,63 @@ public class TotalTestCTRunner
 	private int readTestResult(final Launcher launcher) throws IOException, InterruptedException
 	{
 		int result = 0;
-		String resultFileName = RESULT_FILE_NAME;
-		FilePath testSuiteResultPath = getOutputFilePath(launcher, listener, resultFileName);
-		
-		
-		if (testSuiteResultPath != null)
-		{
-			listener.getLogger().println("Found file path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
-		}
-		else
-		{
-			VirtualChannel vChannel = launcher.getChannel();
-			FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
-			testSuiteResultPath = new FilePath(workDir, resultFileName).absolutize();
-			listener.getLogger().println("The file path: " + testSuiteResultPath.getRemote() + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		listener.getLogger().println("TotalTest  CLI script file remote path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
-
-		listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
-		
 		try
 		{
+			VirtualChannel vChannel = launcher.getChannel();
+			FilePath testFolder = new FilePath(vChannel, tttBuilder.getFolderPath());
+			boolean usesNewExtension = TotalTestRunnerUtils.usesNewFileExtensions(launcher, listener, remoteFileSeparator);
+			boolean isSuite = true;
+			String resultFileName = null;
+			
+			if (testFolder.exists() && testFolder.isDirectory() == false) //NOSONAR
+			{
+				// This most likely is a fully pathed test scenario.
+				String fileName = testFolder.getName();
+				int idx = fileName.indexOf('.');
+				if (idx != -1)
+				{
+					String extension = fileName.substring(idx + 1);
+					if (extension.compareTo(FILE_EXT_XASUITE) == 0)
+					{
+						isSuite = true;
+						resultFileName =
+								String.format("%s.%s", fileName.substring(0, idx), //$NON-NLS-1$
+											  usesNewExtension ? FILE_EXT_XASUITE_RESULT : FILE_EXT_XASUITE_RESULT_OLD);
+					}
+					else if (extension.compareTo(FILE_EXT_XAUNIT) == 0 ||
+						extension.compareTo(FILE_EXT_XAUNIT_OLD) == 0 ||
+						extension.compareTo(FILE_EXT_CONTEXT) == 0 ||
+						extension.compareTo(FILE_EXT_CONTEXT_OLD) == 0)
+					{
+						isSuite = false;
+						resultFileName = String.format("%s.%s", fileName.substring(0, idx), //$NON-NLS-1$
+													   usesNewExtension ? FILE_EXT_RESULT : FILE_EXT_RESULT_OLD);
+					}
+				}
+			}
+			else
+			{
+				isSuite = true;
+				resultFileName = usesNewExtension ? GENERATED_SUITE_RESULT_FILE_NAME : GENERATED_SUITE_RESULT_FILE_NAME_OLD;
+			}
+			
+			FilePath testSuiteResultPath = getOutputFilePath(launcher, listener, resultFileName);
+			
+			if (testSuiteResultPath != null)
+			{
+				listener.getLogger().println("Found file path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+			}
+			else
+			{
+				FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
+				testSuiteResultPath = new FilePath(workDir, resultFileName).absolutize();
+				listener.getLogger().println("The file path: " + testSuiteResultPath.getRemote() + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+	
+			listener.getLogger().println("TotalTest  CLI script file remote path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+	
+			listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+		
 			String content = null;
 
 			// For performance reasons we will create the content String from the testSuiteResultPath if the file is remote
@@ -216,21 +261,22 @@ public class TotalTestCTRunner
 			listener.getLogger().println("Result content:"); //$NON-NLS-1$
 			listener.getLogger().println(content);
 
-			Document document = getXaSuiteResultAsDocument(content);
-			String xaSuiteResult = getXaSuiteResult(document);
-			listener.getLogger().println("Result state from suite: " + xaSuiteResult); //$NON-NLS-1$
+			Document document = getXaScenarioSuiteResultAsDocument(content);
+			String xaScenarioSuiteResult = getXaScenarioSuiteResult(document, isSuite);
+			String logMessage = String.format("Result state from %s: %s", isSuite ? FILE_EXT_XASUITE : FILE_EXT_XAUNIT , xaScenarioSuiteResult);  //$NON-NLS-1$
+			listener.getLogger().println(logMessage);
 
-			if (!xaSuiteResult.equalsIgnoreCase("SUCCESS")) //$NON-NLS-1$
+			if (!xaScenarioSuiteResult.equalsIgnoreCase("SUCCESS")) //$NON-NLS-1$
 			{
 				result = -1;
 			}
 
-			if (result != -1 && tttBuilder.getCcThreshhold() > 0)
+			if (isSuite && result != -1 && tttBuilder.getCcThreshhold() > 0)
 			{
 				listener.getLogger().println(
 						"The suite executed successfully, now checking that code coverage level is higher than the treshhold on " //$NON-NLS-1$
 								+ tttBuilder.getCcThreshhold() + " %"); //$NON-NLS-1$
-				boolean isCCThresholdOk = getXaSuiteCodeCoverage(document);
+				boolean isCCThresholdOk = getXaScenarioSuiteCodeCoverage(document, isSuite);
 				if (!isCCThresholdOk)
 				{
 					listener.getLogger().println("Code coverage treshhold not reached"); //$NON-NLS-1$
@@ -259,7 +305,7 @@ public class TotalTestCTRunner
 	 * 
 	 * @throws Exception
 	 */
-	private Document getXaSuiteResultAsDocument(String xml) throws Exception //NOSONAR
+	private Document getXaScenarioSuiteResultAsDocument(String xml) throws Exception //NOSONAR
 	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
@@ -268,22 +314,25 @@ public class TotalTestCTRunner
 	}
 
 	/**
-	 * Return the Suite results Document.
+	 * Return the Scenario or Suite results Document.
 	 * 
 	 * @param document
 	 * 			The results document to get the status from.
+	 * @param isSuite
+	 * 			<code>true</code> if a suite result otherwise <code>false</code>
 	 * 
 	 * @return	 <code>String</code> representing the results.
 	 * 
 	 * @throws Exception
 	 */
-	private String getXaSuiteResult(Document document) throws Exception	//NOSONAR
+	private String getXaScenarioSuiteResult(Document document, boolean isSuite) throws Exception	//NOSONAR
 	{
 		String resultType = null;
 
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath xpath = xpf.newXPath();
-		Element xaSuiteResultElement = (Element) xpath.evaluate("/XaSuiteResult", document, XPathConstants.NODE); //NOSONAR //$NON-NLS-1$
+		String resultTag = isSuite ? "/XaSuiteResult" : "/XaUnitResult"; //$NON-NLS-1$ //$NON-NLS-2$
+		Element xaSuiteResultElement = (Element) xpath.evaluate(resultTag, document, XPathConstants.NODE); //NOSONAR
 		resultType = xaSuiteResultElement.getAttribute("resultType"); //$NON-NLS-1$
 
 		return resultType;
@@ -294,18 +343,21 @@ public class TotalTestCTRunner
 	 * 
 	 * @param document
 	 * 			Document to look for Code Coverage data.
+	 * @param isSuite
+	 * 			<code>true</code> if a suite result otherwise <code>false</code>
 	 * 
 	 * @return <code>boolean</code> if the document has Code Coverage data.
 	 * 
 	 * @throws Exception
 	 */
-	private boolean getXaSuiteCodeCoverage(Document document) throws Exception // NOSONAR
+	private boolean getXaScenarioSuiteCodeCoverage(Document document, boolean isSuite) throws Exception // NOSONAR
 	{
 		boolean isCCThresholdOk = true;
 
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath xpath = xpf.newXPath();
-		Element percentageElement = (Element) xpath.evaluate("/XaSuiteResult/CC/data", document, XPathConstants.NODE); //$NON-NLS-1$
+		String resultPathName = isSuite ? "XaSuiteResult" : "XaUnitResult;";  //$NON-NLS-1$  //$NON-NLS-2$
+		Element percentageElement = (Element) xpath.evaluate(String.format("/%s/CC/data", resultPathName), document, XPathConstants.NODE); //$NON-NLS-1$
 
 		if (percentageElement != null)
 		{
@@ -315,15 +367,15 @@ public class TotalTestCTRunner
 
 			if (percentage < tttBuilder.getCcThreshhold())
 			{
-				listener.getLogger().println("XaUnitResult percentage on " + sPercentage //$NON-NLS-1$
+				listener.getLogger().println(resultPathName + " percentage on " + sPercentage //$NON-NLS-1$
 						+ " is less than Code Coverage threshold on " + tttBuilder.getCcThreshhold() + ". Aborting build."); //$NON-NLS-1$ //$NON-NLS-2$
 				isCCThresholdOk = false;
 			}
 
 			if (isCCThresholdOk)
 			{
-				listener.getLogger().println("XaUnitResults Code Coverage threshold is " + tttBuilder.getCcThreshhold() //$NON-NLS-1$
-						+ " which is below the result on " + sPercentage); //$NON-NLS-1$
+				listener.getLogger().println(resultPathName + " Code Coverage threshold is " //$NON-NLS-1$
+						+ tttBuilder.getCcThreshhold() + " which is below the result on " + sPercentage); //$NON-NLS-1$
 			}
 		}
 
@@ -336,12 +388,16 @@ public class TotalTestCTRunner
 	 * 
 	 * @param args
 	 *		  The argument list to add to.
+	 * @param launcher
+	 *            The machine that the files will be checked out.
 	 * @param listener
 	 * 		  Build listener
+	 * @param remoteFileSeparator
+	 * 			  The remote file separator
 	 * @throws InterruptedException 
 	 * @throws IOException 
 	 */
-	private void addArguments(final ArgumentListBuilder args, final TaskListener listener) throws IOException, InterruptedException
+	private void addArguments(final ArgumentListBuilder args, final Launcher launcher, final TaskListener listener, final String remoteFileSeparator) throws IOException, InterruptedException
 	{
 		args.add("-e").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
 
@@ -405,10 +461,17 @@ public class TotalTestCTRunner
 			args.add("-S").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getSourceFolder())); //$NON-NLS-1$
 		}
 
-		if (!Strings.isNullOrEmpty(tttBuilder.getReportFolder()))
+		if (TotalTestRunnerUtils.usesDefaultOutputFolder(launcher, listener, remoteFileSeparator) == true) //NOSONAR
 		{
-			args.add("-g").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getReportFolder())); //$NON-NLS-1$
 			args.add("-G"); //$NON-NLS-1$
+		}
+		else
+		{
+			if (!Strings.isNullOrEmpty(tttBuilder.getReportFolder()))
+			{
+				args.add("-g").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getReportFolder())); //$NON-NLS-1$
+				args.add("-G"); //$NON-NLS-1$
+			}
 		}
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getSonarVersion()))
@@ -450,6 +513,7 @@ public class TotalTestCTRunner
 	private FilePath getOutputFilePath(final Launcher launcher, final TaskListener listener, String osFile) throws IOException, InterruptedException
 	{
 		VirtualChannel vChannel = launcher.getChannel();
+		boolean useDefaultOutput = TotalTestRunnerUtils.usesDefaultOutputFolder(launcher, listener, remoteFileSeparator);
 		FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
 		
 		String folderPathString = tttBuilder.getFolderPath();
@@ -460,6 +524,32 @@ public class TotalTestCTRunner
 			{
 				workDir = absoluteFolder;
 			}
+			else
+			{
+				if (useDefaultOutput == true) //NOSONAR
+				{
+					if (absoluteFolder.exists())
+					{
+						// This is an absolute path file, so go back to the parent directory.
+						absoluteFolder = new FilePath (vChannel, absoluteFolder + remoteFileSeparator + "..").absolutize(); //$NON-NLS-1$
+					}
+					else
+					{
+						if (folderPathString.endsWith("\\") || folderPathString.endsWith( "/")) //$NON-NLS-1$ //$NON-NLS-2$
+						{
+							absoluteFolder = new FilePath (vChannel, workDir + folderPathString);
+						}
+						else
+						{
+							absoluteFolder = new FilePath (vChannel, workDir + remoteFileSeparator + folderPathString).absolutize();
+						}
+					}
+					if (absoluteFolder.isDirectory())
+					{
+						workDir = absoluteFolder;
+					}
+				}
+			}
 		}
 
 		if (!workDir.exists())
@@ -469,7 +559,77 @@ public class TotalTestCTRunner
 
 		listener.getLogger().println("workspace path: " + workDir.getRemote()); //$NON-NLS-1$
 		
-		String outputFolder = FOLDER_OUTPUT;
+		String outputFolder = null;
+		
+		if (useDefaultOutput == false) // NOSONAR
+		{
+			FilePath absoluteFolder = new FilePath (vChannel, folderPathString).absolutize();
+			if (folderPathString != null && !folderPathString.isEmpty() && !".".equals(folderPathString)) //$NON-NLS-1$
+			{
+				if (absoluteFolder.exists())
+				{
+					if (absoluteFolder.isDirectory() == true) // NOSONAR
+					{
+						absoluteFolder = new FilePath (absoluteFolder, tttBuilder.getReportFolder().trim());
+					}
+				}
+				else
+				{
+					// Strip off the scenario/suite name, add the report folder and add the difference between working and absolute path
+					String reportFolder = tttBuilder.getReportFolder().trim();
+					String folderPath = tttBuilder.getFolderPath().trim();
+					
+					if (reportFolder.endsWith("/") || reportFolder.endsWith("\\")) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						// Relative Path with trailing seperator
+						absoluteFolder = new FilePath (vChannel, reportFolder + folderPath);
+					}
+					else
+					{
+						// Relative path with no trailing separator.
+						absoluteFolder = new FilePath (vChannel, reportFolder + remoteFileSeparator + folderPath);
+					}
+				}
+			}
+
+			if (absoluteFolder.exists() && absoluteFolder.isDirectory())
+			{
+				// Absolute Path to a folder
+				outputFolder = absoluteFolder.getRemote();
+			}
+			else
+			{
+				// Absolute Path to file (Suite, Context or Scenario) in the working directory
+				FilePath absoluteReportFolderPath = null;
+				absoluteReportFolderPath = new FilePath(workDir, absoluteFolder.getRemote()).absolutize();
+				
+				if (absoluteReportFolderPath.exists() && absoluteReportFolderPath.isDirectory())
+				{
+					// Relative Path exists in the working directory
+					outputFolder = absoluteFolder.getRemote();
+				}
+				else
+				{
+					FilePath parentPath = absoluteReportFolderPath.getParent();
+					
+					if (parentPath.exists())
+					{
+						// Absolute path to suite/context/scenario
+						outputFolder = new FilePath(parentPath, tttBuilder.getReportFolder().trim()).getRemote();
+					}
+					else
+					{
+						outputFolder = tttBuilder.getReportFolder().trim();
+					}
+				}
+			}
+		}
+		
+		if (outputFolder == null || outputFolder.isEmpty())
+		{
+			outputFolder = FOLDER_OUTPUT;
+		}
+		
 		FilePath absoluteReportFolderPath = null;
 		absoluteReportFolderPath = new FilePath(workDir, outputFolder).absolutize();
 		

@@ -1,8 +1,19 @@
 <div>
+The folder path containing produced test results vary depending on the Total Test CLI version.
+<ul>
+	<li>Total Test CLI version 20.03.01 and later</li>
 	<ul>
-   		<li>The folder path that will contain produced test results</li>
-   		<li>Default folder path is TTTReport</li>
-   		<li>Relative folder paths are relative to the Jenkins workspace</li>
-   		<li>An absolute path can also be used to specify Report folder</li>
-   	</ul>
+		<li>The Report Folder field will be ignored.</li>
+		<li>The produced test result will be contained in the Output directory relative to the Test folder path.</li>
+		<li>Junit and Sonar report files are copied to TTTUnit and TTTSonar folders in the Jenkins workspace.</li>
+	</ul>
+	<li>Total Test CLI version prior to 20.03.01</li>
+	<ul>
+		<li>The produced test results will be contained in this folder path.</li>
+		<li>Default folder path is TTTReport.</li>
+		<li>Relative folder paths are relative to the Jenkins workspace.</li>
+		<li>An absolute path can also be used to specify Report folder.</li>
+	</ul>
+</ul>
+<b>Note: This field is only used for Total Test CLI version prior to 20.03.01</b>
 </div>
