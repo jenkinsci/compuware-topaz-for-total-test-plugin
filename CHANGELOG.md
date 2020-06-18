@@ -2,12 +2,13 @@
 
 ### Version 2.4.0
 
-**This release requires Workbench 20.03.01 or above.**
+**This release requires Workbench 20.06.04 or above.**
 
 ##### Non-Virtualized Testing(Functional Test)
 
--    Modified location of output results to be in the "Output" folder.
--    Removed the specification and use of the report folder.
+-    Modified location of output results to be in the "Output" folder for WorkbenchCLI CLI version 20.03.01 and higher.
+-    The report folder specification is not used with WorkbenchCLI CLI version 20.03.01 and higher.
+-    Added new Functional test file extensions introduced in WorkbenchCLI 20.02.01.
 
 ##### Virtualized Testing(Unit Test)
 
