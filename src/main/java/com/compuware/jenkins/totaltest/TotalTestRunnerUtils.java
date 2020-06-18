@@ -449,6 +449,8 @@ public class TotalTestRunnerUtils
 	 * 
 	 * @param launcher
 	 *            The machine that the files will be checked out.
+	 * @param listener
+	 * 			An instance of <code>TaskListener</code> for the task.
 	 * @param remoteFileSeparator
 	 * 			  The remote file separator
 	 *            
@@ -484,6 +486,8 @@ public class TotalTestRunnerUtils
 	 * 
 	 * @param launcher
 	 *            The machine that the files will be checked out.
+	 * @param listener
+	 * 			An instance of <code>TaskListener</code> for the task.
 	 * @param remoteFileSeparator
 	 * 			  The remote file separator
 	 *            
