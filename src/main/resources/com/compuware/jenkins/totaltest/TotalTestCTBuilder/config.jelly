@@ -31,8 +31,8 @@
         <f:entry title="${%haltAtFailure}" field="haltAtFailure">
             <f:checkbox title="${%haltAtFailureDescription}" default="${descriptor.defaultHaltAtFailure}"/>
         </f:entry>
-        <f:entry title="${%ccThreshhold}" field="ccThreshhold">
-        	<f:textbox default="${descriptor.defaultCCThreshhold}"/>
+        <f:entry title="${%ccThreshold}" field="ccThreshold">
+        	<f:textbox default="${descriptor.defaultCCThreshold}"/>
     	</f:entry>
     	<f:entry name="sonarVersion" title="SonarQube" field="sonarVersion">
 		    <select name="sonarVersion">

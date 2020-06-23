@@ -75,8 +75,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private boolean uploadToServer = DescriptorImpl.defaultUploadToServer;
 	/** Halt the execution when first test case fails */
 	private boolean haltAtFailure = DescriptorImpl.defaultHaltAtFailure;
-	/** Code coverage treshhold */
-	private int ccThreshhold = DescriptorImpl.defaultCCThreshhold;
+	/** Code coverage threshold */
+	private int ccThreshold = DescriptorImpl.defaultCCThreshold;
 	/** SonarQube version 5 or 6 */
 	private String sonarVersion;
 	/**
@@ -141,11 +141,11 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Code Coverage accessor
 	 * 
-	 * @return <code>int</code> Code Coverage threashhold
+	 * @return <code>int</code> Code Coverage threshold
 	 */
-	public int getCcThreshhold()
+	public int getCcThreshold()
 	{
-		return ccThreshhold;
+		return ccThreshold;
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * When to stop Functional Test suite or scenario.
 	 * 
-	 * @return	<code>true</code> if the test has failed or the threashold has been reached, otherwise <code>false</code>.
+	 * @return	<code>true</code> if the test has failed or the threshold has been reached, otherwise <code>false</code>.
 	 */
 	public boolean getStopIfTestFailsOrThresholdReached()
 	{
@@ -265,15 +265,15 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * Set the Code Coverage threshhold
+	 * Set the Code Coverage threshold
 	 * 
-	 * @param ccThreshhold
-	 * 			  The vale to be set as the Code Coverage threashhold.
+	 * @param ccThreshold
+	 * 			  The vale to be set as the Code Coverage threshold.
 	 */
 	@DataBoundSetter
-	public void setCcThreshhold(int ccThreshhold)
+	public void setCcThreshold(int ccThreshold)
 	{
-		this.ccThreshhold = ccThreshhold;
+		this.ccThreshold = ccThreshold;
 	}
 
 	/**
@@ -313,10 +313,10 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * Set the flag to stop execution of the test if a failure or threashold has been reached.
+	 * Set the flag to stop execution of the test if a failure or threshold has been reached.
 	 * 
 	 * @param stopIfTestFailsOrThresholdReached
-	 * 			  <code>true</code> if if the test should be stopped with failuresy, otherwise <code>false</code>.
+	 * 			  <code>true</code> if if the test should be stopped with failures, otherwise <code>false</code>.
 	 */
 	@DataBoundSetter
 	public void setStopIfTestFailsOrThresholdReached(boolean stopIfTestFailsOrThresholdReached)
@@ -448,7 +448,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			throw new IllegalArgumentException("Entered accounting information is greater than 52 characters."); //$NON-NLS-1$
 		}
 
-		listener.getLogger().println("ccThreshhold = " + ccThreshhold); //$NON-NLS-1$
+		listener.getLogger().println("ccThreshold = " + ccThreshold); //$NON-NLS-1$
 	}
 
 	@Symbol("totaltest")
@@ -456,7 +456,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder>
 	{
 		public static final String defaultFolderPath = ""; //NOSONAR //$NON-NLS-1$
-		public static final int defaultCCThreshhold = 0; //NOSONAR
+		public static final int defaultCCThreshold = 0; //NOSONAR
 		public static final String defaultSourceFolder = "COBOL"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultReportFolder = "TTTReport"; //NOSONAR //$NON-NLS-1$
 		public static final Boolean defaultRecursive = true; //NOSONAR
@@ -466,17 +466,17 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String defaultAccountInfo = ""; //NOSONAR //$NON-NLS-1$
 
 		/**
-		 * Validates for the 'CcThreshhold' field
+		 * Validates for the 'CcThreshold' field
 		 * 
 		 * @param value
 		 * 		The code coverage threshold.
 		 * @return validation message
 		 */
-		public FormValidation doCheckCcThreshhold(@QueryParameter String value)
+		public FormValidation doCheckCcThreshold(@QueryParameter String value)
 		{
 			if (value.length() == 0)
 			{
-				return FormValidation.error(Messages.errors_missingCcThreshhold());
+				return FormValidation.error(Messages.errors_missingCcThreshold());
 			}
 
 			try
@@ -485,12 +485,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 				if (iValue < 0 || iValue > 100)
 				{
-					return FormValidation.error(Messages.errors_missingCcThreshhold());
+					return FormValidation.error(Messages.errors_missingCcThreshold());
 				}
 			}
 			catch (NumberFormatException e)
 			{
-				return FormValidation.error(Messages.errors_missingCcThreshhold());
+				return FormValidation.error(Messages.errors_missingCcThreshold());
 			}
 
 			return FormValidation.ok();

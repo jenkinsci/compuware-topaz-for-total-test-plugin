@@ -271,15 +271,15 @@ public class TotalTestCTRunner
 				result = -1;
 			}
 
-			if (isSuite && result != -1 && tttBuilder.getCcThreshhold() > 0)
+			if (isSuite && result != -1 && tttBuilder.getCcThreshold() > 0)
 			{
 				listener.getLogger().println(
-						"The suite executed successfully, now checking that code coverage level is higher than the treshhold on " //$NON-NLS-1$
-								+ tttBuilder.getCcThreshhold() + " %"); //$NON-NLS-1$
+						"The suite executed successfully, now checking that code coverage level is higher than the threshold on " //$NON-NLS-1$
+								+ tttBuilder.getCcThreshold() + " %"); //$NON-NLS-1$
 				boolean isCCThresholdOk = getXaScenarioSuiteCodeCoverage(document, isSuite);
 				if (!isCCThresholdOk)
 				{
-					listener.getLogger().println("Code coverage treshhold not reached"); //$NON-NLS-1$
+					listener.getLogger().println("Code coverage threshold not reached"); //$NON-NLS-1$
 					result = -1;
 				}
 			}
@@ -365,17 +365,17 @@ public class TotalTestCTRunner
 
 			int percentage = Integer.parseInt(sPercentage);
 
-			if (percentage < tttBuilder.getCcThreshhold())
+			if (percentage < tttBuilder.getCcThreshold())
 			{
 				listener.getLogger().println(resultPathName + " percentage on " + sPercentage //$NON-NLS-1$
-						+ " is less than Code Coverage threshold on " + tttBuilder.getCcThreshhold() + ". Aborting build."); //$NON-NLS-1$ //$NON-NLS-2$
+						+ " is less than Code Coverage threshold on " + tttBuilder.getCcThreshold() + ". Aborting build."); //$NON-NLS-1$ //$NON-NLS-2$
 				isCCThresholdOk = false;
 			}
 
 			if (isCCThresholdOk)
 			{
 				listener.getLogger().println(resultPathName + " Code Coverage threshold is " //$NON-NLS-1$
-						+ tttBuilder.getCcThreshhold() + " which is below the result on " + sPercentage); //$NON-NLS-1$
+						+ tttBuilder.getCcThreshold() + " which is below the result on " + sPercentage); //$NON-NLS-1$
 			}
 		}
 
