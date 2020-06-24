@@ -2,7 +2,7 @@
 
 ### Version 2.3.6
 
-**This release requires Workbench 20.06.04 or above.**
+**This release requires Workbench 19.06.04 or above.**
 
 ##### Non-Virtualized Testing(Functional Test)
 
