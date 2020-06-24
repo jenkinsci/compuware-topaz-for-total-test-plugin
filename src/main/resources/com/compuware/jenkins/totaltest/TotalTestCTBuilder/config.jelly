@@ -18,6 +18,9 @@
 	<f:entry title="${%stopIfTestFailsOrThresholdReached}" field="stopIfTestFailsOrThresholdReached">
 		<f:checkbox default="${descriptor.defaultStopIfTestFailsOrThresholdReached}"/>
 	</f:entry>
+        <f:invisibleEntry title="${%compareJUnits}" field="compareJUnits">
+		     <f:checkbox default="true" />
+	    </f:invisibleEntry>
     <f:advanced>
         <f:entry title="${%folderPath}" field="folderPath">
 		<f:textbox default="${descriptor.defaultFolderPath}"/>
@@ -28,8 +31,8 @@
         <f:entry title="${%haltAtFailure}" field="haltAtFailure">
             <f:checkbox title="${%haltAtFailureDescription}" default="${descriptor.defaultHaltAtFailure}"/>
         </f:entry>
-        <f:entry title="${%ccThreshhold}" field="ccThreshhold">
-        	<f:textbox default="${descriptor.defaultCCThreshhold}"/>
+        <f:entry title="${%ccThreshold}" field="ccThreshold">
+        	<f:textbox default="${descriptor.defaultCCThreshold}"/>
     	</f:entry>
     	<f:entry name="sonarVersion" title="SonarQube" field="sonarVersion">
 		    <select name="sonarVersion">

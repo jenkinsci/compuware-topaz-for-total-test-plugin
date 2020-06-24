@@ -1,7 +1,8 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2019 Compuware Corporation
+ * Copyright (c) 2019-2020 Compuware Corporation
+ * (c) Copyright 2019-2020 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -74,8 +75,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private boolean uploadToServer = DescriptorImpl.defaultUploadToServer;
 	/** Halt the execution when first test case fails */
 	private boolean haltAtFailure = DescriptorImpl.defaultHaltAtFailure;
-	/** Code coverage treshhold */
-	private int ccThreshhold = DescriptorImpl.defaultCCThreshhold;
+	/** Code coverage threshold */
+	private int ccThreshold = DescriptorImpl.defaultCCThreshold;
 	/** SonarQube version 5 or 6 */
 	private String sonarVersion;
 	/**
@@ -85,6 +86,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private String sourceFolder = DescriptorImpl.defaultSourceFolder;
 	private String reportFolder = DescriptorImpl.defaultReportFolder;
 	private String accountInfo = DescriptorImpl.defaultAccountInfo;
+	private boolean compareJUnits = false;
 
 	@DataBoundConstructor
 	public TotalTestCTBuilder(String environmentId, String folderPath, String serverUrl, String credentialsId)
@@ -139,11 +141,11 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Code Coverage accessor
 	 * 
-	 * @return <code>int</code> Code Coverage threashhold
+	 * @return <code>int</code> Code Coverage threshold
 	 */
-	public int getCcThreshhold()
+	public int getCcThreshold()
 	{
-		return ccThreshhold;
+		return ccThreshold;
 	}
 
 	/**
@@ -209,7 +211,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * When to stop Functional Test suite or scenario.
 	 * 
-	 * @return	<code>true</code> if the test has failed or the threashold has been reached, otherwise <code>false</code>.
+	 * @return	<code>true</code> if the test has failed or the threshold has been reached, otherwise <code>false</code>.
 	 */
 	public boolean getStopIfTestFailsOrThresholdReached()
 	{
@@ -263,15 +265,15 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * Set the Code Coverage threshhold
+	 * Set the Code Coverage threshold
 	 * 
-	 * @param ccThreshhold
-	 * 			  The vale to be set as the Code Coverage threashhold.
+	 * @param ccThreshold
+	 * 			  The vale to be set as the Code Coverage threshold.
 	 */
 	@DataBoundSetter
-	public void setCcThreshhold(int ccThreshhold)
+	public void setCcThreshold(int ccThreshold)
 	{
-		this.ccThreshhold = ccThreshhold;
+		this.ccThreshold = ccThreshold;
 	}
 
 	/**
@@ -311,10 +313,10 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * Set the flag to stop execution of the test if a failure or threashold has been reached.
+	 * Set the flag to stop execution of the test if a failure or threshold has been reached.
 	 * 
 	 * @param stopIfTestFailsOrThresholdReached
-	 * 			  <code>true</code> if if the test should be stopped with failuresy, otherwise <code>false</code>.
+	 * 			  <code>true</code> if if the test should be stopped with failures, otherwise <code>false</code>.
 	 */
 	@DataBoundSetter
 	public void setStopIfTestFailsOrThresholdReached(boolean stopIfTestFailsOrThresholdReached)
@@ -332,6 +334,29 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public void setAccountInfo(String accountInfo)
 	{
 		this.accountInfo = accountInfo;
+	}
+
+	/**
+	 * Set the if comparing JUnits.
+	 * 
+	 * @param compareJUnits
+	 * 			  <code>true</code> if JUnits should be compare, otherwise <code>false</code>.
+	 */
+	@DataBoundSetter
+	public void setCompareJUnits(boolean compareJUnits)
+	{
+		this.compareJUnits = compareJUnits;
+	}
+	
+	/**
+	 * Returns if comparing JUnits
+	 * 
+	 * @return	<code>true</code> indicates comparing JUnits. <code>false</code>
+	 * 			indicates not comparing JUnits.
+	 */
+	public boolean getCompareJUnits()
+	{
+		return this.compareJUnits;
 	}
 
 	/*
@@ -423,7 +448,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			throw new IllegalArgumentException("Entered accounting information is greater than 52 characters."); //$NON-NLS-1$
 		}
 
-		listener.getLogger().println("ccThreshhold = " + ccThreshhold); //$NON-NLS-1$
+		listener.getLogger().println("ccThreshold = " + ccThreshold); //$NON-NLS-1$
 	}
 
 	@Symbol("totaltest")
@@ -431,7 +456,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder>
 	{
 		public static final String defaultFolderPath = ""; //NOSONAR //$NON-NLS-1$
-		public static final int defaultCCThreshhold = 0; //NOSONAR
+		public static final int defaultCCThreshold = 0; //NOSONAR
 		public static final String defaultSourceFolder = "COBOL"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultReportFolder = "TTTReport"; //NOSONAR //$NON-NLS-1$
 		public static final Boolean defaultRecursive = true; //NOSONAR
@@ -441,17 +466,17 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String defaultAccountInfo = ""; //NOSONAR //$NON-NLS-1$
 
 		/**
-		 * Validates for the 'CcThreshhold' field
+		 * Validates for the 'CcThreshold' field
 		 * 
 		 * @param value
 		 * 		The code coverage threshold.
 		 * @return validation message
 		 */
-		public FormValidation doCheckCcThreshhold(@QueryParameter String value)
+		public FormValidation doCheckCcThreshold(@QueryParameter String value)
 		{
 			if (value.length() == 0)
 			{
-				return FormValidation.error(Messages.errors_missingCcThreshhold());
+				return FormValidation.error(Messages.errors_missingCcThreshold());
 			}
 
 			try
@@ -460,12 +485,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 				if (iValue < 0 || iValue > 100)
 				{
-					return FormValidation.error(Messages.errors_missingCcThreshhold());
+					return FormValidation.error(Messages.errors_missingCcThreshold());
 				}
 			}
 			catch (NumberFormatException e)
 			{
-				return FormValidation.error(Messages.errors_missingCcThreshhold());
+				return FormValidation.error(Messages.errors_missingCcThreshold());
 			}
 
 			return FormValidation.ok();

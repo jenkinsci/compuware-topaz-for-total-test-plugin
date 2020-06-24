@@ -1,7 +1,8 @@
 /**
  * The MIT License (MIT)
  * 
- * Copyright (c) 2015 - 2020 Compuware Corporation
+ * Copyright (c) 2015-2020 Compuware Corporation
+ * (c) Copyright 2019-2020 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -35,8 +36,6 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestRunner
 {
-	public static final String TTT_MINIMUM_CLI_VERSION = "20.03.01"; //$NON-NLS-1$
-	
 	private static final String COMMA = ","; //$NON-NLS-1$
 	
 	private static final String COPY_JUNIT = "copyjunit"; //$NON-NLS-1$
@@ -125,7 +124,7 @@ public class TotalTestRunner
 		
 		TotalTestRunnerUtils.logJenkinsAndPluginVersion(listener);
 		
-		FilePath cliScriptPath = getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile);
+		FilePath cliScriptPath = TotalTestRunnerUtils.getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile);
 		
 		args.add(cliScriptPath.getRemote());
 		
@@ -209,8 +208,8 @@ public class TotalTestRunner
 			cliBatchFileRemote = new FilePath(vChannel, cliScriptFile);
 			listener.getLogger().println("Topaz for Total Test CLI script file remote path: " + cliBatchFileRemote.getRemote()); //$NON-NLS-1$
 			
-			String cliVersion = CLIVersionUtils.getCLIVersion(globalCLIDirectory, TTT_MINIMUM_CLI_VERSION);
-			CLIVersionUtils.checkCLICompatibility(cliVersion, TTT_MINIMUM_CLI_VERSION);
+			String cliVersion = CLIVersionUtils.getCLIVersion(globalCLIDirectory, TotalTestRunnerUtils.TTT_MINIMUM_CLI_VERSION);
+			CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_MINIMUM_CLI_VERSION);
 		}
 		
 		return cliBatchFileRemote;
@@ -283,7 +282,7 @@ public class TotalTestRunner
 			}
 			else
 			{
-				throw new IOException("ERROR: Invalid host information. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
+				throw new IOException("ERROR: No host connection defined. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
 			}
 		}
 		
