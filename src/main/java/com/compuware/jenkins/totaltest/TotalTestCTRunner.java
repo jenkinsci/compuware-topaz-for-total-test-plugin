@@ -356,7 +356,7 @@ public class TotalTestCTRunner
 
 		XPathFactory xpf = XPathFactory.newInstance();
 		XPath xpath = xpf.newXPath();
-		String resultPathName = isSuite ? "XaSuiteResult" : "XaUnitResult;";  //$NON-NLS-1$  //$NON-NLS-2$
+		String resultPathName = isSuite ? "XaSuiteResult" : "XaUnitResult";  //$NON-NLS-1$  //$NON-NLS-2$
 		Element percentageElement = (Element) xpath.evaluate(String.format("/%s/CC/data", resultPathName), document, XPathConstants.NODE); //$NON-NLS-1$
 
 		if (percentageElement != null)
