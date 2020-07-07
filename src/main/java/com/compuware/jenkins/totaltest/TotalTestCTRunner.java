@@ -561,14 +561,14 @@ public class TotalTestCTRunner
 		
 		String outputFolder = null;
 		
-		if (useDefaultOutput == false) // NOSONAR
+		if (useDefaultOutput == false && folderPathString != null) // NOSONAR
 		{
 			FilePath tempAbsoluteFolder = new FilePath (vChannel, folderPathString);
 			FilePath absoluteFolder = null;
 			if (null != tempAbsoluteFolder)
 			{
 				absoluteFolder = tempAbsoluteFolder.absolutize();
-				if (folderPathString != null && !folderPathString.isEmpty() && !".".equals(folderPathString)) //$NON-NLS-1$
+				if (!folderPathString.isEmpty() && !".".equals(folderPathString)) //$NON-NLS-1$
 				{
 					if (absoluteFolder.exists())
 					{
