@@ -563,31 +563,36 @@ public class TotalTestCTRunner
 		
 		if (useDefaultOutput == false) // NOSONAR
 		{
-			FilePath absoluteFolder = new FilePath (vChannel, folderPathString).absolutize();
-			if (folderPathString != null && !folderPathString.isEmpty() && !".".equals(folderPathString)) //$NON-NLS-1$
+			FilePath tempAbsoluteFolder = new FilePath (vChannel, folderPathString);
+			FilePath absoluteFolder = null;
+			if (null != tempAbsoluteFolder)
 			{
-				if (absoluteFolder.exists())
+				absoluteFolder = tempAbsoluteFolder.absolutize();
+				if (folderPathString != null && !folderPathString.isEmpty() && !".".equals(folderPathString)) //$NON-NLS-1$
 				{
-					if (absoluteFolder.isDirectory() == true) // NOSONAR
+					if (absoluteFolder.exists())
 					{
-						absoluteFolder = new FilePath (absoluteFolder, tttBuilder.getReportFolder().trim());
-					}
-				}
-				else
-				{
-					// Strip off the scenario/suite name, add the report folder and add the difference between working and absolute path
-					String reportFolder = tttBuilder.getReportFolder().trim();
-					String folderPath = tttBuilder.getFolderPath().trim();
-					
-					if (reportFolder.endsWith("/") || reportFolder.endsWith("\\")) //$NON-NLS-1$ //$NON-NLS-2$
-					{
-						// Relative Path with trailing seperator
-						absoluteFolder = new FilePath (vChannel, reportFolder + folderPath);
+						if (absoluteFolder.isDirectory() == true) // NOSONAR
+						{
+							absoluteFolder = new FilePath (absoluteFolder, tttBuilder.getReportFolder().trim());
+						}
 					}
 					else
 					{
-						// Relative path with no trailing separator.
-						absoluteFolder = new FilePath (vChannel, reportFolder + remoteFileSeparator + folderPath);
+						// Strip off the scenario/suite name, add the report folder and add the difference between working and absolute path
+						String reportFolder = tttBuilder.getReportFolder().trim();
+						String folderPath = tttBuilder.getFolderPath().trim();
+						
+						if (reportFolder.endsWith("/") || reportFolder.endsWith("\\")) //$NON-NLS-1$ //$NON-NLS-2$
+						{
+							// Relative Path with trailing seperator
+							absoluteFolder = new FilePath (vChannel, reportFolder + folderPath);
+						}
+						else
+						{
+							// Relative path with no trailing separator.
+							absoluteFolder = new FilePath (vChannel, reportFolder + remoteFileSeparator + folderPath);
+						}
 					}
 				}
 			}

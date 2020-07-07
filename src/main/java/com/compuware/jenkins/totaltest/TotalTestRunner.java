@@ -18,6 +18,7 @@
 
 package com.compuware.jenkins.totaltest;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
@@ -116,8 +117,16 @@ public class TotalTestRunner
         EnvVars env = build.getEnvironment(listener);
 
         VirtualChannel vChannel = launcher.getChannel();
-        Properties remoteProperties = vChannel.call(new RemoteSystemProperties());
-        String remoteFileSeparator = remoteProperties.getProperty(PROPERTY_FILE_SEPARATOR);
+        String remoteFileSeparator = null;
+        if (vChannel != null)
+        {
+        	Properties remoteProperties = vChannel.call(new RemoteSystemProperties());
+            remoteFileSeparator = remoteProperties.getProperty(PROPERTY_FILE_SEPARATOR);
+        }
+        else
+        {
+        	remoteFileSeparator = File.separator;
+        }
         
 		boolean isLinux = launcher.isUnix();
 		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
