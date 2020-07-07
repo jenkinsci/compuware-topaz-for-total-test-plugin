@@ -1,6 +1,6 @@
 # Change Log
 
-### Version 2.3.6
+### Version 2.3.7
 
 **This release requires Workbench 19.06.04 or above.**
 
