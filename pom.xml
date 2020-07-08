@@ -7,7 +7,7 @@
     <artifactId>plugin</artifactId>
     <!-- Baseline Jenkins version you use to build and test the plugin. Users must have this version or newer to run. -->
     <relativePath />
-    <version>2.21</version>
+    <version>3.2</version>
   </parent>
   
   <groupId>com.compuware.jenkins</groupId>
@@ -17,7 +17,7 @@
 
   <properties>
     <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-    <jenkins.version>2.21</jenkins.version>
+    <jenkins.version>2.150.3</jenkins.version>
     <!-- Java Level to use. Java 7 required when using core >= 1.612 -->
     <java.level>8</java.level>
   </properties>
