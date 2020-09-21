@@ -23,8 +23,11 @@
 	    </f:invisibleEntry>
     <f:advanced>
         <f:entry title="${%folderPath}" field="folderPath">
-		<f:textbox default="${descriptor.defaultFolderPath}"/>
-	</f:entry>
+			<f:textbox default="${descriptor.defaultFolderPath}"/>
+		</f:entry>
+        <f:entry title="${%useScenarios}" field="useScenarios">
+            <f:checkbox title="${%useScenariosDescription}" default="${descriptor.defaultUseScenarios}"/>
+        </f:entry>
         <f:entry title="${%uploadToServer}" field="uploadToServer">
             <f:checkbox title="${%uploadToServerDescription}" default="${descriptor.defaultUploadToServer}"/>
         </f:entry>
@@ -48,6 +51,12 @@
     	</f:entry>
 		<f:entry title="${%accountInfo}" field="accountInfo">
         	<f:textbox default="${descriptor.defaultAccountInfo}"/>
+    	</f:entry>
+		<f:entry title="${%jsonFile}" field="jsonFile">
+        	<f:textbox default="${descriptor.defaultJsonFile}"/>
+    	</f:entry>
+		<f:entry title="${%testList}" field="testList">
+        	<f:textbox default="${descriptor.defaultTestList}"/>
     	</f:entry>
     </f:advanced>
 </j:jelly>

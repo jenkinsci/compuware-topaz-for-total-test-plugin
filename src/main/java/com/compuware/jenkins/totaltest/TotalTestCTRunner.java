@@ -490,7 +490,30 @@ public class TotalTestCTRunner
 		{
 			args.add("-cju"); //$NON-NLS-1$
 		}
-
+		
+		if (!Strings.isNullOrEmpty(tttBuilder.getAccountInfo()))
+		{
+			args.add("-a").add(tttBuilder.getAccountInfo()); //$NON-NLS-1$
+		}
+		
+		// CWE-159853 -- Begin -- REV
+		if (TotalTestRunnerUtils.supportsListFiles(launcher, listener, remoteFileSeparator))
+		{
+			if (!Strings.isNullOrEmpty(tttBuilder.getJsonFile()))
+			{
+				args.add("-pnf").add(tttBuilder.getJsonFile()); //$NON-NLS-1$
+			}
+			else if (!Strings.isNullOrEmpty(tttBuilder.getTestList()))
+			{
+				args.add("-pn").add(tttBuilder.getTestList()); //$NON-NLS-1$
+			}
+		}
+		
+		if (tttBuilder.getUseScenarios())
+		{
+			args.add("-U");
+		}
+		// CWE-159853 -- End -- REV
 	}
 
 	/**

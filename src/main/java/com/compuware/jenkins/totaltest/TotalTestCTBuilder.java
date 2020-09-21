@@ -88,6 +88,15 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private String accountInfo = DescriptorImpl.defaultAccountInfo;
 	private boolean compareJUnits = false;
 
+	// CWE-159853 -- Begin -- REV
+	/*
+	 * Add additional fields for JSON filename, test list and use .scenario files instead of .context files.
+	 */
+	private String jsonFile = DescriptorImpl.defaultJsonFile;
+	private String testList = DescriptorImpl.defaultTestList;
+	private boolean useScenarios = DescriptorImpl.defaultUseScenarios;
+	// CWE-159853 -- End -- REV
+
 	@DataBoundConstructor
 	public TotalTestCTBuilder(String environmentId, String folderPath, String serverUrl, String credentialsId)
 	{
@@ -358,7 +367,77 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	{
 		return this.compareJUnits;
 	}
+	
+	// CWE-159853 -- Begin -- REV
+	/**
+	 * Set the if comparing using .scenario files instead of .context files.
+	 * 
+	 * @param useScenarios
+	 * 			  <code>true</code> if .scenario files should be used, otherwise
+	 * 			  <code>false</code> indicates .context files will be used.
+	 */
+	@DataBoundSetter
+	public void setUseScenarios(boolean useScenarios)
+	{
+		this.useScenarios = useScenarios;
+	}
+	
+	/**
+	 * Returns if using .scenario files instead of .context files
+	 * 
+	 * @return	<code>true</code> indicates using .scenario files. <code>false</code>
+	 * 			indicates using .context files.
+	 */
+	public boolean getUseScenarios()
+	{
+		return this.useScenarios;
+	}
 
+	/**
+	 * Set the JSON file of tests to execute.
+	 * 
+	 * @param jsonFile
+	 * 			  The JSON to be used when this test is executed.
+	 */
+	@DataBoundSetter
+	public void setJSonFile(String jsonFile)
+	{
+		this.jsonFile = jsonFile;
+	}
+
+	/**
+	 * Returns the JSON file
+	 * 
+	 * @return	<code>String</code> The JSON file.
+	 */
+	public String getJsonFile()
+	{
+		return this.jsonFile;
+	}
+
+	/**
+	 * Set the list of tests to execute.
+	 * 
+	 * @param testList
+	 * 			  The comma separated list of tests to be executed.
+	 */
+	@DataBoundSetter
+	public void setTestList(String testList)
+	{
+		this.testList = testList;
+	}
+
+	/**
+	 * Returns the list of tests to execute.
+	 * 
+	 * @return	<code>String</code> The list of tests to execute.
+	 */
+	public String getTestList()
+	{
+		return this.testList;
+	}
+	// CWE-159853 -- End -- REV
+	
 	/*
 	 * (non-Javadoc)
 	 * @see jenkins.tasks.SimpleBuildStep#perform(hudson.model.Run, hudson.FilePath, hudson.Launcher, hudson.model.TaskListener)
@@ -464,7 +543,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final Boolean defaultUploadToServer = false; //NOSONAR
 		public static final Boolean defaultHaltAtFailure = false; //NOSONAR
 		public static final String defaultAccountInfo = ""; //NOSONAR //$NON-NLS-1$
-
+		// CWE-159853 -- Begin -- REV
+		public static final String defaultJsonFile = ""; //NOSONAR //$NON-NLS-1$
+		public static final String defaultTestList = ""; //NOSONAR //$NON-NLS-1$
+		public static final Boolean defaultUseScenarios = false; //NOSONAR
+		// CWE-159853 -- End -- REV
+		
 		/**
 		 * Validates for the 'CcThreshold' field
 		 * 
