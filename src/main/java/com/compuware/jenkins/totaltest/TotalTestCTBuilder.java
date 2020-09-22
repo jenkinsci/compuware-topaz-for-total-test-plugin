@@ -400,7 +400,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * 			  The JSON to be used when this test is executed.
 	 */
 	@DataBoundSetter
-	public void setJSonFile(String jsonFile)
+	public void setJsonFile(String jsonFile)
 	{
 		this.jsonFile = jsonFile;
 	}
@@ -544,10 +544,13 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final Boolean defaultHaltAtFailure = false; //NOSONAR
 		public static final String defaultAccountInfo = ""; //NOSONAR //$NON-NLS-1$
 		// CWE-159853 -- Begin -- REV
-		public static final String defaultJsonFile = ""; //NOSONAR //$NON-NLS-1$
+		public static final String defaultJsonFile = "changedPrograms.json"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultTestList = ""; //NOSONAR //$NON-NLS-1$
 		public static final Boolean defaultUseScenarios = false; //NOSONAR
-		// CWE-159853 -- End -- REV
+		public static final String selectJsonFile="JSON file"; //NOSONAR //$NON-NLS-1$
+		public static final String selectPrograms = "Selected Programs"; //NOSONAR //$NON-NLS-1$
+		public static final String defaultSelectPrograms = "pnf"; //NOSONAR
+				// CWE-159853 -- End -- REV
 		
 		/**
 		 * Validates for the 'CcThreshold' field
