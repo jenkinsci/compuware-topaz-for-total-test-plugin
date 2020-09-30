@@ -1,60 +1,34 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:c="/lib/credentials" xmlns:f="/lib/form">
-    <f:entry title="${%environmentId}" field="environmentId">
-        <f:textbox />
-    </f:entry> 
- 
-    <f:entry title="${%serverUrl}" field="serverUrl" >
- 	   <f:select /> 
- 	   <label><a href="/configure#cpwr-config">Manage connections</a></label>
-    </f:entry>
-
-    <f:entry title="${%loginCredentials}" field="credentialsId">
-		<c:select/>
-	</f:entry>
+	<f:section title="${%sectionConnection}">
+	    <f:entry title="${%environmentId}" field="environmentId">
+	        <f:textbox />
+	    </f:entry> 
+	 
+	    <f:entry title="${%serverUrl}" field="serverUrl" >
+	 	   <f:select /> 
+	 	   <label><a href="/configure#cpwr-config">Manage connections</a></label>
+	    </f:entry>
 	
-	<f:section title="Reports and Logging">
-        <f:entry title="${%uploadToServer}" field="uploadToServer">
-            <f:checkbox title="${%uploadToServerDescription}" default="${descriptor.defaultUploadToServer}"/>
-        </f:entry>
-		<f:entry title="${%sourceFolder}" field="sourceFolder">
-        	<f:textbox default="${descriptor.defaultSourceFolder}" />
-    	</f:entry>
-    	<f:entry title="${%reportFolder}" field="reportFolder">
-        	<f:textbox default="${descriptor.defaultReportFolder}"/>
-    	</f:entry>
-    	<f:entry name="sonarVersion" title="SonarQube" field="sonarVersion">
-		    <select name="sonarVersion">
-		    	<option value="6">Version 6</option>
-		        <option value="5">Version 5</option>		        
-		    </select>
+	    <f:entry title="${%loginCredentials}" field="credentialsId">
+			<c:select/>
 		</f:entry>
-<f:entry name="report" title="Report" field="report">
-		     <f:checkbox default="${true}" />
-</f:entry>
-<f:entry name="result" title="Result" field="result">
-		     <f:checkbox default="${true}" />
-</f:entry>
-<f:entry name="sonar" title="Sonar" field="sonar">
-		     <f:checkbox default="${true}" />
-</f:entry>
-<f:entry name="junit" title="JUnit" field="junit">
-		     <f:checkbox default="${true}" />
-</f:entry>
-<f:entry name="logLevel" title="LogLevel" field="logLevel">
-    <select name="logLevel">
-    	<option value="All">All</option>
-        <option value="Trace">Trace</option>		        
-        <option value="Info">Info</option>		        
-        <option value="Warning">Warning</option>		        
-        <option value="Error">Error</option>		        
-    </select>
-</f:entry>
+		<f:entry title="Configuration Location">
+			<f:radio title="${%configRepository}" name="selectConfig" value="remote" checked="${instance.isConfigurationRemote()}"/>
+			<f:nested>
+				<f:radio title="${%configLocal}" name="selectConfig" value="-cfgdir" checked="${instance.isConfigurationLocal()}"/>
+				<f:nested>
+					<f:entry title="${%localConfigurationLocation}" field="localConfigLocation">
+						<f:textbox default="${descriptor.defaultLocalConfigLocation}"/>
+					</f:entry>
+				</f:nested>
+			</f:nested>
+		</f:entry>
 	</f:section>
-	
-	<f:section title="Test Scenarios">
+
+	<f:section title="${%sectionTestScenarios}">
 	    <f:entry title="${%recursive}" field="recursive">
-			<f:checkbox default="${descriptor.defaultRecursive}"/>
+			<f:checkbox title="${%recursiveDescription}" default="${descriptor.defaultRecursive}"/>
 		</f:entry>
         <f:entry title="${%folderPath}" field="folderPath">
 			<f:textbox default="${descriptor.defaultFolderPath}"/>
@@ -64,36 +38,56 @@
         </f:entry>
 	</f:section>
 
-	<f:section title="Test Execution">
-		<f:optionalBlock title="${%testSelectionHeader}" checked="${false}">
-			<f:nested>
-				<table>
-					<f:entry>
-						<f:radioBlock name="selectTests" title="${descriptor.selectPrograms}" value="pn" checked="${descriptor.defaultSelectPrograms}">
-							<f:entry field="testList">
-								<f:textbox default="${descriptor.defaultTestList}"/>
+	<f:section title="${%sectionTestExecution}">
+		<f:optionalBlock title="${%selectProgramsOption}" name="selectProgramsOption" checked="${instance.getSelectProgramsOption()}" inline="${true}">
+			<f:block>
+				<table width="100%">
+<!--
+					<f:nested>
+						<f:radioBlock title="${descriptor.selectPrograms}" name="selectPrograms" value="${instance.selectProgramsListOption}" checked="${instance.isSelectProgramsList()}"" inline="{true}">
+							<f:entry field="programList">
+								<f:textbox default="${descriptor.defaultProgramList}"/>
 							</f:entry>
 						</f:radioBlock>
-						<f:radioBlock name="selectTests" title="${descriptor.selectJsonFile}" value="pnf" checked="${descriptor.defaultSelectPrograms}">
+					</f:nested>
+					<f:nested>
+						<f:radioBlock title="${descriptor.selectJsonFile}" name="selectPrograms" value="${instance.selectProgramsJsonOption}" checked="${instance.isSelectProgramsJSON()}" inline="{true}">
 							<f:entry field="jsonFile">
 								<f:textbox default="${descriptor.defaultJsonFile}"/>
 							</f:entry>
 						</f:radioBlock>
-					</f:entry>
+					</f:nested>
+-->
+					<f:nested>
+						<f:radio title="${descriptor.selectPrograms}" name="selectPrograms" value="-pn" checked="${instance.isSelectProgramsList()}"/>
+						<f:nested>
+							<f:entry field="programList">
+								<f:textbox default="${descriptor.defaultProgramList}"/>
+							</f:entry>
+						</f:nested>
+					</f:nested>
+					<f:nested>
+						<f:radio title="${descriptor.selectJsonFile}" name="selectPrograms" value="-pnf" checked="${instance.isSelectProgramsJSON()}"/>
+						<f:nested>
+							<f:entry field="jsonFile">
+								<f:textbox default="${descriptor.defaultJsonFile}"/>
+							</f:entry>
+						</f:nested>
+					</f:nested>
 				</table>
-			</f:nested>	    
+			</f:block>
 		</f:optionalBlock>
-        <f:entry title="${%haltAtFailure}" field="haltAtFailure">
-            <f:checkbox title="${%haltAtFailureDescription}" default="${descriptor.defaultHaltAtFailure}"/>
-        </f:entry>
 		<f:entry title="${%accountInfo}" field="accountInfo">
         	<f:textbox default="${descriptor.defaultAccountInfo}"/>
     	</f:entry>
 		<f:entry title="${%stopIfTestFailsOrThresholdReached}" field="stopIfTestFailsOrThresholdReached">
 			<f:checkbox default="${descriptor.defaultStopIfTestFailsOrThresholdReached}"/>
 		</f:entry>
-		<f:entry title="${%haltPipeline}" field="haltPipeline">
-		    <f:checkbox title="${%haltPipelineDescription}" default="${false}"/>
+        <f:entry title="${%haltAtFailure}" field="haltAtFailure">
+            <f:checkbox title="${%haltAtFailureDescription}" default="${descriptor.defaultHaltAtFailure}"/>
+        </f:entry>
+		<f:entry title="${%haltPipeline}" field="haltPipelineOnFailure">
+		    <f:checkbox title="${%haltPipelineDescription}" default="${descriptor.defaultHaltPipelineOnFailure}"/>
 		</f:entry>
 
         <f:invisibleEntry title="${%compareJUnits}" field="compareJUnits">
@@ -101,9 +95,60 @@
 	    </f:invisibleEntry>
 	</f:section>
 
-    <f:section title="Code Coverage">
-        <f:entry title="${%ccThreshold}" field="ccThreshold">
-        	<f:textbox default="${descriptor.defaultCCThreshold}"/>
-    	</f:entry>
-    </f:section>
+	<f:advanced title="${%sectionReportAndLogging}">
+		<f:section title="${%sectionReportAndLogging}">
+	        <f:entry title="${%uploadToServer}" field="uploadToServer">
+	            <f:checkbox title="${%uploadToServerDescription}" default="${descriptor.defaultUploadToServer}"/>
+	        </f:entry>
+			<f:entry title="${%sourceFolder}" field="sourceFolder">
+	        	<f:textbox default="${descriptor.defaultSourceFolder}" />
+	    	</f:entry>
+	    	<f:entry title="${%reportFolder}" field="reportFolder">
+	        	<f:textbox default="${descriptor.defaultReportFolder}"/>
+	    	</f:entry>
+			<f:entry title="${%sonarQube}" field="sonarVersion">
+				<f:select value="${sonarVersion}" default="6"/>
+			</f:entry>
+			<f:entry name="createReport" title="${%createReport}" field="createReport">
+				<f:checkbox default="{descriptor.defaultCreateReport}" title="${%createReportDescription}"/>
+			</f:entry>
+			<f:entry name="createResult" title="${%createResult}" field="createResult">
+				<f:checkbox default="${descriptor.defaultCreateResult}" title="${%createResultDescription}"/>
+			</f:entry>
+			<f:entry name="createSonar" title="${%createSonarReport}" field="createSonarReport">
+				<f:checkbox default="${descriptor.defaultCreateSonarReport}" title="${%createSonarReportDescription}"/>
+			</f:entry>
+			<f:entry name="createJUnit" title="${%createJUnitReport}" field="createJUnitReport">
+				<f:checkbox default="${descriptor.defaultCreateJUnitReport}" title="${%createJUnitReportDescription}"/>
+			</f:entry>
+	
+			<f:entry title="${%logLevel}" field="logLevel">
+				<f:select value="${logLevel}" default="TRACE"/>
+			</f:entry>
+		</f:section>
+	</f:advanced>
+
+	<f:advanced title="${%sectionCodeCoverage}">
+	    <f:section title="${%sectionCodeCoverage}">
+			<f:optionalBlock title="${%optionCollectCodeCoverage}" field="collectCodeCoverage" default="${descriptor.defaultCollectCodeCoverage}" inline="${true}">
+			<f:block>
+						<f:entry title="${%ccRepository}" field="collectCCRepository">
+							<f:textbox value="${it.collectCCRepository}" default="${descriptor.defaultCollectCCRepository}"/>
+						</f:entry>
+						<f:entry title="${%ccSystem}" field="collectCCSystem">
+							<f:textbox default="${descriptor.defaultCollectCCSystem}"/>
+						</f:entry>
+						<f:entry title="${%ccTestID}" field="collectCCTestID">
+							<f:textbox default="${descriptor.defaultCollectCCTestID}"/>
+						</f:entry>
+						<f:entry title="${%clearCodeCoverage}" field="clearCodeCoverage">
+						     <f:checkbox title="Should existing code coverage statics be cleared before execution of test" default="${descriptor.defaultClearCodeCoverage}" />
+						</f:entry>
+					    <f:entry title="${%ccThreshold}" field="ccThreshold">
+					    	<f:textbox default="${descriptor.defaultCCThreshold}"/>
+						</f:entry>
+				</f:block>
+					</f:optionalBlock>
+	    </f:section>
+	 </f:advanced>
 </j:jelly>

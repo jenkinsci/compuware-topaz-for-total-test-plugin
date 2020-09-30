@@ -153,12 +153,19 @@ public class TotalTestCTRunner
 
 			if (exitValue != 0)
 			{
-				boolean isStopIfTestFailsOrThresholdReached = tttBuilder.getStopIfTestFailsOrThresholdReached();
-
-				if (!isStopIfTestFailsOrThresholdReached)
+				if (!tttBuilder.getStopIfTestFailsOrThresholdReached())
 				{
 					listener.getLogger()
-							.println("Test result failed but build continues (isStopIfTestFailsOrThresholdReached is false)"); //$NON-NLS-1$
+							.println("Test result failed but build continues (Stop If Test Fails Or Threshold Reached is false)"); //$NON-NLS-1$
+					exitValue = 0;
+				}
+				else if (!tttBuilder.getHaltPipelineOnFailure())
+				{
+					// TODO: Should check if this build is for a pipeline or a Free style project?
+
+					// Don't fail the build so the pipeline can continue.
+					listener.getLogger()
+					.println("Test result failed but build continues (\"" + tttBuilder.getHaltPipelineTitle() + "\" is false)"); //$NON-NLS-1$
 					exitValue = 0;
 				}
 			}
@@ -474,6 +481,11 @@ public class TotalTestCTRunner
 			}
 		}
 
+		if (tttBuilder.isConfigurationLocal())
+		{
+			args.add(tttBuilder.getSelectConfig()).add(tttBuilder.getLocalConfigLocation());
+		}
+
 		if (!Strings.isNullOrEmpty(tttBuilder.getSonarVersion()))
 		{
 			args.add("-v").add(tttBuilder.getSonarVersion()); //$NON-NLS-1$
@@ -496,24 +508,56 @@ public class TotalTestCTRunner
 			args.add("-a").add(tttBuilder.getAccountInfo()); //$NON-NLS-1$
 		}
 		
-		// CWE-159853 -- Begin -- REV
 		if (TotalTestRunnerUtils.supportsListFiles(launcher, listener, remoteFileSeparator))
 		{
-			if (!Strings.isNullOrEmpty(tttBuilder.getJsonFile()))
+			String selectProgramsRadio = tttBuilder.getselectProgramsRadio();
+			String selectProgramsText = tttBuilder.getselectProgramsText();
+			
+			if (!Strings.isNullOrEmpty(selectProgramsRadio))
 			{
-				args.add("-pnf").add(tttBuilder.getJsonFile()); //$NON-NLS-1$
-			}
-			else if (!Strings.isNullOrEmpty(tttBuilder.getTestList()))
-			{
-				args.add("-pn").add(tttBuilder.getTestList()); //$NON-NLS-1$
+				args.add(selectProgramsRadio);
+				
+				if (!Strings.isNullOrEmpty(selectProgramsText))
+				{
+					args.add(selectProgramsText);
+				}
 			}
 		}
 		
 		if (tttBuilder.getUseScenarios())
 		{
-			args.add("-U");
+			args.add("-U"); //$NON-NLS-1$
 		}
-		// CWE-159853 -- End -- REV
+		
+		if (!tttBuilder.getCreateReport())
+		{
+			args.add("-norep"); //$NON-NLS-1$
+		}
+		if (!tttBuilder.getCreateResult())
+		{
+			args.add("-nores"); //$NON-NLS-1$
+		}
+		if (!tttBuilder.getCreateSonarReport())
+		{
+			args.add("-nosq"); //$NON-NLS-1$
+		}
+		if (!tttBuilder.getCreateJUnitReport())
+		{
+			args.add("-noju"); //$NON-NLS-1$
+		}
+
+		if (tttBuilder.getCollectCodeCoverage())
+		{
+			args.add("-ccrepo").add(tttBuilder.getCollectCCRepository()); //$NON-NLS-1$
+			args.add("-ccsys").add(tttBuilder.getCollectCCSystem()); //$NON-NLS-1$
+			args.add("-cctid").add(tttBuilder.getCollectCCTestID()); //$NON-NLS-1$
+			args.add("-ccclear").add(tttBuilder.getClearCodeCoverage()); //$NON-NLS-1$
+		}
+		
+		if (tttBuilder.isConfigurationLocal())
+		{
+			args.add (tttBuilder.getSelectConfig());
+		}
 	}
 
 	/**

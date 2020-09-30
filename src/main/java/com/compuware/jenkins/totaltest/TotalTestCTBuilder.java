@@ -32,6 +32,8 @@ import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredenti
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
 import com.compuware.jenkins.common.configuration.HostConnection;
+import com.google.common.base.Strings;
+
 import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePath;
@@ -54,6 +56,18 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 {
 	private static final int MAX_ACCOUNTING_LEN = 52;
 	
+	private static final String LOGLEVELALL = "ALL"; //$NON-NLS-1$
+	private static final String LOGLEVELTRACE = "TRACE"; //$NON-NLS-1$
+	private static final String LOGLEVELINFO = "INFO"; //$NON-NLS-1$
+	private static final String LOGLEVELDEBUG = "DEBUG"; //$NON-NLS-1$
+	private static final String LOGLEVELWARNING = "WARNING"; //$NON-NLS-1$
+	private static final String LOGLEVELERROR = "ERROR"; //$NON-NLS-1$
+
+	private static final String SONARVERSION5 = "5"; //$NON-NLS-1$
+	private static final String SONARVERSION6 = "6"; //$NON-NLS-1$
+	private static final String SONARVERSION5TITLE = "Version 5"; //$NON-NLS-1$
+	private static final String SONARVERSION6TITLE = "Version 6"; //$NON-NLS-1$
+
 	/** Environment ID need to used during the execution */
 	private final String environmentId;
 	/** Folder from which tests should be executed */
@@ -63,22 +77,27 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/** Using Jenkins credentials plugin */
 	private final String credentialsId;
 
+	private String selectConfig = DescriptorImpl.defaultSelectConfig;
+	private String localConfigLocation = DescriptorImpl.defaultLocalConfigLocation;
+
 	/**
 	 * Recursive: true|false - if test cases should be found recursively in the folder
 	 */
-	private boolean recursive = DescriptorImpl.defaultRecursive;
+	private boolean recursive = true; // DescriptorImpl.defaultRecursive == Boolean.TRUE;
 	/** Stop if test fails or threshold is reached. Defaults to true */
-	private boolean stopIfTestFailsOrThresholdReached = DescriptorImpl.defaultStopIfTestFailsOrThresholdReached;
+	private boolean stopIfTestFailsOrThresholdReached = false; // DescriptorImpl.defaultStopIfTestFailsOrThresholdReached == Boolean.TRUE;
 	/**
 	 * Upload to server: true|false - If results should be published to the server
 	 */
-	private boolean uploadToServer = DescriptorImpl.defaultUploadToServer;
+	private boolean uploadToServer = false; // DescriptorImpl.defaultUploadToServer == Boolean.TRUE;
 	/** Halt the execution when first test case fails */
-	private boolean haltAtFailure = DescriptorImpl.defaultHaltAtFailure;
+	private boolean haltAtFailure = true; // DescriptorImpl.defaultHaltAtFailure == Boolean.TRUE;
 	/** Code coverage threshold */
 	private int ccThreshold = DescriptorImpl.defaultCCThreshold;
 	/** SonarQube version 5 or 6 */
-	private String sonarVersion;
+	private String sonarVersion = DescriptorImpl.defaultSonarVersion;
+	private String logLevel = LOGLEVELTRACE;
+	
 	/**
 	 * Optional file path to a folder that contains source code of tested programs. Default is COBOL. It is only used to set the
 	 * source path.
@@ -86,16 +105,35 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private String sourceFolder = DescriptorImpl.defaultSourceFolder;
 	private String reportFolder = DescriptorImpl.defaultReportFolder;
 	private String accountInfo = DescriptorImpl.defaultAccountInfo;
-	private boolean compareJUnits = false;
 
-	// CWE-159853 -- Begin -- REV
-	/*
-	 * Add additional fields for JSON filename, test list and use .scenario files instead of .context files.
+	/**
+	 * Fields for Reporting.
+	 */
+	private boolean compareJUnits = DescriptorImpl.defaultCompareJunits;
+	private boolean createReport = true; // DescriptorImpl.defaultCreateReport == Boolean.TRUE;
+	private boolean createResult = true; // DescriptorImpl.defaultCreateResult == Boolean.TRUE;
+	private boolean createSonarReport = true; // DescriptorImpl.defaultCreateSonarReport == Boolean.TRUE;
+	private boolean createJUnitReport = true; // DescriptorImpl.defaultCreateJUnitReport == Boolean.TRUE;
+	
+	/**
+	 * Fields for selected programs to execute.
 	 */
 	private String jsonFile = DescriptorImpl.defaultJsonFile;
-	private String testList = DescriptorImpl.defaultTestList;
-	private boolean useScenarios = DescriptorImpl.defaultUseScenarios;
-	// CWE-159853 -- End -- REV
+	private String programList = DescriptorImpl.defaultProgramList;
+	private boolean useScenarios = false; // DescriptorImpl.defaultUseScenarios == Boolean.TRUE;
+	private boolean selectProgramsOption = false;
+	private String selectPrograms = DescriptorImpl.defaultSelectProgramsJsonOption;
+
+	/**
+	 * Fields for Code Coverage.
+	 */
+	private boolean haltPipelineOnFailure = DescriptorImpl.defaultHaltPipelineOnFailure;
+	
+	private boolean collectCodeCoverage =  false; // DescriptorImpl.defaultCollectCodeCoverage == Boolean.TRUE;
+	private String collectCCRepository = DescriptorImpl.defaultCollectCCRepository;
+	private String collectCCSystem = DescriptorImpl.defaultCollectCCSystemy;
+	private String collectCCTestID = DescriptorImpl.defaultCollectCCTestID;
+	private boolean clearCodeCoverage = false; // DescriptorImpl.defaultClearCodeCoverage == Boolean.TRUE;
 
 	@DataBoundConstructor
 	public TotalTestCTBuilder(String environmentId, String folderPath, String serverUrl, String credentialsId)
@@ -194,7 +232,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public String getSonarVersion()
 	{
-		return sonarVersion;
+		return Strings.isNullOrEmpty(sonarVersion) ? DescriptorImpl.defaultSonarVersion : sonarVersion; //$NON-NLS-1$
 	}
 
 	/**
@@ -368,7 +406,127 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		return this.compareJUnits;
 	}
 	
-	// CWE-159853 -- Begin -- REV
+	/**
+	 * Returns if the report file should be created.
+	 * 
+	 * @return	<code>true</code> indicates a report file should be created.
+	 * 			<code>false</code> indicates no report file will be created.
+	 */
+	
+	public boolean getCreateReport()
+	{
+		return createReport;
+	}
+
+	/**
+	 * Sets if the report file should be created.
+	 * 
+	 * @param createReport
+	 * 			<code>true</code> indicates a report file should be created.
+	 * 			<code>false</code> indicates no report file will be created.
+	 */
+	@DataBoundSetter
+	public void setCreateReport(boolean createReport)
+	{
+		this.createReport = createReport;
+	}
+
+	/**
+	 * Returns if the result file should be created.
+	 * 
+	 * @return	<code>true</code> indicates a result file should be created.
+	 * 			<code>false</code> indicates no result file will be created.
+	 */
+	public boolean getCreateResult()
+	{
+		return createResult;
+	}
+
+	/**
+	 * Set if the result file should be created.
+	 * 
+	 * @param createResult
+	 * 			<code>true</code> indicates a result file should be created.
+	 * 			<code>false</code> indicates no report file will be created.
+	 */
+	@DataBoundSetter
+	public void setCreateResult(boolean createResult)
+	{
+		this.createResult = createResult;
+	}
+	
+	/**
+	 * Returns if the Sonar report file should be created.
+	 * 
+	 * @return	<code>true</code> indicates a Sonar report file should be created.
+	 * 			<code>false</code> indicates no Sonar report file will be created.
+	 */
+	
+	public boolean getCreateSonarReport()
+	{
+		return createSonarReport;
+	}
+
+	/**
+	 * Sets if the Sonar report file should be created.
+	 * 
+	 * @param createSonarReport
+	 * 			<code>true</code> indicates a Sonar report file should be created.
+	 * 			<code>false</code> indicates no Sonar report file will be created.
+	 */
+	@DataBoundSetter
+	public void setCreateSonarReport(boolean createSonarReport)
+	{
+		this.createSonarReport = createSonarReport;
+	}
+
+	/**
+	 * Returns if the JUnit report file should be created.
+	 * 
+	 * @return	<code>true</code> indicates a JUnit result file should be created.
+	 * 			<code>false</code>indicates no JUnit result file will be created.
+	 */
+	
+	public boolean getCreateJUnitReport()
+	{
+		return createJUnitReport;
+	}
+
+	/**
+	 * Sets if the JUnit report file should be created.
+	 * 
+	 * @param createJUnitReport
+	 * 			<code>true</code> indicates a JUnit report file should be created.
+	 * 			<code>false</code> indicates no JUnit report file will be created.
+	 */
+	@DataBoundSetter
+	public void setCreateJUnitReport(boolean createJUnitReport)
+	{
+		this.createJUnitReport = createJUnitReport;
+	}
+	
+	/**
+	 * Returns the logging level.
+	 * 
+	 * @return	<code>String</code> The logging level
+	 */
+	public String getLogLevel()
+	{
+		return Strings.isNullOrEmpty(logLevel) ? LOGLEVELTRACE : logLevel; //$NON-NLS-1$
+	}
+	
+	/**
+	 * Sets the logging level.
+	 * 
+	 * @param logLevel
+	 * 			the log level. Should be 'ALL', 'TRACE", 'DEBUG', 'INFO', 'WARNING' or 'ERROR'.
+	 */
+	@DataBoundSetter
+	public void setLogLevel(final String logLevel)
+	{
+		this.logLevel = logLevel;
+	}
+
 	/**
 	 * Set the if comparing using .scenario files instead of .context files.
 	 * 
@@ -385,13 +543,79 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Returns if using .scenario files instead of .context files
 	 * 
-	 * @return	<code>true</code> indicates using .scenario files. <code>false</code>
-	 * 			indicates using .context files.
+	 * @return	<code>true</code> indicates using .scenario files.
+	 * 			<code>false</code> indicates using .context files.
 	 */
 	public boolean getUseScenarios()
 	{
 		return this.useScenarios;
 	}
+
+	/**
+	 * Sets the selectProgramsOption radio button.
+	 * 
+	 * @param selectProgramsOption
+	 * 			  Should the selectedOption check box be selected.
+	 */
+	@DataBoundSetter
+	public void setSelectProgramsOption(boolean selectProgramsOption)
+	{
+		this.selectProgramsOption = selectProgramsOption;
+	}
+	
+	/**
+	 * Sets the selectProgramsOption radio button.
+	 * 
+	 * @return	<code>true</code> if selectedOption check box is selected, otherwise <code>false</code>.
+	 */
+	public boolean getSelectProgramsOption()
+	{
+		return selectProgramsOption;
+	}
+
+	/**
+	 * Sets the selected selectPrograms radio button.
+	 * 
+	 * @param selectPrograms
+	 * 			  Selected programs option to set.
+	 */
+	@DataBoundSetter
+	public void setSelectPrograms(String selectPrograms)
+	{
+		this.selectPrograms = selectPrograms;
+	}
+	
+	/**
+	 * Returns the selected selectPrograms radio button.
+	 * 
+	 * @return	<code>String</code> value of the selectPrograms option.
+	 */
+	public String getSelectPrograms()
+	{
+		return selectPrograms;
+	}
+	
+	/**
+	 * Returns if the Select JSON option is selected.
+	 * 
+	 * @return	<code>true</code> if Select JSON option is selected, otherwise <code>false</code>.
+	 */
+	public boolean isSelectProgramsJSON()
+    {
+		//return selectPrograms != null && !selectPrograms.getRadio().isEmpty() && selectPrograms.getRadio().compareTo(selectFilesJson) == 0;
+		return Strings.isNullOrEmpty(selectPrograms) || selectPrograms.compareTo(DescriptorImpl.selectProgramsJsonOption) == 0;
+    }
+
+	/**
+	 * Returns if the Select Programs option is selected.
+	 * 
+	 * @return	<code>true</code> if Select Programs option is selected, otherwise <code>false</code>.
+	 */
+	public boolean isSelectProgramsList()
+    {
+		//return selectPrograms != null && !selectPrograms.getRadio().isEmpty() && selectPrograms.getRadio().compareTo(selectFilesOption") == 0;
+		return selectPrograms != null && !selectPrograms.isEmpty() && selectPrograms.compareTo(DescriptorImpl.selectProgramsListOption) == 0;
+    }
 
 	/**
 	 * Set the JSON file of tests to execute.
@@ -412,7 +636,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public String getJsonFile()
 	{
-		return this.jsonFile;
+		return jsonFile;
 	}
 
 	/**
@@ -422,9 +646,9 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * 			  The comma separated list of tests to be executed.
 	 */
 	@DataBoundSetter
-	public void setTestList(String testList)
+	public void setProgramList(String testList)
 	{
-		this.testList = testList;
+		this.programList = testList;
 	}
 
 	/**
@@ -432,13 +656,285 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * 
 	 * @return	<code>String</code> The list of tests to execute.
 	 */
-	public String getTestList()
+	public String getProgramList()
 	{
-		return this.testList;
+		return programList;
 	}
-	// CWE-159853 -- End -- REV
+
+	/**
+	 * Set if the pipeline execution continues when an error occurs.
+	 * 
+	 * @param haltPipelineOnFailure
+	 * 			<code>true</code> indicates pipeline should stop error is detected.
+	 * 			<code>false</code> indicates pipeline should not stop error is detected.
+	 */
+	@DataBoundSetter
+	public void setHaltPipelineOnFailure(boolean haltPipelineOnFailure)
+	{
+		this.haltPipelineOnFailure = haltPipelineOnFailure;
+	}
+
+	/**
+	 * Should the pipeline execution continues when an error occurs.
+	 * 
+	 * @return	<code>true</code> indicates pipeline should stop error is detected.
+	 * 			<code>false</code> indicates pipeline should not stop error is detected.
+	 */
+	public boolean getHaltPipelineOnFailure()
+	{
+		return haltPipelineOnFailure;
+	}
+
+	/**
+	 * Set what configuration to use.
+	 * 
+	 * @param selectConfig
+	 * 			Which configuration option is selected.
+	 */
+	@DataBoundSetter
+	public void setSelectConfig(String selectConfig)
+	{
+		this.selectConfig = selectConfig;
+	}
+
+	/**
+	 * Should the pipeline execution continues when an error occurs.
+	 * 
+	 * @return	<code>String</code> the selected configuration.
+	 */
+	public String getSelectConfig()
+	{
+		return selectConfig;
+	}
 	
-	/*
+	/**
+	 * Is the selected radio button selected.
+	 * 
+	 * @return	<code>true</code> if the passed value is the value of the configuration radio button, otherwise <code>false</code>.
+	 */
+	private boolean isSelectedConfig(String value)
+	{
+		return !Strings.isNullOrEmpty(selectConfig) && selectConfig.compareTo(value) == 0;
+	}
+	
+	/**
+	 * Is the remote configuration radio button is selected.
+	 * 
+	 * @return	<code>true</code> if the remote configuration radio button is selected, otherwise <code>false</code>.
+	 */
+	public boolean isConfigurationRemote()
+	{
+		//return !Strings.isNullOrEmpty(selectConfig) || isSelectedConfig(DescriptorImpl.selectConfigRemoteOption);
+		return !isConfigurationLocal();
+	}
+	
+	/**
+	 * Is the local configuration radio button is selected.
+	 * 
+	 * @return	<code>true</code> if the local configuration radio button is selected, otherwise <code>false</code>.
+	 */
+	public boolean isConfigurationLocal()
+	{
+		return isSelectedConfig(DescriptorImpl.selectConfigLocalOption);
+	}
+	
+	/**
+	 * Set local configuration location.
+	 * 
+	 * @param localConfigLocation
+	 * 			The local configuration location.
+	 */
+	@DataBoundSetter
+	public void setLocalConfigLocation(String localConfigLocation)
+	{
+		this.localConfigLocation = localConfigLocation;
+	}
+
+	/**
+	 * Return the local configuration location.
+	 * 
+	 * @return	<code>String</code> the local configuration location.
+	 */
+	public String getLocalConfigLocation()
+	{
+		return localConfigLocation;
+	}
+
+	/**
+	 * Set if Code Coverage should be executed.
+	 * 
+	 * @param collectCodeCoverage
+	 * 			<code>true</code> indicates code coverage is to be executed.
+	 * 			<code>false</code> indicates code coverage is not to be executed.
+	 */
+	@DataBoundSetter
+	public void setCollectCodeCoverage(boolean collectCodeCoverage)
+	{
+		this.collectCodeCoverage = collectCodeCoverage;
+	}
+
+	/**
+	 * Should Code Coverage should be executed.
+	 * 
+	 * @return	<code>true</code> indicates code coverage is to be executed.
+	 * 			<code>false</code> indicates code coverage is not to be executed.
+	 */
+	public boolean getCollectCodeCoverage()
+	{
+		return collectCodeCoverage;
+	}
+
+	/**
+	 * Set the Code Coverage Repository Server.
+	 * 
+	 * @param collectCCRepository
+	 * 			The Code Coverage Repository Server.
+	 */
+	@DataBoundSetter
+	public void setCollectCCRepository(String collectCCRepository)
+	{
+		this.collectCCRepository = collectCCRepository;
+	}
+
+	/**
+	 * Returns the Code Coverage Repository Server.
+	 * 
+	 * @return	The Code Coverage Repository Server.
+	 */
+	public String getCollectCCRepository()
+	{
+		return collectCCRepository;
+	}
+
+	/**
+	 * Set the Code Coverage System.
+	 * 
+	 * @param collectCCSystem
+	 * 			The Code Coverage System.
+	 */
+	@DataBoundSetter
+	public void setCollectCCSystem(String collectCCSystem)
+	{
+		this.collectCCSystem = collectCCSystem;
+	}
+
+	/**
+	 * Returns the Code Coverage System.
+	 * 
+	 * @return	The Code Coverage System.
+	 */
+	public String getCollectCCSystem()
+	{
+		return collectCCSystem;
+	}
+	
+	/**
+	 * Set the Code Coverage Test ID.
+	 * 
+	 * @param collectCCTestID
+	 * 			The Code Coverage Test ID.
+	 */
+	@DataBoundSetter
+	public void setCollectCCTestID(String collectCCTestID)
+	{
+		this.collectCCTestID = collectCCTestID;
+	}
+
+	/**
+	 * Returns the Code Coverage Test ID.
+	 * 
+	 * @return	The Code Coverage Test ID.
+	 */
+	public String getCollectCCTestID()
+	{
+		return collectCCTestID;
+	}
+	
+	/**
+	 * Set if Code Coverage results should be cleared at start of execution.
+	 * 
+	 * @param clearCodeCoverage
+	 * 			<code>true</code> indicates code coverage should be cleared at the start of execution.
+	 * 			<code>false</code> indicates code coverage should not be cleared at the start of execution.
+	 */
+	@DataBoundSetter
+	public void setClearCodeCoverage(boolean clearCodeCoverage)
+	{
+		this.clearCodeCoverage = clearCodeCoverage;
+	}
+
+	/**
+	 * Set if Code Coverage results should be cleared at start of execution.
+	 * 
+	 * @return	<code>true</code> indicates code coverage is to be executed.
+	 * 			<code>false</code> indicates code coverage is not to be executed.
+	 */
+	public boolean getClearCodeCoverage()
+	{
+		return clearCodeCoverage;
+	}
+	
+	/**
+	 * Returns the command line parameter for the selected "Select Programs" radio button
+	 * 
+	 * @return the command line parameter for the selected Program option.
+	 */
+	public final String getselectProgramsRadio()
+	{
+		String selectedProgramsRadio = null;
+		
+//		if (selectProgramsOption)
+//		{
+			if (isSelectProgramsJSON())
+			{
+				selectedProgramsRadio = DescriptorImpl.selectProgramsJsonOption;
+			}
+			else if (isSelectProgramsList())
+			{
+				selectedProgramsRadio = DescriptorImpl.selectProgramsListOption;
+			}
+//		}
+		
+		return selectedProgramsRadio;
+	}
+	
+	/**
+	 * Return the associated text for the selected "Select Programs" radio button
+	 * 
+	 * @return the command line parameter for the selected Program option.
+	 */
+	public final String getselectProgramsText()
+	{
+		String selectedProgramsText = null;
+		
+		if (!selectProgramsOption)
+		{
+			if (isSelectProgramsJSON())
+			{
+				selectedProgramsText = DescriptorImpl.selectProgramsJsonOption;
+			}
+			else if (isSelectProgramsList())
+			{
+				selectedProgramsText = DescriptorImpl.selectProgramsListOption;
+			}
+		}
+		
+		return selectedProgramsText;
+	}
+	
+	/**
+	 * Return the associated text for the "Halt pipeline if errors occur" field's title
+	 * 
+	 * @return <code>String</code> The "Halt pipeline if errors occur" field title
+	 */
+	public final String getHaltPipelineTitle()
+	{
+		return DescriptorImpl.haltPipelineTitle;
+
+	}
+
+	
+	/**
 	 * (non-Javadoc)
 	 * @see jenkins.tasks.SimpleBuildStep#perform(hudson.model.Run, hudson.FilePath, hudson.Launcher, hudson.model.TaskListener)
 	 */
@@ -538,20 +1034,85 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final int defaultCCThreshold = 0; //NOSONAR
 		public static final String defaultSourceFolder = "COBOL"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultReportFolder = "TTTReport"; //NOSONAR //$NON-NLS-1$
-		public static final Boolean defaultRecursive = true; //NOSONAR
+		public static final Boolean defaultRecursive = Boolean.FALSE; //NOSONAR
 		public static final Boolean defaultStopIfTestFailsOrThresholdReached = true; //NOSONAR
-		public static final Boolean defaultUploadToServer = false; //NOSONAR
-		public static final Boolean defaultHaltAtFailure = false; //NOSONAR
+		public static final Boolean defaultUploadToServer = Boolean.FALSE; //NOSONAR
+		public static final Boolean defaultHaltAtFailure = Boolean.FALSE; //NOSONAR
 		public static final String defaultAccountInfo = ""; //NOSONAR //$NON-NLS-1$
-		// CWE-159853 -- Begin -- REV
+		public static final Boolean defaultCompareJunits = Boolean.FALSE; //NOSONAR
+		public static final Boolean defaultCreateReport = Boolean.TRUE; //NOSONAR
+		public static final Boolean defaultCreateResult = Boolean.TRUE; //NOSONAR
+		public static final Boolean defaultCreateSonarReport = Boolean.TRUE; //NOSONAR
+		public static final Boolean defaultCreateJUnitReport = Boolean.TRUE; //NOSONAR
+		public static final String defaultSonarVersion = SONARVERSION6; //NOSONAR //$NON-NLS-1$
 		public static final String defaultJsonFile = "changedPrograms.json"; //NOSONAR //$NON-NLS-1$
-		public static final String defaultTestList = ""; //NOSONAR //$NON-NLS-1$
-		public static final Boolean defaultUseScenarios = false; //NOSONAR
-		public static final String selectJsonFile="JSON file"; //NOSONAR //$NON-NLS-1$
+		public static final String defaultProgramList = ""; //NOSONAR //$NON-NLS-1$
+		public static final Boolean defaultUseScenarios = Boolean.FALSE; //NOSONAR
+		public static final String selectJsonFile = "JSON file"; //NOSONAR //$NON-NLS-1$
 		public static final String selectPrograms = "Selected Programs"; //NOSONAR //$NON-NLS-1$
-		public static final String defaultSelectPrograms = "pnf"; //NOSONAR
-				// CWE-159853 -- End -- REV
+		public static final String selectProgramsJsonOption = "-pnf"; //NOSONAR
+		public static final String selectProgramsListOption = "-pn"; //NOSONAR
+		public static final String defaultSelectProgramsJsonOption = selectProgramsJsonOption; //NOSONAR
+		public static final Boolean defaultHaltPipelineOnFailure = Boolean.TRUE; //NOSONAR
+		public static final Boolean defaultCollectCodeCoverage = Boolean.FALSE; //NOSONAR
+		public static final String defaultCollectCCRepository = ""; //NOSONAR //$NON-NLS-1$
+		public static final String defaultCollectCCSystemy = ""; //NOSONAR //$NON-NLS-1$
+		public static final String defaultCollectCCTestID = ""; //NOSONAR //$NON-NLS-1$
+		public static final Boolean defaultClearCodeCoverage = Boolean.FALSE; //NOSONAR
+		public static final String haltPipelineTitle = "Halt pipeline if errors occur"; //NOSONAR //$NON-NLS-1$
+		public static final String selectConfigRemoteOption = "remote"; //NOSONAR //$NON-NLS-1$
+		public static final String selectConfigLocalOption = "-cfgdir"; //NOSONAR //$NON-NLS-1$
+		public static final String defaultSelectConfig = selectConfigRemoteOption; //NOSONAR //$NON-NLS-1$
+		public static final String defaultLocalConfigLocation = "./TotalTestConfiguration"; //NOSONAR //$NON-NLS-1$
 		
+		/**
+		 * Fill in the Sonar versions.
+		 * 
+		 * @param context
+		 * 		An instance of <code>context</code> for the Jenkin's context
+		 * @param sonarVersion
+		 * 		The sonar version to set.
+		 * @param project
+		 * 		An instance of <code>Item</code> for the project.
+		 * 
+		 * @return	A <code>ListBoxModel</code> instance contain the Code Coverage program types.
+		 */
+		public ListBoxModel doFillSonarVersionItems(@AncestorInPath Jenkins context, @QueryParameter String sonarVersion, @AncestorInPath Item project)
+		{
+			ListBoxModel sonarVersionModel = new ListBoxModel();
+			boolean isDefault5 = defaultSonarVersion == SONARVERSION5;
+			boolean isDefault6 = defaultSonarVersion == SONARVERSION6;
+			sonarVersionModel.add(new Option(SONARVERSION6TITLE, SONARVERSION6,	((sonarVersion == null && isDefault6) || SONARVERSION6.equals(sonarVersion) ? true : false))); //NOSONAR
+			sonarVersionModel.add(new Option(SONARVERSION5TITLE, SONARVERSION5,	((sonarVersion == null && isDefault5) || SONARVERSION5.equals(sonarVersion) ? true : false))); //NOSONAR
+
+			return sonarVersionModel;
+		}
+
+		/**
+		 * Fill in the logging levels.
+		 * 
+		 * @param context
+		 * 		An instance of <code>context</code> for the Jenkin's context
+		 * @param logLevel
+		 * 		The logging level to check.
+		 * @param project
+		 * 		An instance of <code>Item</code> for the project.
+		 * 
+		 * @return	A <code>ListBoxModel</code> instance contain the Code Coverage program types.
+		 */
+		public ListBoxModel doFillLogLevelItems(@AncestorInPath Jenkins context, @QueryParameter String logLevel, @AncestorInPath Item project)
+		{
+			ListBoxModel logLevelModel = new ListBoxModel();
+			logLevelModel.add(new Option(LOGLEVELALL,		LOGLEVELALL,		(logLevel == null || !LOGLEVELALL.equals(logLevel)		? false : true))); //NOSONAR
+			logLevelModel.add(new Option(LOGLEVELTRACE,		LOGLEVELTRACE, 		(logLevel == null || LOGLEVELTRACE.equals(logLevel)		? true : false))); //NOSONAR
+			logLevelModel.add(new Option(LOGLEVELINFO, 		LOGLEVELINFO, 		(logLevel == null || !LOGLEVELINFO.equals(logLevel)		? false : true))); //NOSONAR
+			logLevelModel.add(new Option(LOGLEVELDEBUG,		LOGLEVELDEBUG, 		(logLevel == null || !LOGLEVELDEBUG.equals(logLevel)	? false : true))); //NOSONAR
+			logLevelModel.add(new Option(LOGLEVELWARNING,	LOGLEVELWARNING,	(logLevel == null || !LOGLEVELWARNING.equals(logLevel)	? false : true))); //NOSONAR
+			logLevelModel.add(new Option(LOGLEVELERROR,		LOGLEVELERROR, 		(logLevel == null || !LOGLEVELERROR.equals(logLevel)	? false : true))); //NOSONAR
+
+			return logLevelModel;
+		}	
+
 		/**
 		 * Validates for the 'CcThreshold' field
 		 * 
@@ -582,7 +1143,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 			return FormValidation.ok();
 		}
-
+		
 		/**
 		 * Validates for the 'EnvironmentId' field
 		 * 
@@ -769,8 +1330,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 			return model;
 		}
-
-		/*
+		
+		/**
 		 * (non-Javadoc)
 		 * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)
 		 */
@@ -781,7 +1342,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			return true;
 		}
 
-		/*
+		/**
 		 * (non-Javadoc)
 		 * @see hudson.model.Descriptor#getDisplayName()
 		 */
