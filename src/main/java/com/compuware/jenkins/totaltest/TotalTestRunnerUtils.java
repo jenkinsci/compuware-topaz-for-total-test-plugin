@@ -51,8 +51,7 @@ public class TotalTestRunnerUtils
 	public static final String TTT_MINIMUM_CLI_VERSION = "19.06.03"; //$NON-NLS-1$
 	public static final String TTT_NEW_EXTENSIONS_CLI_VERSION = "20.02.01"; //$NON-NLS-1$
 	public static final String TTT_OUTPUTFOLDER_CLI_VERSION = "20.03.01"; //$NON-NLS-1$
-	public static final String TTT_LIST_PROGRAMS = "20.04.01"; //$NON-NLS-1$
-	public static final String TTT_LOCAL_CONFIG = "20.04.01"; //$NON-NLS-1$
+	public static final String TTT_CLI_200401 = "20.04.01"; //$NON-NLS-1$
 
 	private static final String QUESTION = "?"; //$NON-NLS-1$
 	private static final String ASTERISK = "*"; //$NON-NLS-1$
@@ -460,26 +459,8 @@ public class TotalTestRunnerUtils
 	 */
 	public static boolean usesDefaultOutputFolder (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
 	{
-		boolean defaultOuputFolder = true;
-		try
-		{
-			String cliVersion = getCLIVersion(launcher, remoteFileSeparator);
-			
-			try
-			{
-				CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_OUTPUTFOLDER_CLI_VERSION);
-			}
-			catch (Exception e)
-			{
-				defaultOuputFolder = false;
-			}
-		}
-		catch (Exception e)
-		{
-			defaultOuputFolder = false;
-		}
+		return isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_OUTPUTFOLDER_CLI_VERSION);
 
-		return defaultOuputFolder;
 	}
 
 	/**
@@ -496,67 +477,12 @@ public class TotalTestRunnerUtils
 	 */
 	public static boolean usesNewFileExtensions (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
 	{
-		boolean newFileExtensions = true;
-		try
-		{
-			String cliVersion = getCLIVersion(launcher, remoteFileSeparator);
-			
-			try
-			{
-				CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_NEW_EXTENSIONS_CLI_VERSION);
-			}
-			catch (Exception e)
-			{
-				newFileExtensions = false;
-			}
-
-		}
-		catch (Exception e)
-		{
-			newFileExtensions = false;
-		}
-
-		return newFileExtensions;
-	}
-	
-	/**
-	 * Returns if the Combined Total Test CLI supports listing tests with JSON or list of tests.
-	 * 
-	 * @param launcher
-	 *            The machine that the files will be checked out.
-	 * @param listener
-	 * 			An instance of <code>TaskListener</code> for the task.
-	 * @param remoteFileSeparator
-	 * 			  The remote file separator
-	 *            
-	 * @return	<code>true</code> if this node supports selecting programs, otherwise <code>false</code>.
-	 */
-	public static boolean supportsListPrograms (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
-	{
-		boolean listPrograms = true;
-		try
-		{
-			String cliVersion = getCLIVersion(launcher, remoteFileSeparator);
-			
-			try
-			{
-				CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_LIST_PROGRAMS);
-			}
-			catch (Exception e)
-			{
-				listPrograms = false;
-			}
-		}
-		catch (Exception e)
-		{
-			listPrograms = false;
-		}
-
-		return listPrograms;
+		return isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_NEW_EXTENSIONS_CLI_VERSION);
 	}
 
+
 	/**
-	 * Returns if the Local Configuration directory option is supported.
+	 * Returns if the CLI is greater or equal to the passed version.
 	 * 
 	 * @param launcher
 	 *            The machine that the files will be checked out.
@@ -567,29 +493,30 @@ public class TotalTestRunnerUtils
 	 *            
 	 * @return	<code>true</code> if this node supports using the local configuration directory, otherwise <code>false</code>.
 	 */
-	public static boolean supportsUseLocalConfig (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
+	public static boolean isMinimumRelease (final Launcher launcher, final TaskListener listener, String remoteFileSeparator, final String versionNumber)
 	{
-		boolean loalConfig = true;
+		boolean isminimumRelease = true;
 		try
 		{
 			String cliVersion = getCLIVersion(launcher, remoteFileSeparator);
 			
 			try
 			{
-				CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_LOCAL_CONFIG);
+				CLIVersionUtils.checkCLICompatibility(cliVersion, versionNumber);
 			}
 			catch (Exception e)
 			{
-				loalConfig = false;
+				isminimumRelease = false;
 			}
 		}
 		catch (Exception e)
 		{
-			loalConfig = false;
+			isminimumRelease = false;
 		}
 
-		return loalConfig;
+		return isminimumRelease;
 	}
+	
 	/**
 	 * Returns a UTF8 string of the remote file.
 	 * 		hudson.VirtualChannel vChannel = new hudson.VirtualChannel(......);

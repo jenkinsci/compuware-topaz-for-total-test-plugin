@@ -481,7 +481,7 @@ public class TotalTestCTRunner
 			}
 		}
 
-		if (TotalTestRunnerUtils.supportsUseLocalConfig(launcher, listener, remoteFileSeparator))
+		if (TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401))
 		{
 			if (tttBuilder.isConfigurationLocal())
 			{
@@ -511,55 +511,58 @@ public class TotalTestCTRunner
 			args.add("-a").add(tttBuilder.getAccountInfo()); //$NON-NLS-1$
 		}
 		
-		if (TotalTestRunnerUtils.supportsListPrograms(launcher, listener, remoteFileSeparator))
+		if (TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401))
 		{
-			String selectProgramsRadio = tttBuilder.getselectProgramsRadio();
-			String selectProgramsText = tttBuilder.getselectProgramsText();
-			
-			if (!Strings.isNullOrEmpty(selectProgramsRadio))
+			if (tttBuilder.getSelectProgramsOption())
 			{
-				args.add(selectProgramsRadio);
+				String selectProgramsRadio = tttBuilder.getselectProgramsRadio();
+				String selectProgramsText = tttBuilder.getselectProgramsText();
 				
-				if (!Strings.isNullOrEmpty(selectProgramsText))
+				if (!Strings.isNullOrEmpty(selectProgramsRadio))
 				{
-					args.add(selectProgramsText);
+					args.add(selectProgramsRadio);
+					
+					if (!Strings.isNullOrEmpty(selectProgramsText))
+					{
+						args.add(selectProgramsText);
+					}
 				}
 			}
-		}
-		
-		if (tttBuilder.getUseScenarios())
-		{
-			args.add("-U"); //$NON-NLS-1$
-		}
-		
-		if (!tttBuilder.getCreateReport())
-		{
-			args.add("-norep"); //$NON-NLS-1$
-		}
-		if (!tttBuilder.getCreateResult())
-		{
-			args.add("-nores"); //$NON-NLS-1$
-		}
-		if (!tttBuilder.getCreateSonarReport())
-		{
-			args.add("-nosq"); //$NON-NLS-1$
-		}
-		if (!tttBuilder.getCreateJUnitReport())
-		{
-			args.add("-noju"); //$NON-NLS-1$
-		}
 
-		if (tttBuilder.getCollectCodeCoverage())
-		{
-			args.add("-ccrepo").add(tttBuilder.getCollectCCRepository()); //$NON-NLS-1$
-			args.add("-ccsys").add(tttBuilder.getCollectCCSystem()); //$NON-NLS-1$
-			args.add("-cctid").add(tttBuilder.getCollectCCTestID()); //$NON-NLS-1$
-			args.add("-ccclear").add(tttBuilder.getClearCodeCoverage()); //$NON-NLS-1$
-		}
+			if (tttBuilder.getUseScenarios())
+			{
+				args.add("-U"); //$NON-NLS-1$
+			}
 		
-		if (tttBuilder.isConfigurationLocal())
-		{
-			args.add (tttBuilder.getSelectConfig());
+			if (!tttBuilder.getCreateReport())
+			{
+				args.add("-norep"); //$NON-NLS-1$
+			}
+			if (!tttBuilder.getCreateResult())
+			{
+				args.add("-nores"); //$NON-NLS-1$
+			}
+			if (!tttBuilder.getCreateSonarReport())
+			{
+				args.add("-nosq"); //$NON-NLS-1$
+			}
+			if (!tttBuilder.getCreateJUnitReport())
+			{
+				args.add("-noju"); //$NON-NLS-1$
+			}
+
+			if (tttBuilder.getCollectCodeCoverage())
+			{
+				args.add("-ccrepo").add(tttBuilder.getCollectCCRepository()); //$NON-NLS-1$
+				args.add("-ccsys").add(tttBuilder.getCollectCCSystem()); //$NON-NLS-1$
+				args.add("-cctid").add(tttBuilder.getCollectCCTestID()); //$NON-NLS-1$
+				args.add("-ccclear").add(tttBuilder.getClearCodeCoverage()); //$NON-NLS-1$
+			}
+
+			if (tttBuilder.isConfigurationLocal())
+			{
+				args.add(tttBuilder.getSelectConfig()).add(tttBuilder.getLocalConfigLocation());
+			}
 		}
 	}
 
