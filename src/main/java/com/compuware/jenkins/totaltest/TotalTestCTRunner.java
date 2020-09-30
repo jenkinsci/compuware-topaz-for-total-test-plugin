@@ -481,9 +481,12 @@ public class TotalTestCTRunner
 			}
 		}
 
-		if (tttBuilder.isConfigurationLocal())
+		if (TotalTestRunnerUtils.supportsUseLocalConfig(launcher, listener, remoteFileSeparator))
 		{
-			args.add(tttBuilder.getSelectConfig()).add(tttBuilder.getLocalConfigLocation());
+			if (tttBuilder.isConfigurationLocal())
+			{
+				args.add(tttBuilder.getSelectConfig()).add(tttBuilder.getLocalConfigLocation());
+			}
 		}
 
 		if (!Strings.isNullOrEmpty(tttBuilder.getSonarVersion()))
@@ -508,7 +511,7 @@ public class TotalTestCTRunner
 			args.add("-a").add(tttBuilder.getAccountInfo()); //$NON-NLS-1$
 		}
 		
-		if (TotalTestRunnerUtils.supportsListFiles(launcher, listener, remoteFileSeparator))
+		if (TotalTestRunnerUtils.supportsListPrograms(launcher, listener, remoteFileSeparator))
 		{
 			String selectProgramsRadio = tttBuilder.getselectProgramsRadio();
 			String selectProgramsText = tttBuilder.getselectProgramsText();

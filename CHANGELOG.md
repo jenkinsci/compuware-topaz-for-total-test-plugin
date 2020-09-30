@@ -1,5 +1,14 @@
 # Change Log
 
+### Version 2.3.8
+
+##### Non-Virtualized Testing(Functional Test)
+
+-    Redesigned UI for better grouping of options.
+-    When running with WorkbenchCLI CLI before version 20.04.01, the Select Programs to Execute options will not be used.
+-    Added new Functional Test option to allow pipeline scripts to continue to execute even where failures occur in the tests.
+-    Added option execute with configuration either from the Repository Server or from a local configuration directory when using WorkbenchCLI CLI version 20.04.01 or later.
+
 ### Version 2.3.7
 
 **This release requires Workbench 19.06.04 or above.**
@@ -8,7 +17,7 @@
 
 -    Modified location of output results to be in the "Output" folder for WorkbenchCLI CLI version 20.03.01 and higher.
 -    The report folder specification is not used with WorkbenchCLI CLI version 20.03.01 and higher.
--    Added new Functional test file extensions introduced in WorkbenchCLI 20.02.01.
+-    Added new Functional Test file extensions introduced in WorkbenchCLI 20.02.01.
 
 ##### Virtualized Testing(Unit Test)
 

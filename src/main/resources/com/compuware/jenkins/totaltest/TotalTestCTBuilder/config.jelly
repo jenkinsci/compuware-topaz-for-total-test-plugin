@@ -13,7 +13,7 @@
 	    <f:entry title="${%loginCredentials}" field="credentialsId">
 			<c:select/>
 		</f:entry>
-		<f:entry title="Configuration Location">
+		<f:entry title="${%configurationLocation}">
 			<f:radio title="${%configRepository}" name="selectConfig" value="remote" checked="${instance.isConfigurationRemote()}"/>
 			<f:nested>
 				<f:radio title="${%configLocal}" name="selectConfig" value="-cfgdir" checked="${instance.isConfigurationLocal()}"/>

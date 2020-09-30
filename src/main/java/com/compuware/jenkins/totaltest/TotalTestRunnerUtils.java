@@ -51,7 +51,8 @@ public class TotalTestRunnerUtils
 	public static final String TTT_MINIMUM_CLI_VERSION = "19.06.03"; //$NON-NLS-1$
 	public static final String TTT_NEW_EXTENSIONS_CLI_VERSION = "20.02.01"; //$NON-NLS-1$
 	public static final String TTT_OUTPUTFOLDER_CLI_VERSION = "20.03.01"; //$NON-NLS-1$
-	public static final String TTT_LIST_TESTS = "20.04.01"; //$NON-NLS-1$
+	public static final String TTT_LIST_PROGRAMS = "20.04.01"; //$NON-NLS-1$
+	public static final String TTT_LOCAL_CONFIG = "20.04.01"; //$NON-NLS-1$
 
 	private static final String QUESTION = "?"; //$NON-NLS-1$
 	private static final String ASTERISK = "*"; //$NON-NLS-1$
@@ -482,42 +483,6 @@ public class TotalTestRunnerUtils
 	}
 
 	/**
-	 * Returns if the Combined Total Test CLI supports listing tests with JSON or list of tests.
-	 * 
-	 * @param launcher
-	 *            The machine that the files will be checked out.
-	 * @param listener
-	 * 			An instance of <code>TaskListener</code> for the task.
-	 * @param remoteFileSeparator
-	 * 			  The remote file separator
-	 *            
-	 * @return	true if this uses the default folder
-	 */
-	public static boolean supportsListFiles (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
-	{
-		boolean defaultOuputFolder = true;
-		try
-		{
-			String cliVersion = getCLIVersion(launcher, remoteFileSeparator);
-			
-			try
-			{
-				CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_LIST_TESTS);
-			}
-			catch (Exception e)
-			{
-				defaultOuputFolder = false;
-			}
-		}
-		catch (Exception e)
-		{
-			defaultOuputFolder = false;
-		}
-
-		return defaultOuputFolder;
-	}
-
-	/**
 	 * Returns if the Total Test CLI will use the defulat Output folder
 	 * 
 	 * @param launcher
@@ -553,7 +518,78 @@ public class TotalTestRunnerUtils
 
 		return newFileExtensions;
 	}
+	
+	/**
+	 * Returns if the Combined Total Test CLI supports listing tests with JSON or list of tests.
+	 * 
+	 * @param launcher
+	 *            The machine that the files will be checked out.
+	 * @param listener
+	 * 			An instance of <code>TaskListener</code> for the task.
+	 * @param remoteFileSeparator
+	 * 			  The remote file separator
+	 *            
+	 * @return	<code>true</code> if this node supports selecting programs, otherwise <code>false</code>.
+	 */
+	public static boolean supportsListPrograms (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
+	{
+		boolean listPrograms = true;
+		try
+		{
+			String cliVersion = getCLIVersion(launcher, remoteFileSeparator);
+			
+			try
+			{
+				CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_LIST_PROGRAMS);
+			}
+			catch (Exception e)
+			{
+				listPrograms = false;
+			}
+		}
+		catch (Exception e)
+		{
+			listPrograms = false;
+		}
 
+		return listPrograms;
+	}
+
+	/**
+	 * Returns if the Local Configuration directory option is supported.
+	 * 
+	 * @param launcher
+	 *            The machine that the files will be checked out.
+	 * @param listener
+	 * 			An instance of <code>TaskListener</code> for the task.
+	 * @param remoteFileSeparator
+	 * 			  The remote file separator
+	 *            
+	 * @return	<code>true</code> if this node supports using the local configuration directory, otherwise <code>false</code>.
+	 */
+	public static boolean supportsUseLocalConfig (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
+	{
+		boolean loalConfig = true;
+		try
+		{
+			String cliVersion = getCLIVersion(launcher, remoteFileSeparator);
+			
+			try
+			{
+				CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_LOCAL_CONFIG);
+			}
+			catch (Exception e)
+			{
+				loalConfig = false;
+			}
+		}
+		catch (Exception e)
+		{
+			loalConfig = false;
+		}
+
+		return loalConfig;
+	}
 	/**
 	 * Returns a UTF8 string of the remote file.
 	 * 		hudson.VirtualChannel vChannel = new hudson.VirtualChannel(......);
