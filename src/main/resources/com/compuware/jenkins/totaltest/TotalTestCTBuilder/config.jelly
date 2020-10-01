@@ -13,22 +13,16 @@
 	    <f:entry title="${%loginCredentials}" field="credentialsId">
 			<c:select/>
 		</f:entry>
-		<f:entry title="${%configurationLocation}">
-			<f:radio title="${%configRepository}" name="selectConfig" value="remote" checked="${instance.isConfigurationRemote()}"/>
-			<f:nested>
-				<f:radio title="${%configLocal}" name="selectConfig" value="-cfgdir" checked="${instance.isConfigurationLocal()}"/>
-				<f:nested>
-					<f:entry title="${%localConfigurationLocation}" field="localConfigLocation">
-						<f:textbox default="${descriptor.defaultLocalConfigLocation}"/>
-					</f:entry>
-				</f:nested>
-			</f:nested>
-		</f:entry>
+		<f:optionalBlock title="${%configLocal}" name="localConfig" checked="${instance.isLocalConfig()}" inline="${true}">
+			<f:entry title="${%localConfigurationLocation}" field="localConfigLocation">
+				<f:textbox default="${descriptor.defaultLocalConfigLocation}"/>
+			</f:entry>
+		</f:optionalBlock>
 	</f:section>
 
 	<f:section title="${%sectionTestScenarios}">
 	    <f:entry title="${%recursive}" field="recursive">
-			<f:checkbox title="${%recursiveDescription}" default="true"/>
+			<f:checkbox title="${%recursiveDescription}" default="false"/>
 		</f:entry>
         <f:entry title="${%folderPath}" field="folderPath">
 			<f:textbox default="${descriptor.defaultFolderPath}"/>
@@ -51,7 +45,7 @@
 						</f:radioBlock>
 					</f:nested>
 					<f:nested>
-						<f:radioBlock title="${descriptor.selectJsonFile}" name="selectPrograms" value="${instance.selectProgramsJsonOption}" checked="${instance.isSelectProgramsJSON()}" inline="{true}">
+						<f:radioBlock title="${descriptor.selectJsonFile}" name="selectPrograms" value="${instance.selectProgramsJsonValue}" checked="${instance.isSelectProgramsJSON()}" inline="{true}">
 							<f:entry field="jsonFile">
 								<f:textbox default="${descriptor.defaultJsonFile}"/>
 							</f:entry>
@@ -59,7 +53,7 @@
 					</f:nested>
 -->
 					<f:nested>
-						<f:radio title="${descriptor.selectPrograms}" name="selectPrograms" value="-pn" checked="${instance.isSelectProgramsList()}"/>
+						<f:radio title="${descriptor.selectPrograms}" name="selectPrograms" value="${descriptor.selectProgramsListValue}" checked="${instance.isSelectProgramsList()}"/>
 						<f:nested>
 							<f:entry field="programList">
 								<f:textbox default="${descriptor.defaultProgramList}"/>
@@ -67,7 +61,7 @@
 						</f:nested>
 					</f:nested>
 					<f:nested>
-						<f:radio title="${descriptor.selectJsonFile}" name="selectPrograms" value="-pnf" checked="${instance.isSelectProgramsJSON()}"/>
+						<f:radio title="${descriptor.selectJsonFile}" name="selectPrograms" value="${descriptor.selectProgramsJsonOption}" checked="${instance.isSelectProgramsJSON()}"/>
 						<f:nested>
 							<f:entry field="jsonFile">
 								<f:textbox default="${descriptor.defaultJsonFile}"/>

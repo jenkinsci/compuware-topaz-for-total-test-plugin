@@ -421,7 +421,12 @@ public class TotalTestCTRunner
 		tttServerUrl += TOTAL_TEST_WEBAPP + "/"; //$NON-NLS-1$
 		listener.getLogger().println("Set the repository URL : " + tttServerUrl); //$NON-NLS-1$
 
-		args.add("-s").add(TotalTestRunnerUtils.escapeForScript(tttServerUrl), false); //$NON-NLS-1$
+		if (!TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401) || !tttBuilder.getLocalConfig())
+		{
+			args.add("-s").add(TotalTestRunnerUtils.escapeForScript(tttServerUrl), false); //$NON-NLS-1$
+		}
+
+		
 		args.add("-u").add( //$NON-NLS-1$
 				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
 				false);
@@ -486,9 +491,17 @@ public class TotalTestCTRunner
 
 		if (TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401))
 		{
-			if (tttBuilder.isConfigurationLocal())
+			if (tttBuilder.isLocalConfig())
 			{
-				args.add(tttBuilder.getSelectConfig()).add(tttBuilder.getLocalConfigLocation());
+				args.add("-cfgdir"); //$NON-NLS-1$
+				if (Strings.isNullOrEmpty(tttBuilder.getLocalConfigLocation()))
+				{
+					args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.DescriptorImpl.defaultLocalConfigLocation)); //$NON-NLS-1$
+				}
+				else
+				{
+					args.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getLocalConfigLocation())); //$NON-NLS-1$
+				}
 			}
 		}
 
@@ -518,7 +531,7 @@ public class TotalTestCTRunner
 		{
 			if (tttBuilder.getSelectProgramsOption())
 			{
-				String selectProgramsRadio = tttBuilder.getselectProgramsRadio();
+				String selectProgramsRadio = tttBuilder.getselectProgramsRadioValue();
 				String selectProgramsText = tttBuilder.getselectProgramsText();
 				
 				if (!Strings.isNullOrEmpty(selectProgramsRadio))

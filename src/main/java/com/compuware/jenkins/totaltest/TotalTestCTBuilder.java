@@ -77,7 +77,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/** Using Jenkins credentials plugin */
 	private final String credentialsId;
 
-	private String selectConfig = DescriptorImpl.defaultSelectConfig;
+	private boolean localConfig = false;
 	private String localConfigLocation = DescriptorImpl.defaultLocalConfigLocation;
 
 	/**
@@ -602,8 +602,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public boolean isSelectProgramsJSON()
     {
-		//return selectPrograms != null && !selectPrograms.getRadio().isEmpty() && selectPrograms.getRadio().compareTo(selectFilesJson) == 0;
-		return Strings.isNullOrEmpty(selectPrograms) || selectPrograms.compareTo(DescriptorImpl.selectProgramsJsonOption) == 0;
+		return Strings.isNullOrEmpty(selectPrograms) || selectPrograms.compareTo(DescriptorImpl.selectProgramsJsonValue) == 0;
     }
 
 	/**
@@ -613,8 +612,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public boolean isSelectProgramsList()
     {
-		//return selectPrograms != null && !selectPrograms.getRadio().isEmpty() && selectPrograms.getRadio().compareTo(selectFilesOption") == 0;
-		return selectPrograms != null && !selectPrograms.isEmpty() && selectPrograms.compareTo(DescriptorImpl.selectProgramsListOption) == 0;
+		return selectPrograms != null && !selectPrograms.isEmpty() && selectPrograms.compareTo(DescriptorImpl.selectProgramsListValue) == 0;
    }
 
 	/**
@@ -686,56 +684,35 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * Set what configuration to use.
+	 * Set if using local configuration
 	 * 
-	 * @param selectConfig
-	 * 			Which configuration option is selected.
+	 * @param localConfig
+	 * 			Using local configuration.
 	 */
 	@DataBoundSetter
-	public void setSelectConfig(String selectConfig)
+	public void setLocalConfig(boolean localConfig)
 	{
-		this.selectConfig = selectConfig;
+		this.localConfig = localConfig && !Strings.isNullOrEmpty(localConfigLocation);
 	}
 
 	/**
-	 * Should the pipeline execution continues when an error occurs.
+	 * Return if using local configuration.
 	 * 
-	 * @return	<code>String</code> the selected configuration.
+	 * @return	<code>true</code> If using local configuration, otherwise <code>false</code>
 	 */
-	public String getSelectConfig()
+	public boolean getLocalConfig()
 	{
-		return selectConfig;
+		return localConfig;
 	}
-	
+
 	/**
-	 * Is the selected radio button selected.
+	 * Is local configuration.
 	 * 
-	 * @return	<code>true</code> if the passed value is the value of the configuration radio button, otherwise <code>false</code>.
+	 * @return	<code>true</code> if the local configuration button is selected, otherwise <code>false</code>.
 	 */
-	private boolean isSelectedConfig(String value)
+	public boolean isLocalConfig()
 	{
-		return !Strings.isNullOrEmpty(selectConfig) && selectConfig.compareTo(value) == 0;
-	}
-	
-	/**
-	 * Is the remote configuration radio button is selected.
-	 * 
-	 * @return	<code>true</code> if the remote configuration radio button is selected, otherwise <code>false</code>.
-	 */
-	public boolean isConfigurationRemote()
-	{
-		//return !Strings.isNullOrEmpty(selectConfig) || isSelectedConfig(DescriptorImpl.selectConfigRemoteOption);
-		return !isConfigurationLocal();
-	}
-	
-	/**
-	 * Is the local configuration radio button is selected.
-	 * 
-	 * @return	<code>true</code> if the local configuration radio button is selected, otherwise <code>false</code>.
-	 */
-	public boolean isConfigurationLocal()
-	{
-		return isSelectedConfig(DescriptorImpl.selectConfigLocalOption);
+		return localConfig;
 	}
 	
 	/**
@@ -879,19 +856,19 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * 
 	 * @return the command line parameter for the selected Program option.
 	 */
-	public final String getselectProgramsRadio()
+	public final String getselectProgramsRadioValue()
 	{
 		String selectedProgramsRadio = null;
 		
-//		if (selectProgramsOption)
+//		if (!selectProgramsOption)
 //		{
 			if (isSelectProgramsJSON())
 			{
-				selectedProgramsRadio = DescriptorImpl.selectProgramsJsonOption;
+				selectedProgramsRadio = DescriptorImpl.selectProgramsJsonValue;
 			}
 			else if (isSelectProgramsList())
 			{
-				selectedProgramsRadio = DescriptorImpl.selectProgramsListOption;
+				selectedProgramsRadio = DescriptorImpl.selectProgramsListValue;
 			}
 //		}
 		
@@ -911,11 +888,11 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		{
 			if (isSelectProgramsJSON())
 			{
-				selectedProgramsText = DescriptorImpl.selectProgramsJsonOption;
+				selectedProgramsText = DescriptorImpl.selectProgramsJsonValue;
 			}
 			else if (isSelectProgramsList())
 			{
-				selectedProgramsText = DescriptorImpl.selectProgramsListOption;
+				selectedProgramsText = DescriptorImpl.selectProgramsListValue;
 			}
 		}
 		
@@ -932,7 +909,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		return DescriptorImpl.haltPipelineTitle;
 
 	}
-
 	
 	/**
 	 * (non-Javadoc)
@@ -1050,9 +1026,9 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final Boolean defaultUseScenarios = false; //NOSONAR
 		public static final String selectJsonFile = "JSON file"; //NOSONAR //$NON-NLS-1$
 		public static final String selectPrograms = "Selected Programs"; //NOSONAR //$NON-NLS-1$
-		public static final String selectProgramsJsonOption = "-pnf"; //NOSONAR
-		public static final String selectProgramsListOption = "-pn"; //NOSONAR
-		public static final String defaultSelectProgramsJsonOption = selectProgramsJsonOption; //NOSONAR
+		public static final String selectProgramsJsonValue = "-pnf"; //NOSONAR
+		public static final String selectProgramsListValue = "-pn"; //NOSONAR
+		public static final String defaultSelectProgramsJsonValue = selectProgramsJsonValue; //NOSONAR
 		public static final Boolean defaultHaltPipelineOnFailure = true; //NOSONAR
 		public static final Boolean defaultCollectCodeCoverage = false; //NOSONAR
 		public static final String defaultCollectCCRepository = ""; //NOSONAR //$NON-NLS-1$
@@ -1060,9 +1036,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String defaultCollectCCTestID = ""; //NOSONAR //$NON-NLS-1$
 		public static final Boolean defaultClearCodeCoverage = false; //NOSONAR
 		public static final String haltPipelineTitle = "Halt pipeline if errors occur"; //NOSONAR //$NON-NLS-1$
-		public static final String selectConfigRemoteOption = "remote"; //NOSONAR //$NON-NLS-1$
-		public static final String selectConfigLocalOption = "-cfgdir"; //NOSONAR //$NON-NLS-1$
-		public static final String defaultSelectConfig = selectConfigRemoteOption; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLocalConfigLocation = "./TotalTestConfiguration"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLogLevel = LOGLEVELINFO; //NOSONAR
 		
