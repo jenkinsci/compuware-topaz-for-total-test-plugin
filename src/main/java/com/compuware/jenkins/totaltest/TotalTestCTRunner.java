@@ -195,99 +195,102 @@ public class TotalTestCTRunner
 		int result = 0;
 		try
 		{
-			VirtualChannel vChannel = launcher.getChannel();
-			FilePath testFolder = new FilePath(vChannel, tttBuilder.getFolderPath());
-			boolean usesNewExtension = TotalTestRunnerUtils.usesNewFileExtensions(launcher, listener, remoteFileSeparator);
-			boolean isSuite = true;
-			String resultFileName = null;
-			
-			if (testFolder.exists() && testFolder.isDirectory() == false) //NOSONAR
+			if (tttBuilder.getCreateResult())
 			{
-				// This most likely is a fully pathed test scenario.
-				String fileName = testFolder.getName();
-				int idx = fileName.indexOf('.');
-				if (idx != -1)
+				VirtualChannel vChannel = launcher.getChannel();
+				FilePath testFolder = new FilePath(vChannel, tttBuilder.getFolderPath());
+				boolean usesNewExtension = TotalTestRunnerUtils.usesNewFileExtensions(launcher, listener, remoteFileSeparator);
+				boolean isSuite = true;
+				String resultFileName = null;
+				
+				if (testFolder.exists() && testFolder.isDirectory() == false) //NOSONAR
 				{
-					String extension = fileName.substring(idx + 1);
-					if (extension.compareTo(FILE_EXT_XASUITE) == 0)
+					// This most likely is a fully pathed test scenario.
+					String fileName = testFolder.getName();
+					int idx = fileName.indexOf('.');
+					if (idx != -1)
 					{
-						isSuite = true;
-						resultFileName =
-								String.format("%s.%s", fileName.substring(0, idx), //$NON-NLS-1$
-											  usesNewExtension ? FILE_EXT_XASUITE_RESULT : FILE_EXT_XASUITE_RESULT_OLD);
-					}
-					else if (extension.compareTo(FILE_EXT_XAUNIT) == 0 ||
-						extension.compareTo(FILE_EXT_XAUNIT_OLD) == 0 ||
-						extension.compareTo(FILE_EXT_CONTEXT) == 0 ||
-						extension.compareTo(FILE_EXT_CONTEXT_OLD) == 0)
-					{
-						isSuite = false;
-						resultFileName = String.format("%s.%s", fileName.substring(0, idx), //$NON-NLS-1$
-													   usesNewExtension ? FILE_EXT_RESULT : FILE_EXT_RESULT_OLD);
+						String extension = fileName.substring(idx + 1);
+						if (extension.compareTo(FILE_EXT_XASUITE) == 0)
+						{
+							isSuite = true;
+							resultFileName =
+									String.format("%s.%s", fileName.substring(0, idx), //$NON-NLS-1$
+												  usesNewExtension ? FILE_EXT_XASUITE_RESULT : FILE_EXT_XASUITE_RESULT_OLD);
+						}
+						else if (extension.compareTo(FILE_EXT_XAUNIT) == 0 ||
+							extension.compareTo(FILE_EXT_XAUNIT_OLD) == 0 ||
+							extension.compareTo(FILE_EXT_CONTEXT) == 0 ||
+							extension.compareTo(FILE_EXT_CONTEXT_OLD) == 0)
+						{
+							isSuite = false;
+							resultFileName = String.format("%s.%s", fileName.substring(0, idx), //$NON-NLS-1$
+														   usesNewExtension ? FILE_EXT_RESULT : FILE_EXT_RESULT_OLD);
+						}
 					}
 				}
-			}
-			else
-			{
-				isSuite = true;
-				resultFileName = usesNewExtension ? GENERATED_SUITE_RESULT_FILE_NAME : GENERATED_SUITE_RESULT_FILE_NAME_OLD;
-			}
-			
-			FilePath testSuiteResultPath = getOutputFilePath(launcher, listener, resultFileName);
-			
-			if (testSuiteResultPath != null)
-			{
-				listener.getLogger().println("Found file path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
-			}
-			else
-			{
-				FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
-				testSuiteResultPath = new FilePath(workDir, resultFileName).absolutize();
-				listener.getLogger().println("The file path: " + testSuiteResultPath.getRemote() + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-	
-			listener.getLogger().println("TotalTest  CLI script file remote path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
-	
-			listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
-		
-			String content = null;
-
-			// For performance reasons we will create the content String from the testSuiteResultPath if the file is remote
-			// (running on a slave) otherwise we use the better performing Files.readAllBytes.
-			// The performance difference is approximately 2x faster with Files.readAllBytes than
-			// TotalTestRunnerUtils.GetRemoteUTF8FileContents() when running locally.
-			if (testSuiteResultPath.isRemote())
-			{
-				content = testSuiteResultPath.act(new TotalTestRunnerUtils.GetRemoteUTF8FileContents());
-			}
-			else
-			{
-				content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), StandardCharsets.UTF_8);
-			}
-	
-			listener.getLogger().println("Result content:"); //$NON-NLS-1$
-			listener.getLogger().println(content);
-
-			Document document = getXaScenarioSuiteResultAsDocument(content);
-			String xaScenarioSuiteResult = getXaScenarioSuiteResult(document, isSuite);
-			String logMessage = String.format("Result state from %s: %s", isSuite ? FILE_EXT_XASUITE : FILE_EXT_XAUNIT , xaScenarioSuiteResult);  //$NON-NLS-1$
-			listener.getLogger().println(logMessage);
-
-			if (!xaScenarioSuiteResult.equalsIgnoreCase("SUCCESS")) //$NON-NLS-1$
-			{
-				result = -1;
-			}
-
-			if (isSuite && result != -1 && tttBuilder.getCcThreshold() > 0)
-			{
-				listener.getLogger().println(
-						"The suite executed successfully, now checking that code coverage level is higher than the threshold on " //$NON-NLS-1$
-								+ tttBuilder.getCcThreshold() + " %"); //$NON-NLS-1$
-				boolean isCCThresholdOk = getXaScenarioSuiteCodeCoverage(document, isSuite);
-				if (!isCCThresholdOk)
+				else
 				{
-					listener.getLogger().println("Code coverage threshold not reached"); //$NON-NLS-1$
+					isSuite = true;
+					resultFileName = usesNewExtension ? GENERATED_SUITE_RESULT_FILE_NAME : GENERATED_SUITE_RESULT_FILE_NAME_OLD;
+				}
+				
+				FilePath testSuiteResultPath = getOutputFilePath(launcher, listener, resultFileName);
+				
+				if (testSuiteResultPath != null)
+				{
+					listener.getLogger().println("Found file path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+				}
+				else
+				{
+					FilePath workDir = new FilePath(vChannel, workspaceFilePath.getRemote());
+					testSuiteResultPath = new FilePath(workDir, resultFileName).absolutize();
+					listener.getLogger().println("The file path: " + testSuiteResultPath.getRemote() + " is missing."); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+		
+				listener.getLogger().println("TotalTest  CLI script file remote path: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+		
+				listener.getLogger().println("Reading suite result from file: " + testSuiteResultPath.getRemote()); //$NON-NLS-1$
+			
+				String content = null;
+	
+				// For performance reasons we will create the content String from the testSuiteResultPath if the file is remote
+				// (running on a slave) otherwise we use the better performing Files.readAllBytes.
+				// The performance difference is approximately 2x faster with Files.readAllBytes than
+				// TotalTestRunnerUtils.GetRemoteUTF8FileContents() when running locally.
+				if (testSuiteResultPath.isRemote())
+				{
+					content = testSuiteResultPath.act(new TotalTestRunnerUtils.GetRemoteUTF8FileContents());
+				}
+				else
+				{
+					content = new String(Files.readAllBytes(Paths.get(testSuiteResultPath.getRemote())), StandardCharsets.UTF_8);
+				}
+		
+				listener.getLogger().println("Result content:"); //$NON-NLS-1$
+				listener.getLogger().println(content);
+	
+				Document document = getXaScenarioSuiteResultAsDocument(content);
+				String xaScenarioSuiteResult = getXaScenarioSuiteResult(document, isSuite);
+				String logMessage = String.format("Result state from %s: %s", isSuite ? FILE_EXT_XASUITE : FILE_EXT_XAUNIT , xaScenarioSuiteResult);  //$NON-NLS-1$
+				listener.getLogger().println(logMessage);
+	
+				if (!xaScenarioSuiteResult.equalsIgnoreCase("SUCCESS")) //$NON-NLS-1$
+				{
 					result = -1;
+				}
+	
+				if (isSuite && result != -1 && tttBuilder.getCcThreshold() > 0)
+				{
+					listener.getLogger().println(
+							"The suite executed successfully, now checking that code coverage level is higher than the threshold on " //$NON-NLS-1$
+									+ tttBuilder.getCcThreshold() + " %"); //$NON-NLS-1$
+					boolean isCCThresholdOk = getXaScenarioSuiteCodeCoverage(document, isSuite);
+					if (!isCCThresholdOk)
+					{
+						listener.getLogger().println("Code coverage threshold not reached"); //$NON-NLS-1$
+						result = -1;
+					}
 				}
 			}
 		}
@@ -533,6 +536,8 @@ public class TotalTestCTRunner
 			{
 				args.add("-U"); //$NON-NLS-1$
 			}
+			
+			args.add("-loglevel").add(tttBuilder.getLogLevel());
 		
 			if (!tttBuilder.getCreateReport())
 			{
@@ -553,15 +558,36 @@ public class TotalTestCTRunner
 
 			if (tttBuilder.getCollectCodeCoverage())
 			{
-				args.add("-ccrepo").add(tttBuilder.getCollectCCRepository()); //$NON-NLS-1$
-				args.add("-ccsys").add(tttBuilder.getCollectCCSystem()); //$NON-NLS-1$
-				args.add("-cctid").add(tttBuilder.getCollectCCTestID()); //$NON-NLS-1$
-				args.add("-ccclear").add(tttBuilder.getClearCodeCoverage()); //$NON-NLS-1$
-			}
-
-			if (tttBuilder.isConfigurationLocal())
-			{
-				args.add(tttBuilder.getSelectConfig()).add(tttBuilder.getLocalConfigLocation());
+				boolean isCodeCoverageValid = true;
+				
+				if (!Strings.isNullOrEmpty(tttBuilder.getCollectCCRepository()))
+				{
+					args.add("-ccrepo").add(tttBuilder.getCollectCCRepository()); //$NON-NLS-1$
+				}
+				else
+				{
+					isCodeCoverageValid = false;
+				}
+				if (!Strings.isNullOrEmpty(tttBuilder.getCollectCCSystem()))
+				{
+					args.add("-ccsys").add(tttBuilder.getCollectCCSystem()); //$NON-NLS-1$
+				}
+				else
+				{
+					isCodeCoverageValid = false;
+				}
+				if (!Strings.isNullOrEmpty(tttBuilder.getCollectCCTestID()))
+				{
+					args.add("-cctid").add(tttBuilder.getCollectCCTestID()); //$NON-NLS-1$
+				}
+				else
+				{
+					isCodeCoverageValid = false;
+				}
+				if (isCodeCoverageValid)
+				{
+					args.add("-ccclear").add(tttBuilder.getClearCodeCoverage()); //$NON-NLS-1$
+				}
 			}
 		}
 	}

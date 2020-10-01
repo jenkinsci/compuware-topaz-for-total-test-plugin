@@ -83,20 +83,20 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Recursive: true|false - if test cases should be found recursively in the folder
 	 */
-	private boolean recursive = true; // DescriptorImpl.defaultRecursive == Boolean.TRUE;
+	private boolean recursive = false; //DescriptorImpl.defaultRecursive;
 	/** Stop if test fails or threshold is reached. Defaults to true */
-	private boolean stopIfTestFailsOrThresholdReached = false; // DescriptorImpl.defaultStopIfTestFailsOrThresholdReached == Boolean.TRUE;
+	private boolean stopIfTestFailsOrThresholdReached = false; //DescriptorImpl.defaultStopIfTestFailsOrThresholdReached;
 	/**
 	 * Upload to server: true|false - If results should be published to the server
 	 */
-	private boolean uploadToServer = false; // DescriptorImpl.defaultUploadToServer == Boolean.TRUE;
+	private boolean uploadToServer = false; //DescriptorImpl.defaultUploadToServer;
 	/** Halt the execution when first test case fails */
-	private boolean haltAtFailure = true; // DescriptorImpl.defaultHaltAtFailure == Boolean.TRUE;
+	private boolean haltAtFailure = false; //DescriptorImpl.defaultHaltAtFailure;
 	/** Code coverage threshold */
 	private int ccThreshold = DescriptorImpl.defaultCCThreshold;
 	/** SonarQube version 5 or 6 */
 	private String sonarVersion = DescriptorImpl.defaultSonarVersion;
-	private String logLevel = LOGLEVELTRACE;
+	private String logLevel = DescriptorImpl.defaultLogLevel;
 	
 	/**
 	 * Optional file path to a folder that contains source code of tested programs. Default is COBOL. It is only used to set the
@@ -109,31 +109,31 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Fields for Reporting.
 	 */
-	private boolean compareJUnits = DescriptorImpl.defaultCompareJunits;
-	private boolean createReport = true; // DescriptorImpl.defaultCreateReport == Boolean.TRUE;
-	private boolean createResult = true; // DescriptorImpl.defaultCreateResult == Boolean.TRUE;
-	private boolean createSonarReport = true; // DescriptorImpl.defaultCreateSonarReport == Boolean.TRUE;
-	private boolean createJUnitReport = true; // DescriptorImpl.defaultCreateJUnitReport == Boolean.TRUE;
+	private boolean compareJUnits = false; //DescriptorImpl.defaultCompareJunits;
+	private boolean createReport = true; // DescriptorImpl.defaultCreateReport;
+	private boolean createResult = true; // DescriptorImpl.defaultCreateResult;
+	private boolean createSonarReport = true; // DescriptorImpl.defaultCreateSonarReport;
+	private boolean createJUnitReport = true; // DescriptorImpl.defaultCreateJUnitReport;
 	
 	/**
 	 * Fields for selected programs to execute.
 	 */
 	private String jsonFile = DescriptorImpl.defaultJsonFile;
 	private String programList = DescriptorImpl.defaultProgramList;
-	private boolean useScenarios = false; // DescriptorImpl.defaultUseScenarios == Boolean.TRUE;
+	private boolean useScenarios = false; // DescriptorImpl.defaultUseScenarios;
 	private boolean selectProgramsOption = false;
-	private String selectPrograms = DescriptorImpl.defaultSelectProgramsJsonOption;
+	private String selectPrograms;
 
 	/**
 	 * Fields for Code Coverage.
 	 */
-	private boolean haltPipelineOnFailure = DescriptorImpl.defaultHaltPipelineOnFailure;
+	private boolean haltPipelineOnFailure = true; // DescriptorImpl.defaultHaltPipelineOnFailure;
 	
-	private boolean collectCodeCoverage =  false; // DescriptorImpl.defaultCollectCodeCoverage == Boolean.TRUE;
+	private boolean collectCodeCoverage =  false; // DescriptorImpl.defaultCollectCodeCoverage;
 	private String collectCCRepository = DescriptorImpl.defaultCollectCCRepository;
 	private String collectCCSystem = DescriptorImpl.defaultCollectCCSystemy;
 	private String collectCCTestID = DescriptorImpl.defaultCollectCCTestID;
-	private boolean clearCodeCoverage = false; // DescriptorImpl.defaultClearCodeCoverage == Boolean.TRUE;
+	private boolean clearCodeCoverage = false; // DescriptorImpl.defaultClearCodeCoverage;
 
 	@DataBoundConstructor
 	public TotalTestCTBuilder(String environmentId, String folderPath, String serverUrl, String credentialsId)
@@ -512,7 +512,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public String getLogLevel()
 	{
-		return Strings.isNullOrEmpty(logLevel) ? LOGLEVELTRACE : logLevel; //$NON-NLS-1$
+		return Strings.isNullOrEmpty(logLevel) ? DescriptorImpl.defaultLogLevel : logLevel; //$NON-NLS-1$
 	}
 	
 	/**
@@ -615,7 +615,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
     {
 		//return selectPrograms != null && !selectPrograms.getRadio().isEmpty() && selectPrograms.getRadio().compareTo(selectFilesOption") == 0;
 		return selectPrograms != null && !selectPrograms.isEmpty() && selectPrograms.compareTo(DescriptorImpl.selectProgramsListOption) == 0;
-    }
+   }
 
 	/**
 	 * Set the JSON file of tests to execute.
@@ -1034,36 +1034,37 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final int defaultCCThreshold = 0; //NOSONAR
 		public static final String defaultSourceFolder = "COBOL"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultReportFolder = "TTTReport"; //NOSONAR //$NON-NLS-1$
-		public static final Boolean defaultRecursive = Boolean.FALSE; //NOSONAR
+		public static final Boolean defaultRecursive = false; //NOSONAR
 		public static final Boolean defaultStopIfTestFailsOrThresholdReached = true; //NOSONAR
-		public static final Boolean defaultUploadToServer = Boolean.FALSE; //NOSONAR
-		public static final Boolean defaultHaltAtFailure = Boolean.FALSE; //NOSONAR
+		public static final Boolean defaultUploadToServer = false; //NOSONAR
+		public static final Boolean defaultHaltAtFailure = false; //NOSONAR
 		public static final String defaultAccountInfo = ""; //NOSONAR //$NON-NLS-1$
-		public static final Boolean defaultCompareJunits = Boolean.FALSE; //NOSONAR
-		public static final Boolean defaultCreateReport = Boolean.TRUE; //NOSONAR
-		public static final Boolean defaultCreateResult = Boolean.TRUE; //NOSONAR
-		public static final Boolean defaultCreateSonarReport = Boolean.TRUE; //NOSONAR
-		public static final Boolean defaultCreateJUnitReport = Boolean.TRUE; //NOSONAR
+		public static final Boolean defaultCompareJunits = false; //NOSONAR
+		public static final Boolean defaultCreateReport = true; //NOSONAR
+		public static final Boolean defaultCreateResult = true; //NOSONAR
+		public static final Boolean defaultCreateSonarReport = true; //NOSONAR
+		public static final Boolean defaultCreateJUnitReport = true; //NOSONAR
 		public static final String defaultSonarVersion = SONARVERSION6; //NOSONAR //$NON-NLS-1$
 		public static final String defaultJsonFile = "changedPrograms.json"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultProgramList = ""; //NOSONAR //$NON-NLS-1$
-		public static final Boolean defaultUseScenarios = Boolean.FALSE; //NOSONAR
+		public static final Boolean defaultUseScenarios = false; //NOSONAR
 		public static final String selectJsonFile = "JSON file"; //NOSONAR //$NON-NLS-1$
 		public static final String selectPrograms = "Selected Programs"; //NOSONAR //$NON-NLS-1$
 		public static final String selectProgramsJsonOption = "-pnf"; //NOSONAR
 		public static final String selectProgramsListOption = "-pn"; //NOSONAR
 		public static final String defaultSelectProgramsJsonOption = selectProgramsJsonOption; //NOSONAR
-		public static final Boolean defaultHaltPipelineOnFailure = Boolean.TRUE; //NOSONAR
-		public static final Boolean defaultCollectCodeCoverage = Boolean.FALSE; //NOSONAR
+		public static final Boolean defaultHaltPipelineOnFailure = true; //NOSONAR
+		public static final Boolean defaultCollectCodeCoverage = false; //NOSONAR
 		public static final String defaultCollectCCRepository = ""; //NOSONAR //$NON-NLS-1$
 		public static final String defaultCollectCCSystemy = ""; //NOSONAR //$NON-NLS-1$
 		public static final String defaultCollectCCTestID = ""; //NOSONAR //$NON-NLS-1$
-		public static final Boolean defaultClearCodeCoverage = Boolean.FALSE; //NOSONAR
+		public static final Boolean defaultClearCodeCoverage = false; //NOSONAR
 		public static final String haltPipelineTitle = "Halt pipeline if errors occur"; //NOSONAR //$NON-NLS-1$
 		public static final String selectConfigRemoteOption = "remote"; //NOSONAR //$NON-NLS-1$
 		public static final String selectConfigLocalOption = "-cfgdir"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultSelectConfig = selectConfigRemoteOption; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLocalConfigLocation = "./TotalTestConfiguration"; //NOSONAR //$NON-NLS-1$
+		public static final String defaultLogLevel = LOGLEVELINFO; //NOSONAR
 		
 		/**
 		 * Fill in the Sonar versions.
@@ -1104,7 +1105,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		{
 			ListBoxModel logLevelModel = new ListBoxModel();
 			logLevelModel.add(new Option(LOGLEVELALL,		LOGLEVELALL,		(logLevel == null || !LOGLEVELALL.equals(logLevel)		? false : true))); //NOSONAR
-			logLevelModel.add(new Option(LOGLEVELTRACE,		LOGLEVELTRACE, 		(logLevel == null || LOGLEVELTRACE.equals(logLevel)		? true : false))); //NOSONAR
+			logLevelModel.add(new Option(LOGLEVELTRACE,		LOGLEVELTRACE, 		(logLevel == null || !LOGLEVELTRACE.equals(logLevel)	? false : true))); //NOSONAR
 			logLevelModel.add(new Option(LOGLEVELINFO, 		LOGLEVELINFO, 		(logLevel == null || !LOGLEVELINFO.equals(logLevel)		? false : true))); //NOSONAR
 			logLevelModel.add(new Option(LOGLEVELDEBUG,		LOGLEVELDEBUG, 		(logLevel == null || !LOGLEVELDEBUG.equals(logLevel)	? false : true))); //NOSONAR
 			logLevelModel.add(new Option(LOGLEVELWARNING,	LOGLEVELWARNING,	(logLevel == null || !LOGLEVELWARNING.equals(logLevel)	? false : true))); //NOSONAR

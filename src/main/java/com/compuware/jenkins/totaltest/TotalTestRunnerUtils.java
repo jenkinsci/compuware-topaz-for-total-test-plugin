@@ -482,7 +482,7 @@ public class TotalTestRunnerUtils
 
 
 	/**
-	 * Returns if the CLI is greater or equal to the passed version.
+	 * Returns if the Total Test CLI is greater or equal to the passed version.
 	 * 
 	 * @param launcher
 	 *            The machine that the files will be checked out.
@@ -490,6 +490,8 @@ public class TotalTestRunnerUtils
 	 * 			An instance of <code>TaskListener</code> for the task.
 	 * @param remoteFileSeparator
 	 * 			  The remote file separator
+	 * @param versionNumber
+	 * 			  The minimum Total Test CLI version number to check against.
 	 *            
 	 * @return	<code>true</code> if this node supports using the local configuration directory, otherwise <code>false</code>.
 	 */
