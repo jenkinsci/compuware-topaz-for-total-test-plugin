@@ -97,7 +97,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/** SonarQube version 5 or 6 */
 	private String sonarVersion = DescriptorImpl.defaultSonarVersion;
 	private String logLevel = DescriptorImpl.defaultLogLevel;
-Y	
+	
 	/**
 	 * Optional file path to a folder that contains source code of tested programs. Default is COBOL. It is only used to set the
 	 * source path.
