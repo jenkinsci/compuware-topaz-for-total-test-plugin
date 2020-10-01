@@ -97,7 +97,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/** SonarQube version 5 or 6 */
 	private String sonarVersion = DescriptorImpl.defaultSonarVersion;
 	private String logLevel = DescriptorImpl.defaultLogLevel;
-	
+Y	
 	/**
 	 * Optional file path to a folder that contains source code of tested programs. Default is COBOL. It is only used to set the
 	 * source path.
@@ -665,6 +665,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
+
 	 * Returns the list of tests to execute.
 	 * 
 	 * @return	<code>String</code> The list of tests to execute.
@@ -922,7 +923,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public final String getHaltPipelineTitle()
 	{
 		return DescriptorImpl.haltPipelineTitle;
-
 	}
 	
 	/**
@@ -1027,8 +1027,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String defaultReportFolder = "TTTReport"; //NOSONAR //$NON-NLS-1$
 		public static final Boolean defaultRecursive = false; //NOSONAR
 		public static final Boolean defaultStopIfTestFailsOrThresholdReached = true; //NOSONAR
-		public static final Boolean defaultUploadToServer = false; //NOSONAR
-		public static final Boolean defaultHaltAtFailure = false; //NOSONAR
+		public static final Boolean defaultUploadToServer = Boolean.FALSE; //NOSONAR
+		public static final Boolean defaultHaltAtFailure = Boolean.FALSE; //NOSONAR
 		public static final String defaultAccountInfo = ""; //NOSONAR //$NON-NLS-1$
 		public static final Boolean defaultCompareJunits = false; //NOSONAR
 		public static final Boolean defaultCreateReport = true; //NOSONAR

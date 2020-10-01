@@ -460,7 +460,6 @@ public class TotalTestRunnerUtils
 	public static boolean usesDefaultOutputFolder (final Launcher launcher, final TaskListener listener, String remoteFileSeparator)
 	{
 		return isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_OUTPUTFOLDER_CLI_VERSION);
-
 	}
 
 	/**
