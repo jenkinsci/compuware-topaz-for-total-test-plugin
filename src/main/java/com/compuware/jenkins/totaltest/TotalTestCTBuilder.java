@@ -122,7 +122,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private String programList = DescriptorImpl.defaultProgramList;
 	private boolean useScenarios = false; // DescriptorImpl.defaultUseScenarios;
 	private boolean selectProgramsOption = false;
-	private String selectPrograms;
+	private String selectPrograms = DescriptorImpl.selectProgramsJsonValue;
 
 	/**
 	 * Fields for Code Coverage.
@@ -592,7 +592,18 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public String getSelectPrograms()
 	{
-		return selectPrograms;
+		String selectedPrograms = null;
+		
+		if (isSelectProgramsJSON())
+		{
+			selectedPrograms =  DescriptorImpl.selectProgramsJsonValue;
+		}
+		else
+		{
+			selectedPrograms =  DescriptorImpl.selectProgramsListValue;
+		}
+		
+		return selectedPrograms;
 	}
 	
 	/**
@@ -602,6 +613,10 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public boolean isSelectProgramsJSON()
     {
+		if (Strings.isNullOrEmpty(selectPrograms))
+		{
+			selectPrograms = DescriptorImpl.selectProgramsJsonValue;
+		}
 		return Strings.isNullOrEmpty(selectPrograms) || selectPrograms.compareTo(DescriptorImpl.selectProgramsJsonValue) == 0;
     }
 
@@ -612,7 +627,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public boolean isSelectProgramsList()
     {
-		return selectPrograms != null && !selectPrograms.isEmpty() && selectPrograms.compareTo(DescriptorImpl.selectProgramsListValue) == 0;
+		return !Strings.isNullOrEmpty(selectPrograms) && selectPrograms.compareTo(DescriptorImpl.selectProgramsListValue) == 0;
    }
 
 	/**
@@ -860,8 +875,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	{
 		String selectedProgramsRadio = null;
 		
-//		if (!selectProgramsOption)
-//		{
+		if (!selectProgramsOption)
+		{
 			if (isSelectProgramsJSON())
 			{
 				selectedProgramsRadio = DescriptorImpl.selectProgramsJsonValue;
@@ -870,7 +885,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			{
 				selectedProgramsRadio = DescriptorImpl.selectProgramsListValue;
 			}
-//		}
+		}
 		
 		return selectedProgramsRadio;
 	}

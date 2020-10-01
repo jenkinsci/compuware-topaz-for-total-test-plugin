@@ -411,18 +411,18 @@ public class TotalTestCTRunner
 	{
 		args.add("-e").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
 
-		String tttServerUrl = tttBuilder.getServerUrl();
-
-		if (!tttServerUrl.endsWith("/")) //$NON-NLS-1$
-		{
-			tttServerUrl += "/"; //$NON-NLS-1$
-		}
-
-		tttServerUrl += TOTAL_TEST_WEBAPP + "/"; //$NON-NLS-1$
-		listener.getLogger().println("Set the repository URL : " + tttServerUrl); //$NON-NLS-1$
-
 		if (!TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401) || !tttBuilder.getLocalConfig())
 		{
+			String tttServerUrl = tttBuilder.getServerUrl();
+	
+			if (!tttServerUrl.endsWith("/")) //$NON-NLS-1$
+			{
+				tttServerUrl += "/"; //$NON-NLS-1$
+			}
+	
+			tttServerUrl += TOTAL_TEST_WEBAPP + "/"; //$NON-NLS-1$
+			listener.getLogger().println("Set the repository URL : " + tttServerUrl); //$NON-NLS-1$
+
 			args.add("-s").add(TotalTestRunnerUtils.escapeForScript(tttServerUrl), false); //$NON-NLS-1$
 		}
 
@@ -534,7 +534,8 @@ public class TotalTestCTRunner
 				String selectProgramsRadio = tttBuilder.getselectProgramsRadioValue();
 				String selectProgramsText = tttBuilder.getselectProgramsText();
 				
-				if (!Strings.isNullOrEmpty(selectProgramsRadio))
+				if (!Strings.isNullOrEmpty(selectProgramsRadio) &&
+						!Strings.isNullOrEmpty(selectProgramsText))
 				{
 					args.add(selectProgramsRadio);
 					
