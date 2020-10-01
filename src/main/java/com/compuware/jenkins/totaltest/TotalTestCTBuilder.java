@@ -68,6 +68,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private static final String SONARVERSION5TITLE = "Version 5"; //$NON-NLS-1$
 	private static final String SONARVERSION6TITLE = "Version 6"; //$NON-NLS-1$
 
+	public static final String defaultLocalConfigLocation = "./TotalTestConfiguration"; //NOSONAR //$NON-NLS-1$
+
 	/** Environment ID need to used during the execution */
 	private final String environmentId;
 	/** Folder from which tests should be executed */
@@ -85,13 +87,13 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	private boolean recursive = false; //DescriptorImpl.defaultRecursive;
 	/** Stop if test fails or threshold is reached. Defaults to true */
-	private boolean stopIfTestFailsOrThresholdReached = false; //DescriptorImpl.defaultStopIfTestFailsOrThresholdReached;
+	private boolean stopIfTestFailsOrThresholdReached = DescriptorImpl.defaultStopIfTestFailsOrThresholdReached;
 	/**
 	 * Upload to server: true|false - If results should be published to the server
 	 */
-	private boolean uploadToServer = false; //DescriptorImpl.defaultUploadToServer;
+	private boolean uploadToServer = DescriptorImpl.defaultUploadToServer;
 	/** Halt the execution when first test case fails */
-	private boolean haltAtFailure = false; //DescriptorImpl.defaultHaltAtFailure;
+	private boolean haltAtFailure = DescriptorImpl.defaultHaltAtFailure;
 	/** Code coverage threshold */
 	private int ccThreshold = DescriptorImpl.defaultCCThreshold;
 	/** SonarQube version 5 or 6 */
@@ -109,31 +111,31 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Fields for Reporting.
 	 */
-	private boolean compareJUnits = false; //DescriptorImpl.defaultCompareJunits;
-	private boolean createReport = true; // DescriptorImpl.defaultCreateReport;
-	private boolean createResult = true; // DescriptorImpl.defaultCreateResult;
-	private boolean createSonarReport = true; // DescriptorImpl.defaultCreateSonarReport;
-	private boolean createJUnitReport = true; // DescriptorImpl.defaultCreateJUnitReport;
+	private boolean compareJUnits = DescriptorImpl.defaultCompareJunits;
+	private boolean createReport = DescriptorImpl.defaultCreateReport;
+	private boolean createResult = DescriptorImpl.defaultCreateResult;
+	private boolean createSonarReport = DescriptorImpl.defaultCreateSonarReport;
+	private boolean createJUnitReport = DescriptorImpl.defaultCreateJUnitReport;
 	
 	/**
 	 * Fields for selected programs to execute.
 	 */
 	private String jsonFile = DescriptorImpl.defaultJsonFile;
 	private String programList = DescriptorImpl.defaultProgramList;
-	private boolean useScenarios = false; // DescriptorImpl.defaultUseScenarios;
-	private boolean selectProgramsOption = false;
-	private String selectPrograms = DescriptorImpl.selectProgramsJsonValue;
+	private boolean useScenarios = DescriptorImpl.defaultUseScenarios;
+	private boolean selectProgramsOption = DescriptorImpl.defaultSelectProgramsOption;
+	private String selectProgramsRadio = DescriptorImpl.selectProgramsJsonValue;
 
 	/**
 	 * Fields for Code Coverage.
 	 */
-	private boolean haltPipelineOnFailure = true; // DescriptorImpl.defaultHaltPipelineOnFailure;
+	private boolean haltPipelineOnFailure = DescriptorImpl.defaultHaltPipelineOnFailure;
 	
-	private boolean collectCodeCoverage =  false; // DescriptorImpl.defaultCollectCodeCoverage;
+	private boolean collectCodeCoverage = DescriptorImpl.defaultCollectCodeCoverage;
 	private String collectCCRepository = DescriptorImpl.defaultCollectCCRepository;
 	private String collectCCSystem = DescriptorImpl.defaultCollectCCSystemy;
 	private String collectCCTestID = DescriptorImpl.defaultCollectCCTestID;
-	private boolean clearCodeCoverage = false; // DescriptorImpl.defaultClearCodeCoverage;
+	private boolean clearCodeCoverage = DescriptorImpl.defaultClearCodeCoverage;
 
 	@DataBoundConstructor
 	public TotalTestCTBuilder(String environmentId, String folderPath, String serverUrl, String credentialsId)
@@ -574,36 +576,36 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * Sets the selected selectPrograms radio button.
+	 * Sets the selected selectProgramsRadio radio button.
 	 * 
-	 * @param selectPrograms
+	 * @param selectProgramsRadio
 	 * 			  Selected programs option to set.
 	 */
 	@DataBoundSetter
-	public void setSelectPrograms(String selectPrograms)
+	public void setSelectProgramsRadio(String selectProgramsRadio)
 	{
-		this.selectPrograms = selectPrograms;
+		this.selectProgramsRadio = selectProgramsRadio;
 	}
 	
 	/**
-	 * Returns the selected selectPrograms radio button.
+	 * Returns the selected selectProgramsRadio radio button.
 	 * 
-	 * @return	<code>String</code> value of the selectPrograms option.
+	 * @return	<code>String</code> value of the selectProgramsRadio option.
 	 */
-	public String getSelectPrograms()
+	public String getSelectProgramsRadio()
 	{
-		String selectedPrograms = null;
+		String selectedProgramsRadioSelection = null;
 		
-		if (isSelectProgramsJSON())
+		if (Strings.isNullOrEmpty(selectProgramsRadio) || isSelectProgramsJSON())
 		{
-			selectedPrograms =  DescriptorImpl.selectProgramsJsonValue;
+			selectedProgramsRadioSelection =  DescriptorImpl.selectProgramsJsonValue;
 		}
 		else
 		{
-			selectedPrograms =  DescriptorImpl.selectProgramsListValue;
+			selectedProgramsRadioSelection =  DescriptorImpl.selectProgramsListValue;
 		}
 		
-		return selectedPrograms;
+		return selectedProgramsRadioSelection;
 	}
 	
 	/**
@@ -613,11 +615,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public boolean isSelectProgramsJSON()
     {
-		if (Strings.isNullOrEmpty(selectPrograms))
+		if (Strings.isNullOrEmpty(selectProgramsRadio))
 		{
-			selectPrograms = DescriptorImpl.selectProgramsJsonValue;
+			selectProgramsRadio = DescriptorImpl.selectProgramsJsonValue;
 		}
-		return Strings.isNullOrEmpty(selectPrograms) || selectPrograms.compareTo(DescriptorImpl.selectProgramsJsonValue) == 0;
+		
+		return !Strings.isNullOrEmpty(selectProgramsRadio) && selectProgramsRadio.compareTo(DescriptorImpl.selectProgramsJsonValue) == 0;
     }
 
 	/**
@@ -627,7 +630,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public boolean isSelectProgramsList()
     {
-		return !Strings.isNullOrEmpty(selectPrograms) && selectPrograms.compareTo(DescriptorImpl.selectProgramsListValue) == 0;
+		return !Strings.isNullOrEmpty(selectProgramsRadio) && selectProgramsRadio.compareTo(DescriptorImpl.selectProgramsListValue) == 0;
    }
 
 	/**
@@ -874,21 +877,20 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public final String getselectProgramsRadioValue()
 	{
-		String selectedProgramsRadio = null;
+		String selectedProgramsRadioValue = null;
 		
-		if (!selectProgramsOption)
+		if (selectProgramsOption)
 		{
-			if (isSelectProgramsJSON())
+			if (Strings.isNullOrEmpty(selectProgramsRadio))
 			{
-				selectedProgramsRadio = DescriptorImpl.selectProgramsJsonValue;
+				selectedProgramsRadioValue = DescriptorImpl.selectProgramsJsonValue;
 			}
-			else if (isSelectProgramsList())
+			else
 			{
-				selectedProgramsRadio = DescriptorImpl.selectProgramsListValue;
+				selectedProgramsRadioValue = selectProgramsRadio;
 			}
 		}
-		
-		return selectedProgramsRadio;
+		return selectedProgramsRadioValue;
 	}
 	
 	/**
@@ -896,23 +898,23 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * 
 	 * @return the command line parameter for the selected Program option.
 	 */
-	public final String getselectProgramsText()
+	public final String getselectProgramsRadioText()
 	{
-		String selectedProgramsText = null;
+		String selectedProgramsRadioText = null;
 		
-		if (!selectProgramsOption)
+		if (selectProgramsOption)
 		{
 			if (isSelectProgramsJSON())
 			{
-				selectedProgramsText = DescriptorImpl.selectProgramsJsonValue;
+				selectedProgramsRadioText = jsonFile;
 			}
 			else if (isSelectProgramsList())
 			{
-				selectedProgramsText = DescriptorImpl.selectProgramsListValue;
+				selectedProgramsRadioText = programList;
 			}
 		}
 		
-		return selectedProgramsText;
+		return selectedProgramsRadioText;
 	}
 	
 	/**
@@ -1040,10 +1042,11 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String defaultProgramList = ""; //NOSONAR //$NON-NLS-1$
 		public static final Boolean defaultUseScenarios = false; //NOSONAR
 		public static final String selectJsonFile = "JSON file"; //NOSONAR //$NON-NLS-1$
-		public static final String selectPrograms = "Selected Programs"; //NOSONAR //$NON-NLS-1$
-		public static final String selectProgramsJsonValue = "-pnf"; //NOSONAR
-		public static final String selectProgramsListValue = "-pn"; //NOSONAR
+		public static final String selectProgramList = "Selected Programs"; //NOSONAR //$NON-NLS-1$
+		public static final String selectProgramsJsonValue = "-pnf"; //NOSONAR  //$NON-NLS-1$
+		public static final String selectProgramsListValue = "-pn"; //NOSONAR  //$NON-NLS-1$
 		public static final String defaultSelectProgramsJsonValue = selectProgramsJsonValue; //NOSONAR
+		public static final Boolean defaultSelectProgramsOption = false;
 		public static final Boolean defaultHaltPipelineOnFailure = true; //NOSONAR
 		public static final Boolean defaultCollectCodeCoverage = false; //NOSONAR
 		public static final String defaultCollectCCRepository = ""; //NOSONAR //$NON-NLS-1$
@@ -1051,7 +1054,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String defaultCollectCCTestID = ""; //NOSONAR //$NON-NLS-1$
 		public static final Boolean defaultClearCodeCoverage = false; //NOSONAR
 		public static final String haltPipelineTitle = "Halt pipeline if errors occur"; //NOSONAR //$NON-NLS-1$
-		public static final String defaultLocalConfigLocation = "./TotalTestConfiguration"; //NOSONAR //$NON-NLS-1$
+		public static final String defaultLocalConfigLocation = TotalTestCTBuilder.defaultLocalConfigLocation; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLogLevel = LOGLEVELINFO; //NOSONAR
 		
 		/**
