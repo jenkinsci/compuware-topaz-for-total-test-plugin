@@ -53,7 +53,7 @@
 					</f:nested>
 -->
 					<f:nested>
-						<f:radio title="${descriptor.selectPrograms}" name="selectPrograms" value="${descriptor.selectProgramsListValue}" checked="${instance.isSelectProgramsList()}"/>
+						<f:radio title="${descriptor.selectProgramList}" name="selectProgramsRadio" value="${descriptor.selectProgramsListValue}" checked="${instance.isSelectProgramsList()}"/>
 						<f:nested>
 							<f:entry field="programList">
 								<f:textbox default="${descriptor.defaultProgramList}"/>
@@ -61,7 +61,7 @@
 						</f:nested>
 					</f:nested>
 					<f:nested>
-						<f:radio title="${descriptor.selectJsonFile}" name="selectPrograms" value="${descriptor.selectProgramsJsonOption}" checked="${instance.isSelectProgramsJSON()}"/>
+						<f:radio title="${descriptor.selectJsonFile}" name="selectProgramsRadio" value="${descriptor.selectProgramsJsonOption}" checked="${instance.isSelectProgramsJSON()}"/>
 						<f:nested>
 							<f:entry field="jsonFile">
 								<f:textbox default="${descriptor.defaultJsonFile}"/>
