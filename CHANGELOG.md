@@ -1,5 +1,9 @@
 # Change Log
 
+### Version 2.3.9
+
+- Misc bug fixes.
+
 ### Version 2.3.8
 
 ##### Non-Virtualized Testing(Functional Test)
