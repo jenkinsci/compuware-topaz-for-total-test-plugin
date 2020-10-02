@@ -540,7 +540,7 @@ public class TotalTestCTRunner
 				}
 				else
 				{
-					if (tttBuilder.isSelectProgramsJSON())
+					if (Strings.isNullOrEmpty(tttBuilder.getSelectProgramsRadio()) || tttBuilder.isSelectProgramsJSON())
 					{
 						listener.getLogger().println("No JSON file specified.  Using default value of " + TotalTestCTBuilder.defaultLocalConfigLocation + "."); //$NON-NLS-1$
 						args.add(tttBuilder.getselectProgramsRadioValue());
