@@ -531,18 +531,26 @@ public class TotalTestCTRunner
 		{
 			if (tttBuilder.getSelectProgramsOption())
 			{
-				String selectProgramsRadio = tttBuilder.getselectProgramsRadioValue();
-				String selectProgramsText = tttBuilder.getselectProgramsText();
+				String selectProgramsText = tttBuilder.getselectProgramsRadioText();
 				
-				if (!Strings.isNullOrEmpty(selectProgramsRadio) &&
-						!Strings.isNullOrEmpty(selectProgramsText))
+				if (!Strings.isNullOrEmpty(selectProgramsText))
 				{
-					args.add(selectProgramsRadio);
-					
-					if (!Strings.isNullOrEmpty(selectProgramsText))
+					args.add(tttBuilder.getselectProgramsRadioValue());
+					args.add(TotalTestRunnerUtils.escapeForScript(selectProgramsText));
+				}
+				else
+				{
+					if (Strings.isNullOrEmpty(tttBuilder.getSelectProgramsRadio()) || tttBuilder.isSelectProgramsJSON())
 					{
-						args.add(selectProgramsText);
+						listener.getLogger().println("No JSON file specified.  Using default value of " + TotalTestCTBuilder.defaultLocalConfigLocation + "."); //$NON-NLS-1$
+						args.add(tttBuilder.getselectProgramsRadioValue());
+						args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.defaultLocalConfigLocation));
 					}
+					else
+					{
+						listener.getLogger().println("No list of programs selected."); //$NON-NLS-1$
+					}
+
 				}
 			}
 
