@@ -615,7 +615,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public boolean isSelectProgramsJSON()
     {
-		return !Strings.isNullOrEmpty(selectProgramsRadio) || selectProgramsRadio.compareTo(DescriptorImpl.selectProgramsJsonValue) == 0;
+		return Strings.isNullOrEmpty(selectProgramsRadio) || selectProgramsRadio.compareTo(DescriptorImpl.selectProgramsJsonValue) == 0;
     }
 
 	/**
