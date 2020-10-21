@@ -25,29 +25,9 @@ The following are required to use this plugin:
 2.  Install the Topaz Workbench CLI on the Jenkins instances that will execute the plugin. The Topaz Workbench CLI is available on the Topaz Workbench installation package. If you do not have the installation package, please  visit [go.compuware.com](http://go.compuware.com/). For Topaz Workbench CLI installation instructions, please refer to the[Topaz Workbench Install Guide](http://frontline.compuware.com/Doc/KB/KB1802/PDF/Topaz_Workbench_Install_Guide.pdf)
 
 ### Configuring Host Connections
-
-1.  In the Jenkins system Jenkins/Manage Jenkins/Configure System screen, go to the **Compuware Configurations**, do one of
-    the following:
-
-    -   In the **Windows Topaz Workbench CLI home** field, point to the Windows installation location of the CLI. If necessary, change the default values given to match the correct installation
-        location.
-
-    -   In the **Linux Topaz Workbench CLI home** field, point to the Linux installation location of the CLI. If necessary, change the default values given to match the correct installation location.
-
-    **Note:** The Topaz Workbench CLI must be installed on the machine that is configured to run the job.
-
-2.  If no host connection appears in the **Host Connections** section, click **Add Host Connection** and add a host connection by entering the following information:
-
-    -   In the **Description**field, enter a description of the connection.
-
-    -   In the **Host:port **field, enter the z/OS host to connect to.
-
-    -   From the **Code page**,select the desired code page to be used for this connection. The code page is used to translate data sent to and from the host. The default is 1047.
-
-    -   In the **Read/write timeout (minutes)**field enter the number of minutes for the plugin to wait for a response from the host before timing out.
-
-    **Note:**Click**Delete Host Connection** delete an existing connection.
-
+	In order to use Topaz for Total Test you will need to point to an installed Topaz Workbench Command Line Interface (CLI). The Topaz Workbench CLI will work with host connection(s) you also need to configure Topaz for Total Test members.
+    - See [Configuring for Topaz Workbench CLI & Host Connections](https://github.com/jenkinsci/compuware-common-configuration-plugin/blob/master/README.md#user-content-configuring-for-topaz-workbench-cli--host-connections)
+    
 ### Executing Unit tests
 
 1.  Install the Compuware Topaz for Total Test plugin according to the Jenkins instructions for installing plugins.
