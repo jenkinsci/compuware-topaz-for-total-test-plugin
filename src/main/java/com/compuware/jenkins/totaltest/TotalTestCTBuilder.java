@@ -137,6 +137,32 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private String collectCCTestID = DescriptorImpl.defaultCollectCCTestID;
 	private boolean clearCodeCoverage = DescriptorImpl.defaultClearCodeCoverage;
 
+	/**
+	 * Fields for Enterprise Data.
+	 */
+	private boolean collectEnterpriseData = DescriptorImpl.defaultCollectEnterpriseData;
+	private String enterpriseDataIp = DescriptorImpl.defaultEnterpriseDataIP;
+	private int enterpriseDataPort = DescriptorImpl.defaultEnterpriseDataPort;
+	private String enterpriseDataWorkspace = DescriptorImpl.defaultEnterpriseDataWorkspace;
+	
+	/**
+	 * Fields for JCL
+	 */
+	private String jclPath = DescriptorImpl.defaultJclPath;
+//	private String selectjclConfigRadio = DescriptorImpl.selectLocalConfigValue;
+	
+	/**
+	 * Fields for host and port
+	 */
+	private String selectEnvironmentRadio = DescriptorImpl.selectEnvironmentIdValue;
+	private String host =  DescriptorImpl.defaultHost;
+	private int port =  DescriptorImpl.defaultPort;
+	
+	/**
+	 * Field for context variables
+	 */
+	private String contextVariables = DescriptorImpl.defaultContextVariables;
+	
 	@DataBoundConstructor
 	public TotalTestCTBuilder(String environmentId, String folderPath, String serverUrl, String credentialsId)
 	{
@@ -853,7 +879,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	{
 		this.clearCodeCoverage = clearCodeCoverage;
 	}
-
 	/**
 	 * Set if Code Coverage results should be cleared at start of execution.
 	 * 
@@ -864,6 +889,225 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	{
 		return clearCodeCoverage;
 	}
+	
+	@DataBoundSetter
+	public void setCollectEnterpriseData(boolean collectEnterpriseData)
+	{
+		this.collectEnterpriseData = collectEnterpriseData;
+	}
+	
+	public boolean getCollectEnterpriseData()
+	{
+		return collectEnterpriseData;
+	}
+
+	/**
+	 * Sets the Enterprise Data Communication Manager host and or ip
+	 * 
+	 * @param enterpriseDataIp
+	 * 			The host name or IP address of the Enterprise Data Communication Manager
+	 */
+	@DataBoundSetter
+	public void setEnterpriseDataIp(String enterpriseDataIp)
+	{
+		this.enterpriseDataIp = enterpriseDataIp;
+	}
+	
+	/**
+	 * Gets the Enterprise Data Communication Manager host name or IP address.
+	 * 
+	 * @return	Returns the Enterprise Data Communication Manager host name or IP Address.
+	 */
+	public String getEnterpriseDataIp()
+	{
+		return enterpriseDataIp;
+	}
+	
+	/**
+	 * Sets the port Enterprise Data Communication Manager is listening on.
+	 * 
+	 * @param enterpriseDataPort
+	 * 			The port Enterprise Data Communication Manager is listening on.
+	 */
+	@DataBoundSetter
+	public void setEnterpriseDataPort(int enterpriseDataPort)
+	{
+		this.enterpriseDataPort = enterpriseDataPort;
+	}
+	
+	/**
+	 * Gets the port Enterprise Data Communication Manager is listening on .
+	 * 
+	 * @return Returns the port Enterprise Data Communication Manager is listening on.
+
+	 */
+	public int getEnterpriseDataPort()
+	{
+		return enterpriseDataPort;
+	}
+	
+	/**
+	 * Sets the Enterprise Data Communication Manager workspace.
+	 * .
+	 * @param enterpriseDataWorkspace
+	 * 			The Enterprise Data Communication Manager workspace.
+	 */
+	@DataBoundSetter
+	public void setEnterpriseDataWorkspace(String enterpriseDataWorkspace)
+	{
+		this.enterpriseDataWorkspace = enterpriseDataWorkspace;
+	}
+	
+	/**
+	 * Gets the Enterprise Data Communication Manager workspace.
+	 * 
+	 * @return The Enterprise Data Communication Manager workspace.
+	 */
+	public String getEnterpriseDataWorkspace()
+	{
+		return enterpriseDataWorkspace;
+	}
+	
+	/**
+	 * Sets the JCL path when executing '.testscenarios' files.
+	 * 
+	 * @param jclPath
+	 * 			The JCL path.
+	 */
+	@DataBoundSetter
+	public void setJclPath(String jclPath)
+	{
+		this.jclPath = jclPath;
+	}
+	
+	/**
+	 * Gets the JCL path.
+	 * 
+	 * @return	The JCL path.
+	 */
+	public String getJclPath()
+	{
+		return jclPath;
+	}
+	
+	/**
+	 * Sets the environment host.
+	 * 
+	 * @param host
+	 * 			The environment host.
+	 */
+	@DataBoundSetter
+	public void setHost(String host)
+	{
+		this.host = host;
+	}
+	
+	/**
+	 * Gets the environment host.
+	 * 
+	 * @return	The environment host.
+	 */
+	public String getHost()
+	{
+		return host;
+	}
+
+	/**
+	 * Sets the environment port the host is listening on.
+	 * 
+	 * @param port
+	 * 			The environment port the host is listening on.
+	 */
+	@DataBoundSetter
+	public void setPort(int port)
+	{
+		this.port = port;
+	}
+	
+	/**
+	 * Gets the environment port
+	 * 
+	 * @return	The environment port the host is listening on.
+	 */
+	public int getPort()
+	{
+		return port;
+	}
+	
+	/**
+	 * Sets the context variables
+	 * 
+	 * @param contextVariables
+	 * 			The context variables
+	 */
+	@DataBoundSetter
+	public void setContextVariables(String contextVariables)
+	{
+		this.contextVariables = contextVariables;
+	}
+	
+	/**
+	 * Gets the context variables.
+	 * 
+	 * @return	The context variables.
+	 */
+	public String getContextVariables()
+	{
+		return contextVariables;
+	}
+	
+	/**
+	 * Sets the selected environment radio button.
+	 * 
+	 * @param selectEnvironmenRadio
+	 * 			The selected environment radio button.
+	 */
+	@DataBoundSetter
+	public void setSelectEnvironmentRadio(String selectEnvironmenRadio)
+	{
+		this.selectEnvironmentRadio = selectEnvironmenRadio;
+	}
+	
+	/**
+	 * Returns the selected selectProgramsRadio radio button.
+	 * 
+	 * @return	<code>String</code> value of the selectProgramsRadio option.
+	 */
+	public String getSelectEnvironmentRadio()
+	{
+		String selectedEnvironmentSelection = null;
+		
+		if (isSelectEnvironmentId())
+		{
+			selectedEnvironmentSelection =  DescriptorImpl.selectEnvironmentIdValue;
+		}
+		else
+		{
+			selectedEnvironmentSelection =  DescriptorImpl.selectHostPortValue;
+		}
+		
+		return selectedEnvironmentSelection;
+	}
+	
+	/**
+	 * Returns if the Select JSON option is selected.
+	 * 
+	 * @return	<code>true</code> if Select JSON option is selected, otherwise <code>false</code>.
+	 */
+	public boolean isSelectEnvironmentId()
+    {
+		return selectEnvironmentRadio.compareTo(DescriptorImpl.selectEnvironmentIdValue) == 0;
+    }
+
+	/**
+	 * Returns if the Select Programs option is selected.
+	 * 
+	 * @return	<code>true</code> if Select Programs option is selected, otherwise <code>false</code>.
+	 */
+	public boolean isSelectHostPort()
+    {
+		return selectEnvironmentRadio.compareTo(DescriptorImpl.selectHostPortValue) == 0;
+    }
 	
 	/**
 	 * Returns the command line parameter for the selected "Select Programs" radio button
@@ -968,15 +1212,41 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public void validateParameters(final Launcher launcher, final TaskListener listener, final Item project)
 	{
-		if (!getEnvironmentId().isEmpty())
+		if (isSelectEnvironmentId())
 		{
-			listener.getLogger().println("environmentId = " + environmentId); //$NON-NLS-1$
+			if (!getEnvironmentId().isEmpty())
+			{
+				listener.getLogger().println("environmentId = " + environmentId); //$NON-NLS-1$
+			}
+			else
+			{
+				throw new IllegalArgumentException(
+						"Missing parameter Environment Id - please get the environment ID from the repository server."); //$NON-NLS-1$
+			}
 		}
-		else
+		
+		if (isSelectHostPort())
 		{
-			throw new IllegalArgumentException(
-					"Missing parameter Environment Id - please get the environment ID from the repository server"); //$NON-NLS-1$
+			int enteredPort = getPort();
+			if (!getHost().isEmpty() && (enteredPort >= 1 && enteredPort <= 65535))
+			{
+				listener.getLogger().println("host = " + String.format("%s:%d", host, port)); //$NON-NLS-1$  //$NON-NLS-2$
+			}
+			else
+			{
+				if (getHost().isEmpty())
+				{
+					throw new IllegalArgumentException(
+							"Missing parameter Host."); //$NON-NLS-1$
+				}
+				else if (enteredPort < 1 || enteredPort > 65535)
+				{
+					throw new IllegalArgumentException(
+							"Missing or invalid Port parameter. Must be between 1 and 65535."); //$NON-NLS-1$
+				}
+			}
 		}
+		
 
 		if (!getServerUrl().isEmpty())
 		{
@@ -1012,6 +1282,22 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		}
 
 		listener.getLogger().println("ccThreshold = " + ccThreshold); //$NON-NLS-1$
+		
+		if (!getEnterpriseDataIp().isEmpty())
+		{
+			int faPort = getEnterpriseDataPort();
+			if (faPort < 1 || faPort > 65535)
+			{
+				throw new IllegalArgumentException(
+						"Missing or invalid Port parameter. Must be between 1 and 65535."); //$NON-NLS-1$
+			}
+			
+			if (getEnterpriseDataWorkspace().isEmpty())
+			{
+				throw new IllegalArgumentException(
+						"EnterpriseData workspace must be specified when using the Enterprise Data."); //$NON-NLS-1$
+			}
+		}
 	}
 
 	@Symbol("totaltest")
@@ -1051,7 +1337,22 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String haltPipelineTitle = "Halt pipeline if errors occur"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLocalConfigLocation = TotalTestCTBuilder.defaultLocalConfigLocation; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLogLevel = LOGLEVELINFO; //NOSONAR
-		
+		public static final Boolean defaultCollectEnterpriseData = false; //NOSONAR
+		public static final String defaultEnterpriseDataIP = ""; //NOSONAR //$NON-NLS-1$
+		public static final int defaultEnterpriseDataPort = 4901; //NOSONAR //$NON-NLS-1$
+		public static final String defaultEnterpriseDataWorkspace = ""; //NOSONAR //$NON-NLS-1$
+		public static final String defaultJclPath = ""; //NOSONAR //$NON-NLS-1$
+		public static final String  selectLocalConfigValue = "-cfgdir"; //NOSONAR  //$NON-NLS-1$
+		public static final String selectJclPathValue = "-jcl"; //NOSONAR  //$NON-NLS-1$
+
+		public static final String defaultHost = ""; //NOSONAR //$NON-NLS-1$
+		public static final int defaultPort = 0; //NOSONAR //$NON-NLS-1$
+		public static final String selectEnvironmentId = "Use Environment Id"; //NOSONAR //$NON-NLS-1$
+		public static final String selectHostPort = "Use Host/Port"; //NOSONAR //$NON-NLS-1$
+		public static final String  selectEnvironmentIdValue = "-e"; //NOSONAR  //$NON-NLS-1$
+		public static final String selectHostPortValue = "-host"; //NOSONAR  //$NON-NLS-1$
+		public static final String defaultContextVariables = ""; //NOSONAR  //$NON-NLS-1$
+
 		/**
 		 * Fill in the Sonar versions.
 		 * 
@@ -1131,23 +1432,28 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			return FormValidation.ok();
 		}
 		
-		/**
-		 * Validates for the 'EnvironmentId' field
-		 * 
-		 * @param value
-		 * 		The environment id.
-		 * @return validation message
-		 */
-		public FormValidation doCheckEnvironmentId(@QueryParameter String value)
-		{
-
-			if (value == null || value.isEmpty() || value.trim().length() == 0)
-			{
-				return FormValidation.error(Messages.errors_missingEnvironmentId());
-			}
-
-			return FormValidation.ok();
-		}
+//		public FormValidation doCheckEnvironmentRadio(@QueryParameter String value)
+//		{
+//			return FormValidation.ok();
+//		}
+		
+//		/**
+//		 * Validates for the 'EnvironmentId' field
+//		 * 
+//		 * @param value
+//		 * 		The environment id.
+//		 * @return validation message
+//		 */
+//		public FormValidation doCheckEnvironmentId(@QueryParameter String value)
+//		{
+//
+//			if (value == null || value.isEmpty() || value.trim().length() == 0)
+//			{
+//				return FormValidation.error(Messages.errors_missingEnvironmentId());
+//			}
+//
+//			return FormValidation.ok();
+//		}
 
 		/**
 		 * Validates for the 'CES server URL' field

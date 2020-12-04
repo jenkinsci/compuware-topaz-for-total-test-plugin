@@ -1,9 +1,32 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:c="/lib/credentials" xmlns:f="/lib/form">
+	<f:section title="${%sectionEnvironment}">
+		<f:block> 
+			<table width="100%">
+				<f:nested>
+					<f:radio title="${descriptor.selectEnvironmentId}" name="selectEnvironmentRadio" value="${descriptor.selectEnvironmentIdValue}" checked="${instance==null || instance.isSelectEnvironmentId()}"/>
+					<f:nested>
+					    <f:entry title="${%environmentId}" field="environmentId">
+					        <f:textbox />
+					    </f:entry> 
+					</f:nested>
+				</f:nested>
+				<f:nested>
+					<f:radio title="${descriptor.selectHostPort}" name="selectEnvironmentRadio" value="${descriptor.selectHostPortValue}" checked="${instance.isSelectHostPort()}"/>
+					<f:nested>
+					    <f:entry title="${%host}" field="host">
+					        <f:textbox />
+					    </f:entry> 
+					    <f:entry title="${%port}" field="port">
+					        <f:textbox />
+					    </f:entry> 
+					</f:nested>
+				</f:nested>
+			</table>
+		</f:block>
+	</f:section>
+	
 	<f:section title="${%sectionConnection}">
-	    <f:entry title="${%environmentId}" field="environmentId">
-	        <f:textbox />
-	    </f:entry> 
 	 
 	    <f:entry title="${%serverUrl}" field="serverUrl" >
 	 	   <f:select /> 
@@ -17,6 +40,28 @@
 			<f:entry title="${%localConfigurationLocation}" field="localConfigLocation">
 				<f:textbox default="${descriptor.defaultLocalConfigLocation}"/>
 			</f:entry>
+<!--
+			<f:block>
+				<table width="100%">
+					<f:nested>
+						<f:radio title="${selectLocalConfig}" name="selectJclConfigRadio" value="${descriptor.selectLocalConfigValue}" checked="${instance==null || instance.isLocalConfig()}"/>
+						<f:nested>
+							<f:entry title="${%localConfigurationLocation}" field="localConfigLocation">
+								<f:textbox default="${descriptor.defaultLocalConfigLocation}"/>
+							</f:entry>
+						</f:nested>
+					</f:nested>
+					<f:nested>
+						<f:radio title="${selectJclPath}" name="selectJclConfigRadio" value="${descriptor.selectJclPathValue}" checked="${instance.isJclPath()}"/>
+						<f:nested>
+							<f:entry title="${%jclPath}" field="jclPath">
+								<f:textbox default="${descriptor.defaultjclPath}"/>
+							</f:entry>
+						</f:nested>
+					</f:nested>
+				</table>
+			</f:block>
+-->
 		</f:optionalBlock>
 	</f:section>
 
@@ -30,6 +75,9 @@
         <f:entry title="${%useScenarios}" field="useScenarios">
             <f:checkbox title="${%useScenariosDescription}" default="${descriptor.defaultUseScenarios}"/>
         </f:entry>
+		<f:entry title="${%jclPath}" field="jclPath">
+			<f:textbox default="${descriptor.defaultjclPath}"/>
+		</f:entry>
 	</f:section>
 
 	<f:section title="${%sectionTestExecution}">
@@ -83,7 +131,10 @@
 		<f:entry title="${%haltPipeline}" field="haltPipelineOnFailure">
 		    <f:checkbox title="${%haltPipelineDescription}" default="${descriptor.defaultHaltPipelineOnFailure}"/>
 		</f:entry>
-
+		<f:entry title="${%contextVariables}" field="contextVariables">
+        	<f:textbox default="${descriptor.defaultContextVariables}"/>
+    	</f:entry>
+    	
         <f:invisibleEntry title="${%compareJUnits}" field="compareJUnits">
 		     <f:checkbox default="${false}" />
 	    </f:invisibleEntry>
@@ -145,4 +196,23 @@
 					</f:optionalBlock>
 	    </f:section>
 	 </f:advanced>
+	 
+	<f:advanced title="${%sectionEnterpriseData}">
+		<f:section title="${%sectionEnterpriseData}">
+<!--			<f:optionalBlock title="${%optionCollectEnterpriseData}" field="collectEnterpriseData" default="${descriptor.defaultCollectEnterpriseData}" inline="${true}"> -->
+<!--				<f:block> -->
+				    <f:entry title="${%enterpriseDataIp}" field="enterpriseDataIp">
+				    	<f:textbox default="${descriptor.defaultEnterpriseDataIp}"/>
+					</f:entry>
+				    <f:entry title="${%enterpriseDataPort}" field="enterpriseDataPort">
+				    	<f:textbox default="${descriptor.defaultEnterpriseDataPort}"/>
+					</f:entry>
+				    <f:entry title="${%enterpriseDataWorkspace}" field="enterpriseDataWorkspace">
+				    	<f:textbox default="${descriptor.defaultEnterpriseDataWorkspace}"/>
+					</f:entry>
+<!--				</f:block> -->
+<!--			</f:optionalBlock> -->
+		</f:section>
+	 </f:advanced>
+	 
 </j:jelly>
