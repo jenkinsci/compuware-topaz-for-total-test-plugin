@@ -230,7 +230,7 @@ public class TotalTestRunner
 	 * The following argument are added:
 	 * <ul>
 	 * <li>Host
-	 * <li>Port>
+	 * <li>Port
 	 * <li>Code Page
 	 * <li>User id
 	 * <li>Password

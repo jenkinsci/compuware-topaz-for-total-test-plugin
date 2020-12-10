@@ -37,6 +37,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
+import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
+import com.compuware.jenkins.common.configuration.HostConnection;
+import com.compuware.jenkins.totaltest.TotalTestCTBuilder.DescriptorImpl;
 import com.google.common.base.Strings;
 import hudson.EnvVars;
 import hudson.FilePath;
@@ -409,8 +412,8 @@ public class TotalTestCTRunner
 	 */
 	private void addArguments(final ArgumentListBuilder args, final Launcher launcher, final TaskListener listener, final String remoteFileSeparator) throws IOException, InterruptedException
 	{
-		args.add("-e").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
-
+		addHostArguments(args);
+		
 		if (!TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401) || !tttBuilder.getLocalConfig())
 		{
 			String tttServerUrl = tttBuilder.getServerUrl();
@@ -426,7 +429,6 @@ public class TotalTestCTRunner
 			args.add("-s").add(TotalTestRunnerUtils.escapeForScript(tttServerUrl), false); //$NON-NLS-1$
 		}
 
-		
 		args.add("-u").add( //$NON-NLS-1$
 				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
 				false);
@@ -550,7 +552,6 @@ public class TotalTestCTRunner
 					{
 						listener.getLogger().println("No list of programs selected."); //$NON-NLS-1$
 					}
-
 				}
 			}
 
@@ -609,6 +610,44 @@ public class TotalTestCTRunner
 				if (isCodeCoverageValid)
 				{
 					args.add("-ccclear").add(tttBuilder.getClearCodeCoverage()); //$NON-NLS-1$
+				}
+			}
+			
+			if (!Strings.isNullOrEmpty(tttBuilder.getContextVariables()))
+			{
+				args.add("-ctxvars").add(tttBuilder.getContextVariables()); //$NON-NLS-1$
+			}
+			
+			// TED integration
+			if (tttBuilder.getCollectEnterpriseData())
+			{
+				if (!Strings.isNullOrEmpty(tttBuilder.getEnterpriseDataIp()))
+				{
+					args.add("-faip").add(tttBuilder.getEnterpriseDataIp()); //$NON-NLS-1$
+					args.add("-fap").add(tttBuilder.getEnterpriseDataPort()); //$NON-NLS-1$
+				}
+
+				if (!Strings.isNullOrEmpty(tttBuilder.getEnterpriseDataWorkspace()))
+				{
+					args.add("-faw").add(tttBuilder.getEnterpriseDataWorkspace()); //$NON-NLS-1$
+				}
+			}
+
+			// CES and Cloud licensing
+			if (!Strings.isNullOrEmpty(tttBuilder.getServerUrl()))
+			{
+				args.add("-ces").add(tttBuilder.getServerUrl()); //$NON-NLS-1$
+			}
+			else if (tttBuilder.getCollectEnterpriseData())
+			{
+				if (!Strings.isNullOrEmpty(tttBuilder.getCustomerId()))
+				{
+					args.add("-cid").add(tttBuilder.getCustomerId()); //$NON-NLS-1$
+				}
+				
+				if (!Strings.isNullOrEmpty(tttBuilder.getSiteId()))
+				{
+					args.add("-sid").add(tttBuilder.getSiteId()); //$NON-NLS-1$
 				}
 			}
 		}
@@ -809,5 +848,52 @@ public class TotalTestCTRunner
 		}
 		
 		return returnFile;
+	}
+	
+	/**
+	 * Adds to host related arguments to the argument list.
+	 * <p>
+	 * The following argument are added:
+	 * <ul>
+	 * <li>Host
+	 * <li>Port
+	 * </ul>
+	 * 
+	 * @param args
+	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
+	 * 
+	 * @throws IOException
+	 * 			If not host connection defined.
+	 */
+	private void addHostArguments(final ArgumentListBuilder args) throws IOException
+	{
+		if (tttBuilder.getSelectEnvironmentRadio() == DescriptorImpl.selectEnvironmentIdValue)
+		{
+			args.add(DescriptorImpl.selectEnvironmentIdValue).add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
+		}
+		else if (tttBuilder.getSelectEnvironmentRadio() == DescriptorImpl.selectEnvironmentIdValue)
+		{
+			HostConnection connection = null;
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+	
+			if (globalConfig != null)
+			{
+				connection = globalConfig.getHostConnection(tttBuilder.getConnectionId());
+			}
+			
+			if (connection == null) //NOSONAR
+			{
+				throw new IOException("ERROR: No host connection defined. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
+			}
+			else
+			{
+				args.add("-host", connection.getHost()); //$NON-NLS-1$
+				args.add("-port", connection.getPort()); //$NON-NLS-1$
+			}
+		}
+		else
+		{
+			throw new IOException("ERROR: No Environment id or host connection defined."); //$NON-NLS-1$
+		}
 	}
 }

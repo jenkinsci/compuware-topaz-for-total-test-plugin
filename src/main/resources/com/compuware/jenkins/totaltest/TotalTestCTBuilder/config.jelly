@@ -1,27 +1,33 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:c="/lib/credentials" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials" xmlns:cc="/lib/compuware">
 	<f:section title="${%sectionEnvironment}">
 		<f:block> 
 			<table width="100%">
 				<f:nested>
-					<f:radio title="${descriptor.selectEnvironmentId}" name="selectEnvironmentRadio" value="${descriptor.selectEnvironmentIdValue}" checked="${instance==null || instance.isSelectEnvironmentId()}"/>
-					<f:nested>
-					    <f:entry title="${%environmentId}" field="environmentId">
+					<f:radio title="${%selectEnvironmentEnvironmentId}" name="selectEnvironmentRadio" value="${descriptor.selectEnvironmentIdValue}" checked="${instance==null || instance.isSelectEnvironmentId()}"/>
+					    <f:entry field="environmentId">
 					        <f:textbox />
 					    </f:entry> 
-					</f:nested>
 				</f:nested>
 				<f:nested>
-					<f:radio title="${descriptor.selectHostPort}" name="selectEnvironmentRadio" value="${descriptor.selectHostPortValue}" checked="${instance.isSelectHostPort()}"/>
+					<f:radio title="${%selectEnvironmentHostConnection}" name="selectEnvironmentRadio" value="${descriptor.selectHostConnectionValue}" checked="${instance.isSelectHostConnection()}"/>
+					    <f:entry field="connectionId">
+					       <cc:hostSelect default=""/>
+					    </f:entry>
+				</f:nested>
+<!--
+				<f:nested>
+					<f:radio title="${%selectEnvironmentHostPort}" name="selectEnvironmentRadio" value="${descriptor.selectHostPortValue}" checked="${instance.isSelectHostPort()}"/>
 					<f:nested>
 					    <f:entry title="${%host}" field="host">
 					        <f:textbox />
 					    </f:entry> 
 					    <f:entry title="${%port}" field="port">
 					        <f:textbox />
-					    </f:entry> 
+					    </f:entry>
 					</f:nested>
 				</f:nested>
+-->
 			</table>
 		</f:block>
 	</f:section>
@@ -140,79 +146,79 @@
 	    </f:invisibleEntry>
 	</f:section>
 
-	<f:advanced title="${%sectionReportAndLogging}">
-		<f:section title="${%sectionReportAndLogging}">
-	        <f:entry title="${%uploadToServer}" field="uploadToServer">
-	            <f:checkbox title="${%uploadToServerDescription}" default="${descriptor.defaultUploadToServer}"/>
-	        </f:entry>
-			<f:entry title="${%sourceFolder}" field="sourceFolder">
-	        	<f:textbox default="${descriptor.defaultSourceFolder}" />
-	    	</f:entry>
-	    	<f:entry title="${%reportFolder}" field="reportFolder">
-	        	<f:textbox default="${descriptor.defaultReportFolder}"/>
-	    	</f:entry>
-			<f:entry title="${%sonarQube}" field="sonarVersion">
-				<f:select value="${sonarVersion}" default="${descriptor.defaultSonarVersion}"/>
-			</f:entry>
-			<f:entry title="${%createReport}" field="createReport">
-				<f:checkbox title="${%createReportDescription}" default="${descriptor.defaultCreateReport}"/>
-			</f:entry>
-			<f:entry title="${%createResult}" field="createResult">
-				<f:checkbox title="${%createResultDescription}" default="${descriptor.defaultCreateResult}"/>
-			</f:entry>
-			<f:entry title="${%createSonarReport}" field="createSonarReport">
-				<f:checkbox title="${%createSonarReportDescription}" default="${descriptor.defaultCreateSonarReport}"/>
-			</f:entry>
-			<f:entry title="${%createJUnitReport}" field="createJUnitReport">
-				<f:checkbox title="${%createJUnitReportDescription}" default="${descriptor.defaultCreateJUnitReport}"/>
-			</f:entry>
-	
-			<f:entry title="${%logLevel}" field="logLevel">
-				<f:select value="${logLevel}" default="${descriptor.defaultLogLevel}"/>
-			</f:entry>
-		</f:section>
-	</f:advanced>
+	<f:section title="${%sectionReportAndLogging}">
+        <f:entry title="${%uploadToServer}" field="uploadToServer">
+            <f:checkbox title="${%uploadToServerDescription}" default="${descriptor.defaultUploadToServer}"/>
+        </f:entry>
+		<f:entry title="${%sourceFolder}" field="sourceFolder">
+        	<f:textbox default="${descriptor.defaultSourceFolder}" />
+    	</f:entry>
+    	<f:entry title="${%reportFolder}" field="reportFolder">
+        	<f:textbox default="${descriptor.defaultReportFolder}"/>
+    	</f:entry>
+		<f:entry title="${%sonarQube}" field="sonarVersion">
+			<f:select value="${sonarVersion}" default="${descriptor.defaultSonarVersion}"/>
+		</f:entry>
+		<f:entry title="${%createReport}" field="createReport">
+			<f:checkbox title="${%createReportDescription}" default="${descriptor.defaultCreateReport}"/>
+		</f:entry>
+		<f:entry title="${%createResult}" field="createResult">
+			<f:checkbox title="${%createResultDescription}" default="${descriptor.defaultCreateResult}"/>
+		</f:entry>
+		<f:entry title="${%createSonarReport}" field="createSonarReport">
+			<f:checkbox title="${%createSonarReportDescription}" default="${descriptor.defaultCreateSonarReport}"/>
+		</f:entry>
+		<f:entry title="${%createJUnitReport}" field="createJUnitReport">
+			<f:checkbox title="${%createJUnitReportDescription}" default="${descriptor.defaultCreateJUnitReport}"/>
+		</f:entry>
 
-	<f:advanced title="${%sectionCodeCoverage}">
-	    <f:section title="${%sectionCodeCoverage}">
-			<f:optionalBlock title="${%optionCollectCodeCoverage}" field="collectCodeCoverage" default="${descriptor.defaultCollectCodeCoverage}" inline="${true}">
-			<f:block>
-						<f:entry title="${%ccRepository}" field="collectCCRepository">
-							<f:textbox value="${it.collectCCRepository}" default="${descriptor.defaultCollectCCRepository}"/>
-						</f:entry>
-						<f:entry title="${%ccSystem}" field="collectCCSystem">
-							<f:textbox default="${descriptor.defaultCollectCCSystem}"/>
-						</f:entry>
-						<f:entry title="${%ccTestID}" field="collectCCTestID">
-							<f:textbox default="${descriptor.defaultCollectCCTestID}"/>
-						</f:entry>
-						<f:entry title="${%clearCodeCoverage}" field="clearCodeCoverage">
-						     <f:checkbox title="${%clearCodeCoverageDescription}" default="${descriptor.defaultClearCodeCoverage}" />
-						</f:entry>
-					    <f:entry title="${%ccThreshold}" field="ccThreshold">
-					    	<f:textbox default="${descriptor.defaultCCThreshold}"/>
-						</f:entry>
-				</f:block>
-					</f:optionalBlock>
-	    </f:section>
-	 </f:advanced>
+		<f:entry title="${%logLevel}" field="logLevel">
+			<f:select value="${logLevel}" default="${descriptor.defaultLogLevel}"/>
+		</f:entry>
+	</f:section>
+
+    <f:section title="${%sectionCodeCoverage}">
+		<f:optionalBlock title="${%optionCollectCodeCoverage}" field="collectCodeCoverage" default="${descriptor.defaultCollectCodeCoverage}" inline="${true}">
+		<f:block>
+					<f:entry title="${%ccRepository}" field="collectCCRepository">
+						<f:textbox value="${it.collectCCRepository}" default="${descriptor.defaultCollectCCRepository}"/>
+					</f:entry>
+					<f:entry title="${%ccSystem}" field="collectCCSystem">
+						<f:textbox default="${descriptor.defaultCollectCCSystem}"/>
+					</f:entry>
+					<f:entry title="${%ccTestID}" field="collectCCTestID">
+						<f:textbox default="${descriptor.defaultCollectCCTestID}"/>
+					</f:entry>
+					<f:entry title="${%clearCodeCoverage}" field="clearCodeCoverage">
+					     <f:checkbox title="${%clearCodeCoverageDescription}" default="${descriptor.defaultClearCodeCoverage}" />
+					</f:entry>
+				    <f:entry title="${%ccThreshold}" field="ccThreshold">
+				    	<f:textbox default="${descriptor.defaultCCThreshold}"/>
+					</f:entry>
+			</f:block>
+				</f:optionalBlock>
+    </f:section>
 	 
-	<f:advanced title="${%sectionEnterpriseData}">
-		<f:section title="${%sectionEnterpriseData}">
-<!--			<f:optionalBlock title="${%optionCollectEnterpriseData}" field="collectEnterpriseData" default="${descriptor.defaultCollectEnterpriseData}" inline="${true}"> -->
-<!--				<f:block> -->
-				    <f:entry title="${%enterpriseDataIp}" field="enterpriseDataIp">
-				    	<f:textbox default="${descriptor.defaultEnterpriseDataIp}"/>
-					</f:entry>
-				    <f:entry title="${%enterpriseDataPort}" field="enterpriseDataPort">
-				    	<f:textbox default="${descriptor.defaultEnterpriseDataPort}"/>
-					</f:entry>
-				    <f:entry title="${%enterpriseDataWorkspace}" field="enterpriseDataWorkspace">
-				    	<f:textbox default="${descriptor.defaultEnterpriseDataWorkspace}"/>
-					</f:entry>
-<!--				</f:block> -->
-<!--			</f:optionalBlock> -->
-		</f:section>
-	 </f:advanced>
+	<f:section title="${%sectionEnterpriseData}">
+<!--		<f:optionalBlock title="${%optionCollectEnterpriseData}" field="collectEnterpriseData" default="${descriptor.defaultCollectEnterpriseData}" inline="${true}"> -->
+<!--			<f:block> -->
+			    <f:entry title="${%enterpriseDataIp}" field="enterpriseDataIp">
+			    	<f:textbox default="${descriptor.defaultEnterpriseDataIp}"/>
+				</f:entry>
+			    <f:entry title="${%enterpriseDataPort}" field="enterpriseDataPort">
+			    	<f:textbox default="${descriptor.defaultEnterpriseDataPort}"/>
+				</f:entry>
+			    <f:entry title="${%enterpriseDataWorkspace}" field="enterpriseDataWorkspace">
+			    	<f:textbox default="${descriptor.defaultEnterpriseDataWorkspace}"/>
+				</f:entry>
+			    <f:entry title="${%customerId}" field="customerId">
+			    	<f:textbox default="${descriptor.defaultCustomerId}"/>
+				</f:entry>
+			    <f:entry title="${%siteId}" field="siteId">
+			    	<f:textbox default="${descriptor.defaultSiteId}"/>
+				</f:entry>
+<!--			</f:block> -->
+<!--		</f:optionalBlock> -->
+	</f:section>
 	 
 </j:jelly>

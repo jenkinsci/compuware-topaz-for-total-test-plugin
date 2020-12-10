@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -97,8 +99,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/** Code coverage threshold */
 	private int ccThreshold = DescriptorImpl.defaultCCThreshold;
 	/** SonarQube version 5 or 6 */
-	private String sonarVersion = DescriptorImpl.defaultSonarVersion;
-	private String logLevel = DescriptorImpl.defaultLogLevel;
+	private String sonarVersion;
+	private String logLevel;
 	
 	/**
 	 * Optional file path to a folder that contains source code of tested programs. Default is COBOL. It is only used to set the
@@ -145,6 +147,9 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private int enterpriseDataPort = DescriptorImpl.defaultEnterpriseDataPort;
 	private String enterpriseDataWorkspace = DescriptorImpl.defaultEnterpriseDataWorkspace;
 	
+	private String customerId = DescriptorImpl.defaultCustomerId;
+	private String siteId = DescriptorImpl.defaultSiteId;
+	
 	/**
 	 * Fields for JCL
 	 */
@@ -155,6 +160,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * Fields for host and port
 	 */
 	private String selectEnvironmentRadio = DescriptorImpl.selectEnvironmentIdValue;
+	private String connectionId; 
 	private String host =  DescriptorImpl.defaultHost;
 	private int port =  DescriptorImpl.defaultPort;
 	
@@ -163,14 +169,54 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	private String contextVariables = DescriptorImpl.defaultContextVariables;
 	
+	/**
+	 * Constructor 
+	 * 
+	 * @param environmentId
+	 * 			The environment id for the selected connection
+	 * @param folderPath
+	 * 			The folder location for the test execution.
+	 * @param serverUrl
+	 * 			URL for the TTT Server.
+	 * @param credentialsId
+	 * 			Credentials.
+	 * @param connectionId
+	 * 			The Host connection id.
+	 * @param sonarVersion
+	 * 			The Sonar version.
+	 * @param logLevel
+	 * 			The debug log level.
+	 */
 	@DataBoundConstructor
-	public TotalTestCTBuilder(String environmentId, String folderPath, String serverUrl, String credentialsId)
+	public TotalTestCTBuilder(String environmentId, String folderPath,
+							  String serverUrl, String credentialsId,
+							  String connectionId, String sonarVersion,
+							  String logLevel)
 	{
 		super();
 		this.environmentId = environmentId;
 		this.folderPath = folderPath;
 		this.serverUrl = serverUrl;
 		this.credentialsId = credentialsId;
+		this.connectionId = StringUtils.trimToEmpty(connectionId);
+		
+		if (Strings.isNullOrEmpty(sonarVersion))
+		{
+			this.sonarVersion = DescriptorImpl.defaultSonarVersion;
+		}
+		else
+		{
+			this.sonarVersion = sonarVersion;
+		}
+		
+		if (Strings.isNullOrEmpty(sonarVersion))
+		{
+			this.logLevel = DescriptorImpl.defaultLogLevel;
+		}
+		else
+		{
+			this.logLevel = logLevel;
+		}
 	}
 
 	/**
@@ -969,6 +1015,49 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 	
 	/**
+	 * Sets the Customer ID.
+	 * .
+	 * @param customerId
+	 * 			The customer's ID.
+	 */
+	@DataBoundSetter
+	public void setCustomerId(String customerId)
+	{
+		this.customerId = customerId;
+	}
+	
+	/**
+	 * Gets the Customer ID.
+	 * 
+	 * @return The Enterprise Data Communication Manager workspace.
+	 */
+	public String getCustomerId()
+	{
+		return customerId;
+	}
+
+	/**
+	 * Sets the Site ID.
+	 * .
+	 * @param siteId
+	 * 			The site id.
+	 */
+	@DataBoundSetter
+	public void setSiteId(String siteId)
+	{
+		this.siteId = siteId;
+	}
+	
+	/**
+	 * Gets the Site ID.
+	 * 
+	 * @return The site id.
+	 */
+	public String getSiteId()
+	{
+		return siteId;
+	}
+	/**
 	 * Sets the JCL path when executing '.testscenarios' files.
 	 * 
 	 * @param jclPath
@@ -988,6 +1077,16 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public String getJclPath()
 	{
 		return jclPath;
+	}
+	
+	/**
+	 * Gets the unique identifier of the 'Host connection'.
+	 * 
+	 * @return <code>String</code> value of connectionId
+	 */
+	public String getConnectionId()
+	{
+		return connectionId;
 	}
 	
 	/**
@@ -1081,7 +1180,11 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		{
 			selectedEnvironmentSelection =  DescriptorImpl.selectEnvironmentIdValue;
 		}
-		else
+		else if (isSelectHostConnection())
+		{
+			selectedEnvironmentSelection =  DescriptorImpl.selectHostConnectionValue;
+		}
+		else if (isSelectHostPort())
 		{
 			selectedEnvironmentSelection =  DescriptorImpl.selectHostPortValue;
 		}
@@ -1090,7 +1193,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 	
 	/**
-	 * Returns if the Select JSON option is selected.
+	 * Returns if the Select Environment option is selected.
 	 * 
 	 * @return	<code>true</code> if Select JSON option is selected, otherwise <code>false</code>.
 	 */
@@ -1100,7 +1203,17 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
     }
 
 	/**
-	 * Returns if the Select Programs option is selected.
+	 * Returns if the select host connection option is selected.
+	 * 
+	 * @return	<code>true</code> if Select Programs option is selected, otherwise <code>false</code>.
+	 */
+	public boolean isSelectHostConnection()
+    {
+		return selectEnvironmentRadio.compareTo(DescriptorImpl.selectHostConnectionValue) == 0;
+    }
+	
+	/**
+	 * Returns if the select host/port option is selected.
 	 * 
 	 * @return	<code>true</code> if Select Programs option is selected, otherwise <code>false</code>.
 	 */
@@ -1225,7 +1338,33 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			}
 		}
 		
-		if (isSelectHostPort())
+		
+		if (isSelectEnvironmentId())
+		{
+			if (Strings.isNullOrEmpty(this.environmentId))
+			{
+				throw new IllegalArgumentException("No environment defined.  Enter an Environment Id or select a host connection."); //$NON-NLS-1$
+			}
+		}
+		else if (isSelectHostConnection())
+		{
+			HostConnection connection = null;
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+		
+			if (globalConfig != null)
+			{
+				connection = globalConfig.getHostConnection(getConnectionId());
+			}
+			
+			if (connection == null) //NOSONAR
+			{
+				if (Strings.isNullOrEmpty(getEnvironmentId()))
+				{
+					throw new IllegalArgumentException("No host connection defined. Either define an Environment Id or a select a host connection.  Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
+				}
+			}
+		}
+		else if (isSelectHostPort())
 		{
 			int enteredPort = getPort();
 			if (!getHost().isEmpty() && (enteredPort >= 1 && enteredPort <= 65535))
@@ -1246,7 +1385,11 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 				}
 			}
 		}
-		
+		else
+		{
+			throw new IllegalArgumentException(
+					"Missing environment id, host connection or host and port."); //$NON-NLS-1$
+		}
 
 		if (!getServerUrl().isEmpty())
 		{
@@ -1345,13 +1488,16 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String  selectLocalConfigValue = "-cfgdir"; //NOSONAR  //$NON-NLS-1$
 		public static final String selectJclPathValue = "-jcl"; //NOSONAR  //$NON-NLS-1$
 
+		public static final String defaultConnectionId = ""; //NOSONAR //$NON-NLS-1$
 		public static final String defaultHost = ""; //NOSONAR //$NON-NLS-1$
 		public static final int defaultPort = 0; //NOSONAR //$NON-NLS-1$
-		public static final String selectEnvironmentId = "Use Environment Id"; //NOSONAR //$NON-NLS-1$
-		public static final String selectHostPort = "Use Host/Port"; //NOSONAR //$NON-NLS-1$
 		public static final String  selectEnvironmentIdValue = "-e"; //NOSONAR  //$NON-NLS-1$
-		public static final String selectHostPortValue = "-host"; //NOSONAR  //$NON-NLS-1$
+		public static final String selectHostConnectionValue = "-hci"; //NOSONAR  //$NON-NLS-1$
+		public static final String selectHostPortValue = "-hostport"; //NOSONAR  //$NON-NLS-1$
 		public static final String defaultContextVariables = ""; //NOSONAR  //$NON-NLS-1$
+		
+		public static final String defaultCustomerId = ""; //NOSONAR  //$NON-NLS-1$
+		public static final String defaultSiteId = ""; //NOSONAR  //$NON-NLS-1$
 
 		/**
 		 * Fill in the Sonar versions.
@@ -1455,6 +1601,42 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 //			return FormValidation.ok();
 //		}
 
+		/**
+		 * Fills in the Host Connection selection box with applicable connections.
+		 * 
+		 * @param context
+		 * 		An instance of <code>context</code> for the Jenkin's context
+		 * @param connectionId
+		 *            an existing host connection identifier; can be null
+		 * @param project
+		 * 		An instance of <code>Item</code> for the project.
+		 * 
+		 * @return host connection selections
+		 */
+		public ListBoxModel doFillConnectionIdItems(@AncestorInPath Jenkins context, @QueryParameter String connectionId,
+				@AncestorInPath Item project)
+		{
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+			HostConnection[] hostConnections = globalConfig.getHostConnections();
+
+			ListBoxModel model = new ListBoxModel();
+			model.add(new Option(StringUtils.EMPTY, StringUtils.EMPTY, false));
+
+			for (HostConnection connection : hostConnections)
+			{
+				boolean isSelected = false;
+				if (connectionId != null)
+				{
+					isSelected = connectionId.matches(connection.getConnectionId());
+				}
+
+				model.add(new Option(connection.getDescription() + " [" + connection.getHostPort() + ']', //$NON-NLS-1$
+						connection.getConnectionId(), isSelected));
+			}
+
+			return model;
+		}
+		
 		/**
 		 * Validates for the 'CES server URL' field
 		 * 
