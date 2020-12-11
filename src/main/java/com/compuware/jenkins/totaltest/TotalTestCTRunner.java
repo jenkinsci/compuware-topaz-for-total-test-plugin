@@ -412,9 +412,19 @@ public class TotalTestCTRunner
 	 */
 	private void addArguments(final ArgumentListBuilder args, final Launcher launcher, final TaskListener listener, final String remoteFileSeparator) throws IOException, InterruptedException
 	{
-		addHostArguments(args);
+		boolean min200501 = TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200501);
+		boolean min200401 = TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401);
+
+		if (min200501)
+		{
+			addHostArguments(args);
+		}
+		else //if (TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401))
+		{
+			args.add("-e").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
+		}
 		
-		if (!TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401) || !tttBuilder.getLocalConfig())
+		if (!min200401 || !tttBuilder.getLocalConfig())
 		{
 			String tttServerUrl = tttBuilder.getServerUrl();
 	
@@ -491,19 +501,16 @@ public class TotalTestCTRunner
 			}
 		}
 
-		if (TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401))
+		if (min200401 && tttBuilder.isLocalConfig())
 		{
-			if (tttBuilder.isLocalConfig())
+			args.add("-cfgdir"); //$NON-NLS-1$
+			if (Strings.isNullOrEmpty(tttBuilder.getLocalConfigLocation()))
 			{
-				args.add("-cfgdir"); //$NON-NLS-1$
-				if (Strings.isNullOrEmpty(tttBuilder.getLocalConfigLocation()))
-				{
-					args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.DescriptorImpl.defaultLocalConfigLocation)); //$NON-NLS-1$
-				}
-				else
-				{
-					args.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getLocalConfigLocation())); //$NON-NLS-1$
-				}
+				args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.DescriptorImpl.defaultLocalConfigLocation)); //$NON-NLS-1$
+			}
+			else
+			{
+				args.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getLocalConfigLocation())); //$NON-NLS-1$
 			}
 		}
 
@@ -529,7 +536,7 @@ public class TotalTestCTRunner
 			args.add("-a").add(tttBuilder.getAccountInfo()); //$NON-NLS-1$
 		}
 		
-		if (TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401))
+		if (min200401)
 		{
 			if (tttBuilder.getSelectProgramsOption())
 			{
@@ -612,12 +619,15 @@ public class TotalTestCTRunner
 					args.add("-ccclear").add(tttBuilder.getClearCodeCoverage()); //$NON-NLS-1$
 				}
 			}
-			
+		}
+		
+		if (min200501)
+		{
 			if (!Strings.isNullOrEmpty(tttBuilder.getContextVariables()))
 			{
 				args.add("-ctxvars").add(tttBuilder.getContextVariables()); //$NON-NLS-1$
 			}
-			
+
 			// TED integration
 			if (tttBuilder.getCollectEnterpriseData())
 			{
@@ -867,11 +877,11 @@ public class TotalTestCTRunner
 	 */
 	private void addHostArguments(final ArgumentListBuilder args) throws IOException
 	{
-		if (tttBuilder.getSelectEnvironmentRadio() == DescriptorImpl.selectEnvironmentIdValue)
+		if (tttBuilder.isSelectEnvironmentId())
 		{
 			args.add(DescriptorImpl.selectEnvironmentIdValue).add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
 		}
-		else if (tttBuilder.getSelectEnvironmentRadio() == DescriptorImpl.selectEnvironmentIdValue)
+		else if (tttBuilder.isSelectHostConnection())
 		{
 			HostConnection connection = null;
 			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
