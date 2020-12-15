@@ -419,11 +419,17 @@ public class TotalTestCTRunner
 		{
 			addHostArguments(args);
 		}
-		else //if (TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401))
+		else
 		{
 			args.add("-e").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
 		}
 		
+		String hostCreds = tttBuilder.getHostCredentialsId();
+		args.add("-u").add( //$NON-NLS-1$
+				TotalTestRunnerUtils.getLoginInformation(build.getParent(), hostCreds).getUsername(), false);
+		args.add("-p").add( //$NON-NLS-1$
+				TotalTestRunnerUtils.getLoginInformation(build.getParent(), hostCreds).getPassword(), true);
+
 		if (!min200401 || !tttBuilder.getLocalConfig())
 		{
 			String tttServerUrl = tttBuilder.getServerUrl();
@@ -437,13 +443,20 @@ public class TotalTestCTRunner
 			listener.getLogger().println("Set the repository URL : " + tttServerUrl); //$NON-NLS-1$
 
 			args.add("-s").add(TotalTestRunnerUtils.escapeForScript(tttServerUrl), false); //$NON-NLS-1$
+			
+			if (min200501)
+			{
+				String serverCreds = tttBuilder.getServerCredentialsId();
+				
+				if (!Strings.isNullOrEmpty(serverCreds))
+				{
+					args.add("-cesu").add(
+							TotalTestRunnerUtils.getLoginInformation(build.getParent(), serverCreds).getUsername(), false);
+					args.add("-cesp").add(
+							TotalTestRunnerUtils.getLoginInformation(build.getParent(), serverCreds).getPassword(), true);
+				}
+			}
 		}
-
-		args.add("-u").add( //$NON-NLS-1$
-				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
-				false);
-		args.add("-p").add( //$NON-NLS-1$
-				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword(), true);
 
 		String folder = tttBuilder.getFolderPath();
 		if (Strings.isNullOrEmpty(folder) || folder.trim().isEmpty())

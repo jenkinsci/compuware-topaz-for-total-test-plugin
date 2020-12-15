@@ -72,14 +72,17 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 	public static final String defaultLocalConfigLocation = "./TotalTestConfiguration"; //NOSONAR //$NON-NLS-1$
 
+	/** Host credentials plugin */
+	private final String hostCredentialsId;
+
 	/** Environment ID need to used during the execution */
 	private final String environmentId;
 	/** Folder from which tests should be executed */
 	private final String folderPath;
 	/** Repository server url */
 	private final String serverUrl;
-	/** Using Jenkins credentials plugin */
-	private final String credentialsId;
+	/** Server credentials plugin */
+	private final String serverCredentialsId;
 
 	private boolean localConfig = false;
 	private String localConfigLocation = DescriptorImpl.defaultLocalConfigLocation;
@@ -178,10 +181,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * 			The folder location for the test execution.
 	 * @param serverUrl
 	 * 			URL for the TTT Server.
-	 * @param credentialsId
-	 * 			Credentials.
+	 * @param serverCredentialsId
+	 * 			The server credentials
 	 * @param connectionId
 	 * 			The Host connection id.
+	 * @param hostCredentialsId
+	 * 			Host credentials.
 	 * @param sonarVersion
 	 * 			The Sonar version.
 	 * @param logLevel
@@ -189,16 +194,18 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	@DataBoundConstructor
 	public TotalTestCTBuilder(String environmentId, String folderPath,
-							  String serverUrl, String credentialsId,
-							  String connectionId, String sonarVersion,
+							  String serverUrl, String serverCredentialsId,
+							  String connectionId, String hostCredentialsId,
+							  String sonarVersion,
 							  String logLevel)
 	{
 		super();
 		this.environmentId = environmentId;
 		this.folderPath = folderPath;
 		this.serverUrl = serverUrl;
-		this.credentialsId = credentialsId;
+		this.serverCredentialsId = serverCredentialsId;
 		this.connectionId = StringUtils.trimToEmpty(connectionId);
+		this.hostCredentialsId = hostCredentialsId;
 		
 		if (Strings.isNullOrEmpty(sonarVersion))
 		{
@@ -242,7 +249,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Server URL accessor
 	 * 
-	 * @return <code>String</code> value of server Url
+	 * @return <code>String</code> value of server URL
 	 */
 	public String getServerUrl()
 	{
@@ -250,13 +257,23 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * Environment accessor
+	 * Host credentials accessor
 	 * 
 	 * @return <code>String</code> value of user Id
 	 */
-	public String getCredentialsId()
+	public String getHostCredentialsId()
 	{
-		return credentialsId;
+		return hostCredentialsId;
+	}
+
+	/**
+	 * Server credentials accessor
+	 * 
+	 * @return <code>String</code> value of user Id
+	 */
+	public String getServerCredentialsId()
+	{
+		return serverCredentialsId;
 	}
 
 	/**
@@ -1338,7 +1355,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			}
 		}
 		
-		
 		if (isSelectEnvironmentId())
 		{
 			if (Strings.isNullOrEmpty(this.environmentId))
@@ -1391,20 +1407,35 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 					"Missing environment id, host connection or host and port."); //$NON-NLS-1$
 		}
 
-		if (!getServerUrl().isEmpty())
+		if (isLocalConfig())
 		{
-			listener.getLogger().println("serverUrl = " + serverUrl); //$NON-NLS-1$
+			if (!getLocalConfigLocation().isEmpty())
+			{
+				listener.getLogger().println("Local configuration directory = " + localConfigLocation); //$NON-NLS-1$
+			}
+			else
+			{
+				throw new IllegalArgumentException(
+						"Missing parameter Local configuration directory. - please enter the local configuration location."); //$NON-NLS-1$
+			}
 		}
 		else
 		{
-			throw new IllegalArgumentException(
-					"Missing parameter CES server URL - please use the Compuware configuration tool to configure"); //$NON-NLS-1$
+			if (!getServerUrl().isEmpty())
+			{
+				listener.getLogger().println("serverUrl = " + serverUrl); //$NON-NLS-1$
+			}
+			else
+			{
+				throw new IllegalArgumentException(
+						"Missing parameter CES server URL - please use the Compuware configuration tool to configure"); //$NON-NLS-1$
+			}
 		}
 
-		if (!getCredentialsId().isEmpty())
+		if (!getHostCredentialsId().isEmpty())
 		{
 
-			if (TotalTestRunnerUtils.getLoginInformation(project, getCredentialsId()) != null)
+			if (TotalTestRunnerUtils.getLoginInformation(project, getHostCredentialsId()) != null)
 			{
 				listener.getLogger().println("Credentials entered..."); //$NON-NLS-1$
 			}
@@ -1578,28 +1609,28 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			return FormValidation.ok();
 		}
 		
-//		public FormValidation doCheckEnvironmentRadio(@QueryParameter String value)
-//		{
-//			return FormValidation.ok();
-//		}
+		public FormValidation doCheckEnvironmentRadio(@QueryParameter String value)
+		{
+			return FormValidation.ok();
+		}
 		
-//		/**
-//		 * Validates for the 'EnvironmentId' field
-//		 * 
-//		 * @param value
-//		 * 		The environment id.
-//		 * @return validation message
-//		 */
-//		public FormValidation doCheckEnvironmentId(@QueryParameter String value)
-//		{
-//
-//			if (value == null || value.isEmpty() || value.trim().length() == 0)
-//			{
-//				return FormValidation.error(Messages.errors_missingEnvironmentId());
-//			}
-//
-//			return FormValidation.ok();
-//		}
+		/**
+		 * Validates for the 'EnvironmentId' field
+		 * 
+		 * @param value
+		 * 		The environment id.
+		 * @return validation message
+		 */
+		public FormValidation doCheckEnvironmentId(@QueryParameter String value)
+		{
+
+			if (value == null || value.isEmpty() || value.trim().length() == 0)
+			{
+				return FormValidation.error(Messages.errors_missingEnvironmentId());
+			}
+
+			return FormValidation.ok();
+		}
 
 		/**
 		 * Fills in the Host Connection selection box with applicable connections.
@@ -1622,46 +1653,46 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			ListBoxModel model = new ListBoxModel();
 			model.add(new Option(StringUtils.EMPTY, StringUtils.EMPTY, false));
 
-			for (HostConnection connection : hostConnections)
+			for (HostConnection hostConnection : hostConnections)
 			{
 				boolean isSelected = false;
 				if (connectionId != null)
 				{
-					isSelected = connectionId.matches(connection.getConnectionId());
+					isSelected = connectionId.matches(hostConnection.getConnectionId());
 				}
 
-				model.add(new Option(connection.getDescription() + " [" + connection.getHostPort() + ']', //$NON-NLS-1$
-						connection.getConnectionId(), isSelected));
+				model.add(new Option(hostConnection.getDescription() + " [" + hostConnection.getHostPort() + ']', //$NON-NLS-1$
+						hostConnection.getConnectionId(), isSelected));
 			}
 
 			return model;
 		}
-		
-		/**
-		 * Validates for the 'CES server URL' field
-		 * 
-		 * @param value
-		 * 		The CES server URL.
-		 * @return validation message
-		 */
-		public FormValidation doCheckServerUrl(@QueryParameter String value)
-		{
-			if (value == null || value.isEmpty() || value.trim().length() == 0)
-			{
-				return FormValidation.error(Messages.errors_missingServerUrl());
-			}
+//		
+//		/**
+//		 * Validates for the 'CES server URL' field
+//		 * 
+//		 * @param value
+//		 * 		The CES server URL.
+//		 * @return validation message
+//		 */
+//		public FormValidation doCheckServerUrl(@QueryParameter String value)
+//		{
+//			if (value == null || value.isEmpty() || value.trim().length() == 0)
+//			{
+//				return FormValidation.error(Messages.errors_missingServerUrl());
+//			}
+//
+//			return FormValidation.ok();
+//		}
 
-			return FormValidation.ok();
-		}
-
 		/**
-		 * Validates for the 'Login Credential' field
+		 * Validates for the 'Login Credentials' field
 		 * 
 		 * @param value
 		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
 		 */
-		public FormValidation doCheckCredentialsId(@QueryParameter final String value)
+		public FormValidation doCheckHostCredentialsId(@QueryParameter final String value)
 		{
 			if (value == null || value.isEmpty() || value.trim().length() == 0)
 			{
@@ -1670,6 +1701,23 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 			return FormValidation.ok();
 		}
+
+//		/**
+//		 * Validates for the 'Server Credential' field
+//		 * 
+//		 * @param value
+//		 *            Value passed from the config.jelly "fileExtension" field
+//		 * @return validation message
+//		 */
+//		public FormValidation doCheckServerCredentialsId(@QueryParameter final String value)
+//		{
+//			if (value == null || value.isEmpty() || value.trim().length() == 0)
+//			{
+//				return FormValidation.error(Messages.checkLoginCredentialError());
+//			}
+//
+//			return FormValidation.ok();
+//		}
 
 		/**
 		 * Validates for the 'reportFolder' field
@@ -1732,16 +1780,16 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 * 
 		 * @param context
 		 *            Jenkins context.
-		 * @param credentialsId
-		 *            The credendtial id for the user.
+		 * @param hostCredentialsId
+		 *            The host credential id for the user.
 		 * @param project
 		 *            The Jenkins project.
 		 * 
 		 * @return credential selections
 		 * 
 		 */
-		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context, //NOSONAR
-				@QueryParameter final String credentialsId, @AncestorInPath final Item project)
+		public ListBoxModel doFillHostCredentialsIdItems(@AncestorInPath final Jenkins context, //NOSONAR
+				@QueryParameter final String hostCredentialsId, @AncestorInPath final Item project)
 		{
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
 					StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
@@ -1755,9 +1803,9 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			{
 				boolean isSelected = false;
 
-				if (credentialsId != null)
+				if (hostCredentialsId != null)
 				{
-					isSelected = credentialsId.matches(c.getId());
+					isSelected = hostCredentialsId.matches(c.getId());
 				}
 
 				String description = Util.fixEmptyAndTrim(c.getDescription());
@@ -1806,6 +1854,47 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			return model;
 		}
 		
+		/**
+		 * Fills in the Login Credential selection box with applicable Jenkins credentials
+		 * 
+		 * @param context
+		 *            Jenkins context.
+		 * @param serverCredentialsId
+		 *            The server credential id for the user.
+		 * @param project
+		 *            The Jenkins project.
+		 * 
+		 * @return credential selections
+		 * 
+		 */
+		public ListBoxModel doFillServerCredentialsIdItems(@AncestorInPath final Jenkins context, //NOSONAR
+				@QueryParameter final String serverCredentialsId, @AncestorInPath final Item project)
+		{
+			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
+					StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
+					Collections.<DomainRequirement> emptyList());
+
+			StandardListBoxModel model = new StandardListBoxModel();
+
+			model.add(new Option("", "", false)); //$NON-NLS-1$ //$NON-NLS-2$
+
+			for (StandardUsernamePasswordCredentials c : creds)
+			{
+				boolean isSelected = false;
+
+				if (serverCredentialsId != null)
+				{
+					isSelected = serverCredentialsId.matches(c.getId());
+				}
+
+				String description = Util.fixEmptyAndTrim(c.getDescription());
+				model.add(new Option(c.getUsername() + (description != null ? " (" + description + ")" : ""), c.getId(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						isSelected));
+			}
+
+			return model;
+		}
+
 		/**
 		 * (non-Javadoc)
 		 * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)

@@ -33,15 +33,20 @@
 	</f:section>
 	
 	<f:section title="${%sectionConnection}">
+	    <f:entry title="${%hostCredentials}" field="hostCredentialsId">
+			<c:select/>
+		</f:entry>
 	 
 	    <f:entry title="${%serverUrl}" field="serverUrl" >
 	 	   <f:select /> 
 	 	   <label><a href="/configure#cpwr-config">Manage connections</a></label>
 	    </f:entry>
-	
-	    <f:entry title="${%loginCredentials}" field="credentialsId">
-			<c:select/>
-		</f:entry>
+		<f:nested>
+		    <f:entry title="${%serverCredentials}" field="serverCredentialsId">
+				<c:select/>
+			</f:entry>
+		</f:nested>
+		
 		<f:optionalBlock title="${%configLocal}" name="localConfig" checked="${instance.isLocalConfig()}" inline="${true}">
 			<f:entry title="${%localConfigurationLocation}" field="localConfigLocation">
 				<f:textbox default="${descriptor.defaultLocalConfigLocation}"/>
