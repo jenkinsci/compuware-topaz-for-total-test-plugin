@@ -629,7 +629,7 @@ public class TotalTestCTRunner
 			}
 
 			// TED integration
-			if (tttBuilder.getCollectEnterpriseData())
+			if (tttBuilder.getUseEnterpriseData())
 			{
 				if (!Strings.isNullOrEmpty(tttBuilder.getEnterpriseDataIp()))
 				{
@@ -648,7 +648,7 @@ public class TotalTestCTRunner
 			{
 				args.add("-ces").add(tttBuilder.getServerUrl()); //$NON-NLS-1$
 			}
-			else if (tttBuilder.getCollectEnterpriseData())
+			else if (tttBuilder.getUseEnterpriseData())
 			{
 				if (!Strings.isNullOrEmpty(tttBuilder.getCustomerId()))
 				{

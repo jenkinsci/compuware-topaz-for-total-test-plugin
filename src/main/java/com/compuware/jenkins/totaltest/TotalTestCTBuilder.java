@@ -142,7 +142,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Fields for Enterprise Data.
 	 */
-	private boolean collectEnterpriseData = DescriptorImpl.defaultCollectEnterpriseData;
+	private boolean useEnterpriseData = DescriptorImpl.defaultUseEnterpriseData;
 	private String enterpriseDataIp = DescriptorImpl.defaultEnterpriseDataIP;
 	private int enterpriseDataPort = DescriptorImpl.defaultEnterpriseDataPort;
 	private String enterpriseDataWorkspace = DescriptorImpl.defaultEnterpriseDataWorkspace;
@@ -937,14 +937,14 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 	
 	@DataBoundSetter
-	public void setCollectEnterpriseData(boolean collectEnterpriseData)
+	public void setUseEnterpriseData(boolean collectEnterpriseData)
 	{
-		this.collectEnterpriseData = collectEnterpriseData;
+		this.useEnterpriseData = collectEnterpriseData;
 	}
 	
-	public boolean getCollectEnterpriseData()
+	public boolean getUseEnterpriseData()
 	{
-		return collectEnterpriseData;
+		return useEnterpriseData;
 	}
 
 	/**
@@ -1480,7 +1480,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String haltPipelineTitle = "Halt pipeline if errors occur"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLocalConfigLocation = TotalTestCTBuilder.defaultLocalConfigLocation; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLogLevel = LOGLEVELINFO; //NOSONAR
-		public static final Boolean defaultCollectEnterpriseData = false; //NOSONAR
+		public static final Boolean defaultUseEnterpriseData = false; //NOSONAR
 		public static final String defaultEnterpriseDataIP = ""; //NOSONAR //$NON-NLS-1$
 		public static final int defaultEnterpriseDataPort = 4901; //NOSONAR //$NON-NLS-1$
 		public static final String defaultEnterpriseDataWorkspace = ""; //NOSONAR //$NON-NLS-1$

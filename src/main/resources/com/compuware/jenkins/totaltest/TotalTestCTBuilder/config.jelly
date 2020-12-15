@@ -200,7 +200,7 @@
     </f:section>
 	 
 	<f:section title="${%sectionEnterpriseData}">
-<!--		<f:optionalBlock title="${%optionCollectEnterpriseData}" field="collectEnterpriseData" default="${descriptor.defaultCollectEnterpriseData}" inline="${true}"> -->
+		<f:optionalBlock title="${%optionUseEnterpriseData}" field="useEnterpriseData" default="${descriptor.defaultUseEnterpriseData}" inline="${true}">
 <!--			<f:block> -->
 			    <f:entry title="${%enterpriseDataIp}" field="enterpriseDataIp">
 			    	<f:textbox default="${descriptor.defaultEnterpriseDataIp}"/>
@@ -218,7 +218,7 @@
 			    	<f:textbox default="${descriptor.defaultSiteId}"/>
 				</f:entry>
 <!--			</f:block> -->
-<!--		</f:optionalBlock> -->
+	</f:optionalBlock>
 	</f:section>
 	 
 </j:jelly>
