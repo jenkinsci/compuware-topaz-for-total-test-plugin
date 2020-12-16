@@ -580,7 +580,7 @@ public class TotalTestCTRunner
 				args.add("-U"); //$NON-NLS-1$
 			}
 			
-			if (Strings.isNullOrEmpty(tttBuilder.getJclPath()))
+			if (!Strings.isNullOrEmpty(tttBuilder.getJclPath()))
 			{
 				args.add("-j").add(tttBuilder.getJclPath());
 			}
