@@ -853,8 +853,9 @@ public class TotalTestCTRunner
 	 * <p>
 	 * The following argument are added:
 	 * <ul>
-	 * <li>Host
-	 * <li>Port
+	 * <li>e
+	 * <li>host
+	 * <li>port
 	 * </ul>
 	 * 
 	 * @param args
@@ -900,8 +901,12 @@ public class TotalTestCTRunner
 	 * <p>
 	 * The following argument are added:
 	 * <ul>
-	 * <li>Host
-	 * <li>Port
+	 * <li>faip
+	 * <li>fap
+	 * <li>ces
+	 * <li>cid
+	 * <li>sid
+	 * <li>faw
 	 * </ul>
 	 * 
 	 * @param args
