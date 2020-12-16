@@ -486,7 +486,7 @@ public class TotalTestCTRunner
 			args.add("-R"); //$NON-NLS-1$
 		}
 
-		if (tttBuilder.getUploadToServer())
+		if (!Strings.isNullOrEmpty(tttBuilder.getServerUrl()) && tttBuilder.getUploadToServer())
 		{
 			args.add("-x"); //$NON-NLS-1$
 		}
@@ -642,37 +642,7 @@ public class TotalTestCTRunner
 			}
 
 			// TED integration
-			if (tttBuilder.getUseEnterpriseData())
-			{
-				if (!Strings.isNullOrEmpty(tttBuilder.getEnterpriseDataIp()))
-				{
-					args.add("-faip").add(tttBuilder.getEnterpriseDataIp()); //$NON-NLS-1$
-					args.add("-fap").add(tttBuilder.getEnterpriseDataPort()); //$NON-NLS-1$
-				}
-
-				if (!Strings.isNullOrEmpty(tttBuilder.getEnterpriseDataWorkspace()))
-				{
-					args.add("-faw").add(tttBuilder.getEnterpriseDataWorkspace()); //$NON-NLS-1$
-				}
-			}
-
-			// CES and Cloud licensing
-			if (!Strings.isNullOrEmpty(tttBuilder.getServerUrl()))
-			{
-				args.add("-ces").add(tttBuilder.getServerUrl()); //$NON-NLS-1$
-			}
-			else if (tttBuilder.getUseEnterpriseData())
-			{
-				if (!Strings.isNullOrEmpty(tttBuilder.getCustomerId()))
-				{
-					args.add("-cid").add(tttBuilder.getCustomerId()); //$NON-NLS-1$
-				}
-				
-				if (!Strings.isNullOrEmpty(tttBuilder.getSiteId()))
-				{
-					args.add("-sid").add(tttBuilder.getSiteId()); //$NON-NLS-1$
-				}
-			}
+			addEnterpriseDataArguments(args);
 		}
 	}
 
@@ -831,7 +801,7 @@ public class TotalTestCTRunner
 	 * find a file by name in the folder
 	 * 
 	 * @param directoryPath
-	 * 			  The folder where we should searc.
+	 * 			  The folder where we should search.
 	 * @param search
 	 * 			  The file to search for.
 	 * @param listener
@@ -917,6 +887,69 @@ public class TotalTestCTRunner
 		else
 		{
 			throw new IOException("ERROR: No Environment id or host connection defined."); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Adds to host related arguments to the argument list.
+	 * <p>
+	 * The following argument are added:
+	 * <ul>
+	 * <li>Host
+	 * <li>Port
+	 * </ul>
+	 * 
+	 * @param args
+	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
+	 * 
+	 * @throws IOException
+	 * 			If not host connection defined.
+	 */
+	private void addEnterpriseDataArguments(final ArgumentListBuilder args) throws IOException
+	{
+		if (tttBuilder.getUseEnterpriseData())
+		{
+			HostConnection connection = null;
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+
+			if (globalConfig != null)
+			{
+				connection = globalConfig.getHostConnection(tttBuilder.getConnectionId());
+			}
+		
+			if (connection == null) //NOSONAR
+			{
+				throw new IOException("ERROR: No host connection defined. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
+			}
+			else
+			{
+				args.add("-faip").add(connection.getHost()); //$NON-NLS-1$
+				args.add("-fap").add(connection.getPort()); //$NON-NLS-1$
+			
+
+				// CES and Cloud licensing
+				if (!Strings.isNullOrEmpty(tttBuilder.getServerUrl()))
+				{
+					args.add("-ces").add(tttBuilder.getServerUrl()); //$NON-NLS-1$
+				}
+				else if (tttBuilder.getUseEnterpriseData())
+				{
+					if (!Strings.isNullOrEmpty(tttBuilder.getCustomerId()))
+					{
+						args.add("-cid").add(tttBuilder.getCustomerId()); //$NON-NLS-1$
+					}
+					
+					if (!Strings.isNullOrEmpty(tttBuilder.getSiteId()))
+					{
+						args.add("-sid").add(tttBuilder.getSiteId()); //$NON-NLS-1$
+					}
+				}
+			}
+			
+			if (!Strings.isNullOrEmpty(tttBuilder.getEnterpriseDataWorkspace()))
+			{
+				args.add("-faw").add(tttBuilder.getEnterpriseDataWorkspace()); //$NON-NLS-1$
+			}
 		}
 	}
 }

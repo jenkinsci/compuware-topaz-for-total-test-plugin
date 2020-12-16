@@ -1,6 +1,6 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials" xmlns:cc="/lib/compuware">
-	<f:section title="${%sectionEnvironment}">
+	<f:section title="${%sectionConnection}">
 		<f:block> 
 			<table width="100%">
 				<f:nested>
@@ -30,9 +30,6 @@
 -->
 			</table>
 		</f:block>
-	</f:section>
-	
-	<f:section title="${%sectionConnection}">
 	    <f:entry title="${%hostCredentials}" field="hostCredentialsId">
 			<c:select/>
 		</f:entry>
@@ -47,7 +44,7 @@
 			</f:entry>
 		</f:nested>
 		
-		<f:optionalBlock title="${%configLocal}" name="localConfig" checked="${instance.isLocalConfig()}" inline="${true}">
+		<f:optionalBlock title="${%configLocal}" field="localConfig" name="localConfig" checked="${instance.isLocalConfig()}" inline="${true}">
 			<f:entry title="${%localConfigurationLocation}" field="localConfigLocation">
 				<f:textbox default="${descriptor.defaultLocalConfigLocation}"/>
 			</f:entry>
@@ -207,15 +204,21 @@
 	<f:section title="${%sectionEnterpriseData}">
 		<f:optionalBlock title="${%optionUseEnterpriseData}" field="useEnterpriseData" default="${descriptor.defaultUseEnterpriseData}" inline="${true}">
 <!--			<f:block> -->
+<!--
 			    <f:entry title="${%enterpriseDataIp}" field="enterpriseDataIp">
 			    	<f:textbox default="${descriptor.defaultEnterpriseDataIp}"/>
 				</f:entry>
 			    <f:entry title="${%enterpriseDataPort}" field="enterpriseDataPort">
 			    	<f:textbox default="${descriptor.defaultEnterpriseDataPort}"/>
 				</f:entry>
+-->
+			    <f:entry title="${%enterpriseDataServer}" field="enterpriseDataServerId">
+			       <cc:hostSelect default=""/>
+			    </f:entry>
 			    <f:entry title="${%enterpriseDataWorkspace}" field="enterpriseDataWorkspace">
 			    	<f:textbox default="${descriptor.defaultEnterpriseDataWorkspace}"/>
 				</f:entry>
+
 			    <f:entry title="${%customerId}" field="customerId">
 			    	<f:textbox default="${descriptor.defaultCustomerId}"/>
 				</f:entry>
