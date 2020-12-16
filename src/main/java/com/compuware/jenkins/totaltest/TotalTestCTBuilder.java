@@ -146,8 +146,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * Fields for Enterprise Data.
 	 */
 	private boolean useEnterpriseData = DescriptorImpl.defaultUseEnterpriseData;
-	private String enterpriseDataIp = DescriptorImpl.defaultEnterpriseDataIP;
-	private int enterpriseDataPort = DescriptorImpl.defaultEnterpriseDataPort;
 	private String enterpriseDataServerId = DescriptorImpl.defaultEnterpriseDataServerId;
 	private String enterpriseDataWorkspace = DescriptorImpl.defaultEnterpriseDataWorkspace;
 	
@@ -1465,8 +1463,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String defaultLocalConfigLocation = TotalTestCTBuilder.defaultLocalConfigLocation; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLogLevel = LOGLEVELINFO; //NOSONAR
 		public static final Boolean defaultUseEnterpriseData = false; //NOSONAR
-		public static final String defaultEnterpriseDataIP = ""; //NOSONAR //$NON-NLS-1$
-		public static final int defaultEnterpriseDataPort = 4901; //NOSONAR //$NON-NLS-1$
 		public static final String defaultEnterpriseDataServerId = ""; //NOSONAR //$NON-NLS-1$
 		public static final String defaultEnterpriseDataWorkspace = ""; //NOSONAR //$NON-NLS-1$
 		public static final String defaultJclPath = ""; //NOSONAR //$NON-NLS-1$

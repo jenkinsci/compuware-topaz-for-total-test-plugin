@@ -203,15 +203,6 @@
 	 
 	<f:section title="${%sectionEnterpriseData}">
 		<f:optionalBlock title="${%optionUseEnterpriseData}" field="useEnterpriseData" default="${descriptor.defaultUseEnterpriseData}" inline="${true}">
-<!--			<f:block> -->
-<!--
-			    <f:entry title="${%enterpriseDataIp}" field="enterpriseDataIp">
-			    	<f:textbox default="${descriptor.defaultEnterpriseDataIp}"/>
-				</f:entry>
-			    <f:entry title="${%enterpriseDataPort}" field="enterpriseDataPort">
-			    	<f:textbox default="${descriptor.defaultEnterpriseDataPort}"/>
-				</f:entry>
--->
 			    <f:entry title="${%enterpriseDataServer}" field="enterpriseDataServerId">
 			       <cc:hostSelect default=""/>
 			    </f:entry>
@@ -225,7 +216,6 @@
 			    <f:entry title="${%siteId}" field="siteId">
 			    	<f:textbox default="${descriptor.defaultSiteId}"/>
 				</f:entry>
-<!--			</f:block> -->
 	</f:optionalBlock>
 	</f:section>
 	 
