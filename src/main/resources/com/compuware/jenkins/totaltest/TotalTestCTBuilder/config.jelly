@@ -30,7 +30,7 @@
 -->
 			</table>
 		</f:block>
-	    <f:entry title="${%hostCredentials}" field="hostCredentialsId">
+	    <f:entry title="${%hostCredentials}" field="credentialsId">
 			<c:select/>
 		</f:entry>
 	 

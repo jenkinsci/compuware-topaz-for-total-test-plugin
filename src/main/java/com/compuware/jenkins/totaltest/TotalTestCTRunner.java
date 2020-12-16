@@ -424,7 +424,7 @@ public class TotalTestCTRunner
 			args.add("-e").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
 		}
 		
-		String hostCreds = tttBuilder.getHostCredentialsId();
+		String hostCreds = tttBuilder.getCredentialsId();
 		args.add("-u").add( //$NON-NLS-1$
 				TotalTestRunnerUtils.getLoginInformation(build.getParent(), hostCreds).getUsername(), false);
 		args.add("-p").add( //$NON-NLS-1$

@@ -73,7 +73,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public static final String defaultLocalConfigLocation = "./TotalTestConfiguration"; //NOSONAR //$NON-NLS-1$
 
 	/** Host credentials plugin */
-	private final String hostCredentialsId;
+	private final String credentialsId;
 
 	/** Environment ID need to used during the execution */
 	private final String environmentId;
@@ -186,7 +186,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * 			The server credentials
 	 * @param connectionId
 	 * 			The Host connection id.
-	 * @param hostCredentialsId
+	 * @param credentialsId
 	 * 			Host credentials.
 	 * @param enterpriseDataServerId
 	 * 			Enterprise Data Communication Server id.
@@ -198,7 +198,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	@DataBoundConstructor
 	public TotalTestCTBuilder(String environmentId, String folderPath,
 							  String serverUrl, String serverCredentialsId,
-							  String connectionId, String hostCredentialsId,
+							  String connectionId, String credentialsId,
 							  String enterpriseDataServerId,
 							  String sonarVersion, String logLevel)
 	{
@@ -208,7 +208,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		this.serverUrl = StringUtils.trimToEmpty(serverUrl);
 		this.serverCredentialsId = StringUtils.trimToEmpty(serverCredentialsId);
 		this.connectionId = StringUtils.trimToEmpty(connectionId);
-		this.hostCredentialsId = StringUtils.trimToEmpty(hostCredentialsId);
+		this.credentialsId = StringUtils.trimToEmpty(credentialsId);
 		this.enterpriseDataServerId = StringUtils.trimToEmpty(enterpriseDataServerId);
 		
 		if (Strings.isNullOrEmpty(sonarVersion))
@@ -265,9 +265,9 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * 
 	 * @return <code>String</code> value of user Id
 	 */
-	public String getHostCredentialsId()
+	public String getCredentialsId()
 	{
-		return hostCredentialsId;
+		return credentialsId;
 	}
 
 	/**
@@ -1401,10 +1401,10 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			}
 		}
 
-		if (!getHostCredentialsId().isEmpty())
+		if (!getCredentialsId().isEmpty())
 		{
 
-			if (TotalTestRunnerUtils.getLoginInformation(project, getHostCredentialsId()) != null)
+			if (TotalTestRunnerUtils.getLoginInformation(project, getCredentialsId()) != null)
 			{
 				listener.getLogger().println("Credentials entered..."); //$NON-NLS-1$
 			}
@@ -1628,7 +1628,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
 		 */
-		public FormValidation doCheckHostCredentialsId(@QueryParameter final String value)
+		public FormValidation doCheckCredentialsId(@QueryParameter final String value)
 		{
 			if (value == null || value.isEmpty() || value.trim().length() == 0)
 			{
@@ -1699,7 +1699,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 * 
 		 * @param context
 		 *            Jenkins context.
-		 * @param hostCredentialsId
+		 * @param credentialsId
 		 *            The host credential id for the user.
 		 * @param project
 		 *            The Jenkins project.
@@ -1707,8 +1707,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 * @return credential selections
 		 * 
 		 */
-		public ListBoxModel doFillHostCredentialsIdItems(@AncestorInPath final Jenkins context, //NOSONAR
-				@QueryParameter final String hostCredentialsId, @AncestorInPath final Item project)
+		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context, //NOSONAR
+				@QueryParameter final String credentialsId, @AncestorInPath final Item project)
 		{
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
 					StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
@@ -1722,9 +1722,9 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			{
 				boolean isSelected = false;
 
-				if (hostCredentialsId != null)
+				if (credentialsId != null)
 				{
-					isSelected = hostCredentialsId.matches(c.getId());
+					isSelected = credentialsId.matches(c.getId());
 				}
 
 				String description = Util.fixEmptyAndTrim(c.getDescription());
