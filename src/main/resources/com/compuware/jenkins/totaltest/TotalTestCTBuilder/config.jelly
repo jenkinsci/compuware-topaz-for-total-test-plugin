@@ -15,19 +15,6 @@
 					       <cc:hostSelect default=""/>
 					    </f:entry>
 				</f:nested>
-<!--
-				<f:nested>
-					<f:radio title="${%selectEnvironmentHostPort}" name="selectEnvironmentRadio" value="${descriptor.selectHostPortValue}" checked="${instance.isSelectHostPort()}"/>
-					<f:nested>
-					    <f:entry title="${%host}" field="host">
-					        <f:textbox />
-					    </f:entry> 
-					    <f:entry title="${%port}" field="port">
-					        <f:textbox />
-					    </f:entry>
-					</f:nested>
-				</f:nested>
--->
 			</table>
 		</f:block>
 	    <f:entry title="${%hostCredentials}" field="credentialsId">

@@ -163,8 +163,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	private String selectEnvironmentRadio = DescriptorImpl.selectEnvironmentIdValue;
 	private String connectionId; 
-	private String host =  DescriptorImpl.defaultHost;
-	private int port =  DescriptorImpl.defaultPort;
 	
 	/**
 	 * Field for context variables
@@ -1074,50 +1072,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 	
 	/**
-	 * Sets the environment host.
-	 * 
-	 * @param host
-	 * 			The environment host.
-	 */
-	@DataBoundSetter
-	public void setHost(String host)
-	{
-		this.host = host;
-	}
-	
-	/**
-	 * Gets the environment host.
-	 * 
-	 * @return	The environment host.
-	 */
-	public String getHost()
-	{
-		return host;
-	}
-
-	/**
-	 * Sets the environment port the host is listening on.
-	 * 
-	 * @param port
-	 * 			The environment port the host is listening on.
-	 */
-	@DataBoundSetter
-	public void setPort(int port)
-	{
-		this.port = port;
-	}
-	
-	/**
-	 * Gets the environment port
-	 * 
-	 * @return	The environment port the host is listening on.
-	 */
-	public int getPort()
-	{
-		return port;
-	}
-	
-	/**
 	 * Sets the context variables
 	 * 
 	 * @param contextVariables
@@ -1344,27 +1298,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 				if (Strings.isNullOrEmpty(getEnvironmentId()))
 				{
 					throw new IllegalArgumentException("No host connection defined. Either define an Environment Id or a select a host connection.  Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
-				}
-			}
-		}
-		else if (isSelectHostPort())
-		{
-			int enteredPort = getPort();
-			if (!getHost().isEmpty() && (enteredPort >= 1 && enteredPort <= 65535))
-			{
-				listener.getLogger().println("host = " + String.format("%s:%d", host, port)); //$NON-NLS-1$  //$NON-NLS-2$
-			}
-			else
-			{
-				if (getHost().isEmpty())
-				{
-					throw new IllegalArgumentException(
-							"Missing parameter Host."); //$NON-NLS-1$
-				}
-				else if (enteredPort < 1 || enteredPort > 65535)
-				{
-					throw new IllegalArgumentException(
-							"Missing or invalid Port parameter. Must be between 1 and 65535."); //$NON-NLS-1$
 				}
 			}
 		}
