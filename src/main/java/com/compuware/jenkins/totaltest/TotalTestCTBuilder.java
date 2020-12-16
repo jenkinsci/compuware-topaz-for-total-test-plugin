@@ -1568,23 +1568,22 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			return FormValidation.ok();
 		}
 		
-		/**
-		 * Validates for the 'EnvironmentId' field
-		 * 
-		 * @param value
-		 * 		The environment id.
-		 * @return validation message
-		 */
-		public FormValidation doCheckEnvironmentId(@QueryParameter String value)
-		{
-
-			if (value == null || value.isEmpty() || value.trim().length() == 0)
-			{
-				return FormValidation.error(Messages.errors_missingEnvironmentId());
-			}
-
-			return FormValidation.ok();
-		}
+//		/**
+//		 * Validates for the 'EnvironmentId' field
+//		 * 
+//		 * @param value
+//		 * 		The environment id.
+//		 * @return validation message
+//		 */
+//		public FormValidation doCheckEnvironmentId(@QueryParameter String value)
+//		{
+//			if (value == null || value.isEmpty() || value.trim().length() == 0)
+//			{
+//				return FormValidation.error(Messages.errors_missingEnvironmentId());
+//			}
+//
+//			return FormValidation.ok();
+//		}
 
 		/**
 		 * Fills in the Host Connection selection box with applicable connections.
