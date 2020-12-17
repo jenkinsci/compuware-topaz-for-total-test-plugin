@@ -77,11 +77,11 @@
 
 	<f:section title="${%sectionTestExecution}">
 		<f:optionalBlock title="${%selectProgramsOption}" name="selectProgramsOption" checked="${instance.getSelectProgramsOption()}" inline="${true}">
+<!--
 			<f:block>
 				<table width="100%">
-<!--
 					<f:nested>
-						<f:radioBlock title="${descriptor.selectProgramsRadio}" name="selectPrograms" value="${instance.selectProgramsListOption}" checked="${instance.isSelectProgramsList()}"" inline="{true}">
+						<f:radioBlock title="${descriptor.selectProgramsRadio}" name="selectProgramsRadio" value="${instance.selectProgramsListOption}" checked="${instance.isSelectProgramsList()}"" inline="{true}">
 							<f:entry field="programList">
 								<f:textbox default="${descriptor.defaultProgramList}"/>
 							</f:entry>
@@ -94,7 +94,11 @@
 							</f:entry>
 						</f:radioBlock>
 					</f:nested>
+				</table>
+			</f:block>
 -->
+			<f:block>
+				<table width="100%">
 					<f:nested>
 						<f:radio title="${descriptor.selectProgramList}" name="selectProgramsRadio" value="${descriptor.selectProgramsListValue}" checked="${instance.isSelectProgramsList()}"/>
 						<f:nested>

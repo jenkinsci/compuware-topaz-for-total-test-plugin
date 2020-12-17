@@ -90,7 +90,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Recursive: true|false - if test cases should be found recursively in the folder
 	 */
-	private boolean recursive = false; //DescriptorImpl.defaultRecursive;
+	private boolean recursive = DescriptorImpl.defaultRecursive;
 	/** Stop if test fails or threshold is reached. Defaults to true */
 	private boolean stopIfTestFailsOrThresholdReached = DescriptorImpl.defaultStopIfTestFailsOrThresholdReached;
 	/**
@@ -1137,7 +1137,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public boolean isSelectEnvironmentId()
     {
-		return selectEnvironmentRadio.compareTo(DescriptorImpl.selectEnvironmentIdValue) == 0;
+		return Strings.isNullOrEmpty(selectEnvironmentRadio) ||
+				selectEnvironmentRadio.compareTo(DescriptorImpl.selectEnvironmentIdValue) == 0;
     }
 
 	/**
@@ -1366,7 +1367,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final int defaultCCThreshold = 0; //NOSONAR
 		public static final String defaultSourceFolder = "COBOL"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultReportFolder = "TTTReport"; //NOSONAR //$NON-NLS-1$
-		public static final Boolean defaultRecursive = false; //NOSONAR
+		public static final Boolean defaultRecursive = true; //NOSONAR
 		public static final Boolean defaultStopIfTestFailsOrThresholdReached = true; //NOSONAR
 		public static final Boolean defaultUploadToServer = Boolean.FALSE; //NOSONAR
 		public static final Boolean defaultHaltAtFailure = Boolean.FALSE; //NOSONAR
