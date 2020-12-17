@@ -26,7 +26,7 @@ The following are required to use this plugin:
 
 ### Configuring Host Connections
 	In order to use Topaz for Total Test you will need to point to an installed Topaz Workbench Command Line Interface (CLI). The Topaz Workbench CLI will work with host connection(s) you also need to configure Topaz for Total Test members.
-    - See [Configuring for Topaz Workbench CLI & Host Connections](https://github.com/jenkinsci/compuware-common-configuration-plugin/blob/master/README.md#user-content-configuring-for-topaz-workbench-cli--host-connections)
+    - See [Configuring for Topaz Workbench CLI & Host Connections](https://github.com/jenkinsci/compuware-common-configuration-plugin/blob/master/README.md#configuring-for-topaz-workbench-cli--host-connections)
     
 ### Executing Unit tests
 
