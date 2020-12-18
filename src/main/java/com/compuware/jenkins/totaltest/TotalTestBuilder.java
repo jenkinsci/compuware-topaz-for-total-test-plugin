@@ -130,7 +130,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	/**
 	 * Gets the unique identifier of the 'Host connection'.
 	 * 
-	 * @return <code>String</code> value of m_connectionId
+	 * @return <code>String</code> value of connectionId
 	 */
 	public String getConnectionId()
 	{

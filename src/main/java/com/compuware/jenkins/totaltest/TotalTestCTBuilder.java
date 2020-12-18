@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -70,14 +72,17 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 
 	public static final String defaultLocalConfigLocation = "./TotalTestConfiguration"; //NOSONAR //$NON-NLS-1$
 
+	/** Host credentials plugin */
+	private final String credentialsId;
+
 	/** Environment ID need to used during the execution */
 	private final String environmentId;
 	/** Folder from which tests should be executed */
 	private final String folderPath;
 	/** Repository server url */
 	private final String serverUrl;
-	/** Using Jenkins credentials plugin */
-	private final String credentialsId;
+	/** Server credentials plugin */
+	private final String serverCredentialsId;
 
 	private boolean localConfig = false;
 	private String localConfigLocation = DescriptorImpl.defaultLocalConfigLocation;
@@ -85,7 +90,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Recursive: true|false - if test cases should be found recursively in the folder
 	 */
-	private boolean recursive = false; //DescriptorImpl.defaultRecursive;
+	private boolean recursive = DescriptorImpl.defaultRecursive;
 	/** Stop if test fails or threshold is reached. Defaults to true */
 	private boolean stopIfTestFailsOrThresholdReached = DescriptorImpl.defaultStopIfTestFailsOrThresholdReached;
 	/**
@@ -97,8 +102,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/** Code coverage threshold */
 	private int ccThreshold = DescriptorImpl.defaultCCThreshold;
 	/** SonarQube version 5 or 6 */
-	private String sonarVersion = DescriptorImpl.defaultSonarVersion;
-	private String logLevel = DescriptorImpl.defaultLogLevel;
+	private String sonarVersion;
+	private String logLevel;
 	
 	/**
 	 * Optional file path to a folder that contains source code of tested programs. Default is COBOL. It is only used to set the
@@ -137,14 +142,88 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	private String collectCCTestID = DescriptorImpl.defaultCollectCCTestID;
 	private boolean clearCodeCoverage = DescriptorImpl.defaultClearCodeCoverage;
 
+	/**
+	 * Fields for Enterprise Data.
+	 */
+	private boolean useEnterpriseData = DescriptorImpl.defaultUseEnterpriseData;
+	private String enterpriseDataServerId = DescriptorImpl.defaultEnterpriseDataServerId;
+	private String enterpriseDataWorkspace = DescriptorImpl.defaultEnterpriseDataWorkspace;
+	
+	private String customerId = DescriptorImpl.defaultCustomerId;
+	private String siteId = DescriptorImpl.defaultSiteId;
+	
+	/**
+	 * Fields for JCL
+	 */
+	private String jclPath = DescriptorImpl.defaultJclPath;
+//	private String selectjclConfigRadio = DescriptorImpl.selectLocalConfigValue;
+	
+	/**
+	 * Fields for host and port
+	 */
+	private String selectEnvironmentRadio = DescriptorImpl.selectEnvironmentIdValue;
+	private String connectionId; 
+	
+	/**
+	 * Field for context variables
+	 */
+	private String contextVariables = DescriptorImpl.defaultContextVariables;
+	
+	/**
+	 * Constructor 
+	 * 
+	 * @param environmentId
+	 * 			The environment id for the selected connection
+	 * @param folderPath
+	 * 			The folder location for the test execution.
+	 * @param serverUrl
+	 * 			URL for the TTT Server.
+	 * @param serverCredentialsId
+	 * 			The server credentials
+	 * @param connectionId
+	 * 			The Host connection id.
+	 * @param credentialsId
+	 * 			Host credentials.
+	 * @param enterpriseDataServerId
+	 * 			Enterprise Data Communication Server id.
+	 * @param sonarVersion
+	 * 			The Sonar version.
+	 * @param logLevel
+	 * 			The debug log level.
+	 */
 	@DataBoundConstructor
-	public TotalTestCTBuilder(String environmentId, String folderPath, String serverUrl, String credentialsId)
+	public TotalTestCTBuilder(String environmentId, String folderPath,
+							  String serverUrl, String serverCredentialsId,
+							  String connectionId, String credentialsId,
+							  String enterpriseDataServerId,
+							  String sonarVersion, String logLevel)
 	{
 		super();
 		this.environmentId = environmentId;
 		this.folderPath = folderPath;
-		this.serverUrl = serverUrl;
-		this.credentialsId = credentialsId;
+		this.serverUrl = StringUtils.trimToEmpty(serverUrl);
+		this.serverCredentialsId = StringUtils.trimToEmpty(serverCredentialsId);
+		this.connectionId = StringUtils.trimToEmpty(connectionId);
+		this.credentialsId = StringUtils.trimToEmpty(credentialsId);
+		this.enterpriseDataServerId = StringUtils.trimToEmpty(enterpriseDataServerId);
+		
+		if (Strings.isNullOrEmpty(sonarVersion))
+		{
+			this.sonarVersion = DescriptorImpl.defaultSonarVersion;
+		}
+		else
+		{
+			this.sonarVersion = sonarVersion;
+		}
+		
+		if (Strings.isNullOrEmpty(sonarVersion))
+		{
+			this.logLevel = DescriptorImpl.defaultLogLevel;
+		}
+		else
+		{
+			this.logLevel = logLevel;
+		}
 	}
 
 	/**
@@ -170,7 +249,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Server URL accessor
 	 * 
-	 * @return <code>String</code> value of server Url
+	 * @return <code>String</code> value of server URL
 	 */
 	public String getServerUrl()
 	{
@@ -178,13 +257,33 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
-	 * Environment accessor
+	 * Host credentials accessor
 	 * 
 	 * @return <code>String</code> value of user Id
 	 */
 	public String getCredentialsId()
 	{
 		return credentialsId;
+	}
+
+	/**
+	 * Server credentials accessor
+	 * 
+	 * @return <code>String</code> value of user Id
+	 */
+	public String getServerCredentialsId()
+	{
+		return serverCredentialsId;
+	}
+
+	/**
+	 * Server URL accessor
+	 * 
+	 * @return <code>String</code> value of server URL
+	 */
+	public String getEnterpriseDataServerId()
+	{
+		return enterpriseDataServerId;
 	}
 
 	/**
@@ -853,7 +952,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	{
 		this.clearCodeCoverage = clearCodeCoverage;
 	}
-
 	/**
 	 * Set if Code Coverage results should be cleared at start of execution.
 	 * 
@@ -864,6 +962,204 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	{
 		return clearCodeCoverage;
 	}
+	
+	@DataBoundSetter
+	public void setUseEnterpriseData(boolean collectEnterpriseData)
+	{
+		this.useEnterpriseData = collectEnterpriseData;
+	}
+	
+	public boolean getUseEnterpriseData()
+	{
+		return useEnterpriseData;
+	}
+
+	/**
+	 * Sets the Enterprise Data Communication Manager workspace.
+	 *
+	 * @param enterpriseDataWorkspace
+	 * 			The Enterprise Data Communication Manager workspace.
+	 */
+	@DataBoundSetter
+	public void setEnterpriseDataWorkspace(String enterpriseDataWorkspace)
+	{
+		this.enterpriseDataWorkspace = enterpriseDataWorkspace;
+	}
+	
+	/**
+	 * Gets the Enterprise Data Communication Manager workspace.
+	 * 
+	 * @return The Enterprise Data Communication Manager workspace.
+	 */
+	public String getEnterpriseDataWorkspace()
+	{
+		return enterpriseDataWorkspace;
+	}
+	
+	/**
+	 * Sets the Customer ID.
+	 *
+	 * @param customerId
+	 * 			The customer's ID.
+	 */
+	@DataBoundSetter
+	public void setCustomerId(String customerId)
+	{
+		this.customerId = customerId;
+	}
+	
+	/**
+	 * Gets the Customer ID.
+	 * 
+	 * @return The Enterprise Data Communication Manager workspace.
+	 */
+	public String getCustomerId()
+	{
+		return customerId;
+	}
+
+	/**
+	 * Sets the Site ID.
+	 *
+	 * @param siteId
+	 * 			The site id.
+	 */
+	@DataBoundSetter
+	public void setSiteId(String siteId)
+	{
+		this.siteId = siteId;
+	}
+	
+	/**
+	 * Gets the Site ID.
+	 * 
+	 * @return The site id.
+	 */
+	public String getSiteId()
+	{
+		return siteId;
+	}
+	/**
+	 * Sets the JCL path when executing '.testscenarios' files.
+	 * 
+	 * @param jclPath
+	 * 			The JCL path.
+	 */
+	@DataBoundSetter
+	public void setJclPath(String jclPath)
+	{
+		this.jclPath = jclPath;
+	}
+	
+	/**
+	 * Gets the JCL path.
+	 * 
+	 * @return	The JCL path.
+	 */
+	public String getJclPath()
+	{
+		return jclPath;
+	}
+	
+	/**
+	 * Gets the unique identifier of the 'Host connection'.
+	 * 
+	 * @return <code>String</code> value of connectionId
+	 */
+	public String getConnectionId()
+	{
+		return connectionId;
+	}
+	
+	/**
+	 * Sets the context variables
+	 * 
+	 * @param contextVariables
+	 * 			The context variables
+	 */
+	@DataBoundSetter
+	public void setContextVariables(String contextVariables)
+	{
+		this.contextVariables = contextVariables;
+	}
+	
+	/**
+	 * Gets the context variables.
+	 * 
+	 * @return	The context variables.
+	 */
+	public String getContextVariables()
+	{
+		return contextVariables;
+	}
+	
+	/**
+	 * Sets the selected environment radio button.
+	 * 
+	 * @param selectEnvironmenRadio
+	 * 			The selected environment radio button.
+	 */
+	@DataBoundSetter
+	public void setSelectEnvironmentRadio(String selectEnvironmenRadio)
+	{
+		this.selectEnvironmentRadio = selectEnvironmenRadio;
+	}
+	
+	/**
+	 * Returns the selected selectProgramsRadio radio button.
+	 * 
+	 * @return	<code>String</code> value of the selectProgramsRadio option.
+	 */
+	public String getSelectEnvironmentRadio()
+	{
+		String selectedEnvironmentSelection = null;
+		
+		if (isSelectEnvironmentId())
+		{
+			selectedEnvironmentSelection =  DescriptorImpl.selectEnvironmentIdValue;
+		}
+		else if (isSelectHostConnection())
+		{
+			selectedEnvironmentSelection =  DescriptorImpl.selectHostConnectionValue;
+		}
+		else if (isSelectHostPort())
+		{
+			selectedEnvironmentSelection =  DescriptorImpl.selectHostPortValue;
+		}
+		
+		return selectedEnvironmentSelection;
+	}
+	
+	/**
+	 * Returns if the Select Environment option is selected.
+	 * 
+	 * @return	<code>true</code> if Select JSON option is selected, otherwise <code>false</code>.
+	 */
+	public boolean isSelectEnvironmentId()
+    {
+		return Strings.isNullOrEmpty(selectEnvironmentRadio) ||
+				selectEnvironmentRadio.compareTo(DescriptorImpl.selectEnvironmentIdValue) == 0;
+    }
+
+	/**
+	 * Returns if the select host connection option is selected.
+	 * 
+	 * @return	<code>true</code> if Select Programs option is selected, otherwise <code>false</code>.
+	 */
+	public boolean isSelectHostConnection()
+    {
+		return selectEnvironmentRadio.compareTo(DescriptorImpl.selectHostConnectionValue) == 0;
+    }
+	
+	/**
+	 * Returns if the select host/port option is selected.
+	 * 
+	 * @return	<code>true</code> if Select Programs option is selected, otherwise <code>false</code>.
+	 */
+	public boolean isSelectHostPort()
+    {
+		return selectEnvironmentRadio.compareTo(DescriptorImpl.selectHostPortValue) == 0;
+    }
 	
 	/**
 	 * Returns the command line parameter for the selected "Select Programs" radio button
@@ -968,24 +1264,73 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 */
 	public void validateParameters(final Launcher launcher, final TaskListener listener, final Item project)
 	{
-		if (!getEnvironmentId().isEmpty())
+		if (isSelectEnvironmentId())
 		{
-			listener.getLogger().println("environmentId = " + environmentId); //$NON-NLS-1$
+			if (!getEnvironmentId().isEmpty())
+			{
+				listener.getLogger().println("environmentId = " + environmentId); //$NON-NLS-1$
+			}
+			else
+			{
+				throw new IllegalArgumentException(
+						"Missing parameter Environment Id - please get the environment ID from the repository server."); //$NON-NLS-1$
+			}
+		}
+		
+		if (isSelectEnvironmentId())
+		{
+			if (Strings.isNullOrEmpty(this.environmentId))
+			{
+				throw new IllegalArgumentException("No environment defined.  Enter an Environment Id or select a host connection."); //$NON-NLS-1$
+			}
+		}
+		else if (isSelectHostConnection())
+		{
+			HostConnection connection = null;
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+		
+			if (globalConfig != null)
+			{
+				connection = globalConfig.getHostConnection(getConnectionId());
+			}
+			
+			if (connection == null) //NOSONAR
+			{
+				if (Strings.isNullOrEmpty(getEnvironmentId()))
+				{
+					throw new IllegalArgumentException("No host connection defined. Either define an Environment Id or a select a host connection.  Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
+				}
+			}
 		}
 		else
 		{
 			throw new IllegalArgumentException(
-					"Missing parameter Environment Id - please get the environment ID from the repository server"); //$NON-NLS-1$
+					"Missing environment id, host connection or host and port."); //$NON-NLS-1$
 		}
 
-		if (!getServerUrl().isEmpty())
+		if (isLocalConfig())
 		{
-			listener.getLogger().println("serverUrl = " + serverUrl); //$NON-NLS-1$
+			if (!getLocalConfigLocation().isEmpty())
+			{
+				listener.getLogger().println("Local configuration directory = " + localConfigLocation); //$NON-NLS-1$
+			}
+			else
+			{
+				throw new IllegalArgumentException(
+						"Missing parameter Local configuration directory. - please enter the local configuration location."); //$NON-NLS-1$
+			}
 		}
 		else
 		{
-			throw new IllegalArgumentException(
-					"Missing parameter CES server URL - please use the Compuware configuration tool to configure"); //$NON-NLS-1$
+			if (!getServerUrl().isEmpty())
+			{
+				listener.getLogger().println("serverUrl = " + serverUrl); //$NON-NLS-1$
+			}
+			else
+			{
+				throw new IllegalArgumentException(
+						"Missing parameter CES server URL - please use the Compuware configuration tool to configure"); //$NON-NLS-1$
+			}
 		}
 
 		if (!getCredentialsId().isEmpty())
@@ -1022,7 +1367,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final int defaultCCThreshold = 0; //NOSONAR
 		public static final String defaultSourceFolder = "COBOL"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultReportFolder = "TTTReport"; //NOSONAR //$NON-NLS-1$
-		public static final Boolean defaultRecursive = false; //NOSONAR
+		public static final Boolean defaultRecursive = true; //NOSONAR
 		public static final Boolean defaultStopIfTestFailsOrThresholdReached = true; //NOSONAR
 		public static final Boolean defaultUploadToServer = Boolean.FALSE; //NOSONAR
 		public static final Boolean defaultHaltAtFailure = Boolean.FALSE; //NOSONAR
@@ -1051,7 +1396,24 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String haltPipelineTitle = "Halt pipeline if errors occur"; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLocalConfigLocation = TotalTestCTBuilder.defaultLocalConfigLocation; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLogLevel = LOGLEVELINFO; //NOSONAR
+		public static final Boolean defaultUseEnterpriseData = false; //NOSONAR
+		public static final String defaultEnterpriseDataServerId = ""; //NOSONAR //$NON-NLS-1$
+		public static final String defaultEnterpriseDataWorkspace = ""; //NOSONAR //$NON-NLS-1$
+		public static final String defaultJclPath = ""; //NOSONAR //$NON-NLS-1$
+		public static final String  selectLocalConfigValue = "-cfgdir"; //NOSONAR  //$NON-NLS-1$
+		public static final String selectJclPathValue = "-jcl"; //NOSONAR  //$NON-NLS-1$
+
+		public static final String defaultConnectionId = ""; //NOSONAR //$NON-NLS-1$
+		public static final String defaultHost = ""; //NOSONAR //$NON-NLS-1$
+		public static final int defaultPort = 0; //NOSONAR //$NON-NLS-1$
+		public static final String  selectEnvironmentIdValue = "-e"; //NOSONAR  //$NON-NLS-1$
+		public static final String selectHostConnectionValue = "-hci"; //NOSONAR  //$NON-NLS-1$
+		public static final String selectHostPortValue = "-hostport"; //NOSONAR  //$NON-NLS-1$
+		public static final String defaultContextVariables = ""; //NOSONAR  //$NON-NLS-1$
 		
+		public static final String defaultCustomerId = ""; //NOSONAR  //$NON-NLS-1$
+		public static final String defaultSiteId = ""; //NOSONAR  //$NON-NLS-1$
+
 		/**
 		 * Fill in the Sonar versions.
 		 * 
@@ -1131,43 +1493,66 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			return FormValidation.ok();
 		}
 		
-		/**
-		 * Validates for the 'EnvironmentId' field
-		 * 
-		 * @param value
-		 * 		The environment id.
-		 * @return validation message
-		 */
-		public FormValidation doCheckEnvironmentId(@QueryParameter String value)
+		public FormValidation doCheckEnvironmentRadio(@QueryParameter String value)
 		{
+			return FormValidation.ok();
+		}
+		
+//		/**
+//		 * Validates for the 'EnvironmentId' field
+//		 * 
+//		 * @param value
+//		 * 		The environment id.
+//		 * @return validation message
+//		 */
+//		public FormValidation doCheckEnvironmentId(@QueryParameter String value)
+//		{
+//			if (value == null || value.isEmpty() || value.trim().length() == 0)
+//			{
+//				return FormValidation.error(Messages.errors_missingEnvironmentId());
+//			}
+//
+//			return FormValidation.ok();
+//		}
 
-			if (value == null || value.isEmpty() || value.trim().length() == 0)
+		/**
+		 * Fills in the Host Connection selection box with applicable connections.
+		 * 
+		 * @param context
+		 * 		An instance of <code>context</code> for the Jenkin's context
+		 * @param connectionId
+		 *            an existing host connection identifier; can be null
+		 * @param project
+		 * 		An instance of <code>Item</code> for the project.
+		 * 
+		 * @return host connection selections
+		 */
+		public ListBoxModel doFillConnectionIdItems(@AncestorInPath Jenkins context, @QueryParameter String connectionId,
+				@AncestorInPath Item project)
+		{
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+			HostConnection[] hostConnections = globalConfig.getHostConnections();
+
+			ListBoxModel model = new ListBoxModel();
+			model.add(new Option(StringUtils.EMPTY, StringUtils.EMPTY, false));
+
+			for (HostConnection hostConnection : hostConnections)
 			{
-				return FormValidation.error(Messages.errors_missingEnvironmentId());
+				boolean isSelected = false;
+				if (connectionId != null)
+				{
+					isSelected = connectionId.matches(hostConnection.getConnectionId());
+				}
+
+				model.add(new Option(hostConnection.getDescription() + " [" + hostConnection.getHostPort() + ']', //$NON-NLS-1$
+						hostConnection.getConnectionId(), isSelected));
 			}
 
-			return FormValidation.ok();
+			return model;
 		}
 
 		/**
-		 * Validates for the 'CES server URL' field
-		 * 
-		 * @param value
-		 * 		The CES server URL.
-		 * @return validation message
-		 */
-		public FormValidation doCheckServerUrl(@QueryParameter String value)
-		{
-			if (value == null || value.isEmpty() || value.trim().length() == 0)
-			{
-				return FormValidation.error(Messages.errors_missingServerUrl());
-			}
-
-			return FormValidation.ok();
-		}
-
-		/**
-		 * Validates for the 'Login Credential' field
+		 * Validates for the 'Login Credentials' field
 		 * 
 		 * @param value
 		 *            Value passed from the config.jelly "fileExtension" field
@@ -1245,7 +1630,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 * @param context
 		 *            Jenkins context.
 		 * @param credentialsId
-		 *            The credendtial id for the user.
+		 *            The host credential id for the user.
 		 * @param project
 		 *            The Jenkins project.
 		 * 
@@ -1310,7 +1695,9 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 							isSelected = serverUrl.equalsIgnoreCase(cesServerURL);
 						}
 
-						model.add(new Option(cesServerURL, cesServerURL, isSelected));
+						String cesValue = connection.getDescription() + " (" + //$NON-NLS-1$
+										  cesServerURL +")"; //$NON-NLS-1$
+						model.add(new Option(cesValue, cesServerURL, isSelected));
 					}
 				}
 			}
@@ -1318,6 +1705,91 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			return model;
 		}
 		
+		/**
+		 * Fills in the Login Credential selection box with applicable Jenkins credentials
+		 * 
+		 * @param context
+		 *            Jenkins context.
+		 * @param serverCredentialsId
+		 *            The server credential id for the user.
+		 * @param project
+		 *            The Jenkins project.
+		 * 
+		 * @return credential selections
+		 * 
+		 */
+		public ListBoxModel doFillServerCredentialsIdItems(@AncestorInPath final Jenkins context, //NOSONAR
+				@QueryParameter final String serverCredentialsId, @AncestorInPath final Item project)
+		{
+			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
+					StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
+					Collections.<DomainRequirement> emptyList());
+
+			StandardListBoxModel model = new StandardListBoxModel();
+
+			model.add(new Option("", "", false)); //$NON-NLS-1$ //$NON-NLS-2$
+
+			for (StandardUsernamePasswordCredentials c : creds)
+			{
+				boolean isSelected = false;
+
+				if (serverCredentialsId != null)
+				{
+					isSelected = serverCredentialsId.matches(c.getId());
+				}
+
+				String description = Util.fixEmptyAndTrim(c.getDescription());
+				model.add(new Option(c.getUsername() + (description != null ? " (" + description + ")" : ""), c.getId(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						isSelected));
+			}
+
+			return model;
+		}
+
+		/**
+		 * Fills in the Host Connection selection box with applicable connections.
+		 * 
+		 * @param context
+		 * 		An instance of <code>context</code> for the Jenkin's context
+		 * @param enterpriseDataServerId
+		 *            an existing host connection identifier; can be null
+		 * @param project
+		 * 		An instance of <code>Item</code> for the project.
+		 * 
+		 * @return host connection selections
+		 */
+		public ListBoxModel doFillEnterpriseDataServerIdItems(@AncestorInPath Jenkins context, @QueryParameter String enterpriseDataServerId,
+				@AncestorInPath Item project)
+		{
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+			HostConnection[] connections = globalConfig.getHostConnections();
+
+			ListBoxModel model = new ListBoxModel();
+			model.add(new Option(StringUtils.EMPTY, StringUtils.EMPTY, false));
+
+			for (HostConnection connection : connections)
+			{
+				boolean isSelected = false;
+				if (enterpriseDataServerId != null)
+				{
+					isSelected = enterpriseDataServerId.matches(connection.getConnectionId());
+				}
+				
+				String cesServerURL = connection.getCesUrl();
+				if (cesServerURL == null || cesServerURL.isEmpty())
+				{
+					cesServerURL = "Cloud license server";
+				}
+
+				String serverDataValue = connection.getDescription() + " [" + //$NON-NLS-1$
+						 				 connection.getHostPort() + "] (" + //$NON-NLS-1$
+						 				 cesServerURL + ")"; //$NON-NLS-1$
+				model.add(new Option(serverDataValue, connection.getConnectionId(), isSelected));
+			}
+
+			return model;
+		}
+
 		/**
 		 * (non-Javadoc)
 		 * @see hudson.tasks.BuildStepDescriptor#isApplicable(java.lang.Class)
