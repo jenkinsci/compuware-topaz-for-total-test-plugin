@@ -37,6 +37,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
+import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
+import com.compuware.jenkins.common.configuration.HostConnection;
+import com.compuware.jenkins.totaltest.TotalTestCTBuilder.DescriptorImpl;
 import com.google.common.base.Strings;
 import hudson.EnvVars;
 import hudson.FilePath;
@@ -409,9 +412,25 @@ public class TotalTestCTRunner
 	 */
 	private void addArguments(final ArgumentListBuilder args, final Launcher launcher, final TaskListener listener, final String remoteFileSeparator) throws IOException, InterruptedException
 	{
-		args.add("-e").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
+		boolean min200501 = TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200501);
+		boolean min200401 = TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401);
 
-		if (!TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401) || !tttBuilder.getLocalConfig())
+		if (min200501)
+		{
+			addHostArguments(args);
+		}
+		else
+		{
+			args.add("-e").add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
+		}
+		
+		String hostCreds = tttBuilder.getCredentialsId();
+		args.add("-u").add( //$NON-NLS-1$
+				TotalTestRunnerUtils.getLoginInformation(build.getParent(), hostCreds).getUsername(), false);
+		args.add("-p").add( //$NON-NLS-1$
+				TotalTestRunnerUtils.getLoginInformation(build.getParent(), hostCreds).getPassword(), true);
+
+		if (!min200401 || !tttBuilder.getLocalConfig())
 		{
 			String tttServerUrl = tttBuilder.getServerUrl();
 	
@@ -424,14 +443,20 @@ public class TotalTestCTRunner
 			listener.getLogger().println("Set the repository URL : " + tttServerUrl); //$NON-NLS-1$
 
 			args.add("-s").add(TotalTestRunnerUtils.escapeForScript(tttServerUrl), false); //$NON-NLS-1$
+			
+			if (min200501)
+			{
+				String serverCreds = tttBuilder.getServerCredentialsId();
+				
+				if (!Strings.isNullOrEmpty(serverCreds))
+				{
+					args.add("-cesu").add(
+							TotalTestRunnerUtils.getLoginInformation(build.getParent(), serverCreds).getUsername(), false);
+					args.add("-cesp").add(
+							TotalTestRunnerUtils.getLoginInformation(build.getParent(), serverCreds).getPassword(), true);
+				}
+			}
 		}
-
-		
-		args.add("-u").add( //$NON-NLS-1$
-				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(),
-				false);
-		args.add("-p").add( //$NON-NLS-1$
-				TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword(), true);
 
 		String folder = tttBuilder.getFolderPath();
 		if (Strings.isNullOrEmpty(folder) || folder.trim().isEmpty())
@@ -461,7 +486,7 @@ public class TotalTestCTRunner
 			args.add("-R"); //$NON-NLS-1$
 		}
 
-		if (tttBuilder.getUploadToServer())
+		if (!Strings.isNullOrEmpty(tttBuilder.getServerUrl()) && tttBuilder.getUploadToServer())
 		{
 			args.add("-x"); //$NON-NLS-1$
 		}
@@ -489,19 +514,16 @@ public class TotalTestCTRunner
 			}
 		}
 
-		if (TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401))
+		if (min200401 && tttBuilder.isLocalConfig())
 		{
-			if (tttBuilder.isLocalConfig())
+			args.add("-cfgdir"); //$NON-NLS-1$
+			if (Strings.isNullOrEmpty(tttBuilder.getLocalConfigLocation()))
 			{
-				args.add("-cfgdir"); //$NON-NLS-1$
-				if (Strings.isNullOrEmpty(tttBuilder.getLocalConfigLocation()))
-				{
-					args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.DescriptorImpl.defaultLocalConfigLocation)); //$NON-NLS-1$
-				}
-				else
-				{
-					args.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getLocalConfigLocation())); //$NON-NLS-1$
-				}
+				args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.DescriptorImpl.defaultLocalConfigLocation)); //$NON-NLS-1$
+			}
+			else
+			{
+				args.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getLocalConfigLocation())); //$NON-NLS-1$
 			}
 		}
 
@@ -527,7 +549,7 @@ public class TotalTestCTRunner
 			args.add("-a").add(tttBuilder.getAccountInfo()); //$NON-NLS-1$
 		}
 		
-		if (TotalTestRunnerUtils.isMinimumRelease(launcher, listener, remoteFileSeparator, TotalTestRunnerUtils.TTT_CLI_200401))
+		if (min200401)
 		{
 			if (tttBuilder.getSelectProgramsOption())
 			{
@@ -550,13 +572,17 @@ public class TotalTestCTRunner
 					{
 						listener.getLogger().println("No list of programs selected."); //$NON-NLS-1$
 					}
-
 				}
 			}
 
 			if (tttBuilder.getUseScenarios())
 			{
 				args.add("-U"); //$NON-NLS-1$
+			}
+			
+			if (!Strings.isNullOrEmpty(tttBuilder.getJclPath()))
+			{
+				args.add("-j").add(tttBuilder.getJclPath());
 			}
 			
 			args.add("-loglevel").add(tttBuilder.getLogLevel());
@@ -611,6 +637,17 @@ public class TotalTestCTRunner
 					args.add("-ccclear").add(tttBuilder.getClearCodeCoverage()); //$NON-NLS-1$
 				}
 			}
+		}
+		
+		if (min200501)
+		{
+			if (!Strings.isNullOrEmpty(tttBuilder.getContextVariables()))
+			{
+				args.add("-ctxvars").add(tttBuilder.getContextVariables()); //$NON-NLS-1$
+			}
+
+			// TED integration
+			addEnterpriseDataArguments(args);
 		}
 	}
 
@@ -769,7 +806,7 @@ public class TotalTestCTRunner
 	 * find a file by name in the folder
 	 * 
 	 * @param directoryPath
-	 * 			  The folder where we should searc.
+	 * 			  The folder where we should search.
 	 * @param search
 	 * 			  The file to search for.
 	 * @param listener
@@ -809,5 +846,120 @@ public class TotalTestCTRunner
 		}
 		
 		return returnFile;
+	}
+	
+	/**
+	 * Adds to host related arguments to the argument list.
+	 * <p>
+	 * The following argument are added:
+	 * <ul>
+	 * <li>e
+	 * <li>host
+	 * <li>port
+	 * </ul>
+	 * 
+	 * @param args
+	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
+	 * 
+	 * @throws IOException
+	 * 			If not host connection defined.
+	 */
+	private void addHostArguments(final ArgumentListBuilder args) throws IOException
+	{
+		if (tttBuilder.isSelectEnvironmentId())
+		{
+			args.add(DescriptorImpl.selectEnvironmentIdValue).add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
+		}
+		else if (tttBuilder.isSelectHostConnection())
+		{
+			HostConnection connection = null;
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+	
+			if (globalConfig != null)
+			{
+				connection = globalConfig.getHostConnection(tttBuilder.getConnectionId());
+			}
+			
+			if (connection == null) //NOSONAR
+			{
+				throw new IOException("ERROR: No host connection defined. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
+			}
+			else
+			{
+				args.add("-host", connection.getHost()); //$NON-NLS-1$
+				args.add("-port", connection.getPort()); //$NON-NLS-1$
+			}
+		}
+		else
+		{
+			throw new IOException("ERROR: No Environment id or host connection defined."); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Adds to host related arguments to the argument list.
+	 * <p>
+	 * The following argument are added:
+	 * <ul>
+	 * <li>faip
+	 * <li>fap
+	 * <li>ces
+	 * <li>cid
+	 * <li>sid
+	 * <li>faw
+	 * </ul>
+	 * 
+	 * @param args
+	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
+	 * 
+	 * @throws IOException
+	 * 			If not host connection defined.
+	 */
+	private void addEnterpriseDataArguments(final ArgumentListBuilder args) throws IOException
+	{
+		if (tttBuilder.getUseEnterpriseData())
+		{
+			HostConnection connection = null;
+			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
+
+			if (globalConfig != null)
+			{
+				connection = globalConfig.getHostConnection(tttBuilder.getConnectionId());
+			}
+		
+			if (connection == null) //NOSONAR
+			{
+				throw new IOException("ERROR: No host connection defined. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
+			}
+			else
+			{
+				args.add("-faip").add(connection.getHost()); //$NON-NLS-1$
+				args.add("-fap").add(connection.getPort()); //$NON-NLS-1$
+			
+
+				// CES and Cloud licensing
+				if (!Strings.isNullOrEmpty(tttBuilder.getServerUrl()))
+				{
+					args.add("-ces").add(tttBuilder.getServerUrl()); //$NON-NLS-1$
+				}
+				else if (tttBuilder.getUseEnterpriseData())
+				{
+					if (!Strings.isNullOrEmpty(tttBuilder.getCustomerId()))
+					{
+						args.add("-cid").add(tttBuilder.getCustomerId()); //$NON-NLS-1$
+					}
+					
+					if (!Strings.isNullOrEmpty(tttBuilder.getSiteId()))
+					{
+						args.add("-sid").add(tttBuilder.getSiteId()); //$NON-NLS-1$
+					}
+				}
+			}
+			
+			if (!Strings.isNullOrEmpty(tttBuilder.getEnterpriseDataWorkspace()))
+			{
+				args.add("-faw").add(tttBuilder.getEnterpriseDataWorkspace()); //$NON-NLS-1$
+			}
+		}
 	}
 }

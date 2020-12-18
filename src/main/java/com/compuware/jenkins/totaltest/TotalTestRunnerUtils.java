@@ -52,6 +52,7 @@ public class TotalTestRunnerUtils
 	public static final String TTT_NEW_EXTENSIONS_CLI_VERSION = "20.02.01"; //$NON-NLS-1$
 	public static final String TTT_OUTPUTFOLDER_CLI_VERSION = "20.03.01"; //$NON-NLS-1$
 	public static final String TTT_CLI_200401 = "20.04.01"; //$NON-NLS-1$
+	public static final String TTT_CLI_200501 = "20.05.01"; //$NON-NLS-1$
 
 	private static final String QUESTION = "?"; //$NON-NLS-1$
 	private static final String ASTERISK = "*"; //$NON-NLS-1$
