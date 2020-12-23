@@ -201,7 +201,7 @@ public class TotalTestRunnerUtils
 			output = StringUtils.replace(input, DOUBLE_QUOTE, DOUBLE_QUOTE_ESCAPED);
 
 			// wrap the input in quotes
-			output = wrapInQuotes(output);
+//ftcli			output = wrapInQuotes(output);
 		}
 
 		return output;
