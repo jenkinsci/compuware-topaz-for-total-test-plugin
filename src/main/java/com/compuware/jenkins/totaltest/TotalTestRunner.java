@@ -169,10 +169,6 @@ public class TotalTestRunner
 	 * <ul>
 	 * <li>Host
 	 * <li>Port
-<<<<<<< Upstream, based on origin/master
-	 * <li>Code Page
-=======
->>>>>>> cec0622 CWE-170804-2006: Research make unit test jenkins pipeline use FTCLI
 	 * <li>User id
 	 * <li>Password
 	 * <li>Code Page
