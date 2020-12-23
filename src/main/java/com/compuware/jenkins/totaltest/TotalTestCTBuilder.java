@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
@@ -1695,9 +1696,24 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 							isSelected = serverUrl.equalsIgnoreCase(cesServerURL);
 						}
 
-						String cesValue = connection.getDescription() + " (" + //$NON-NLS-1$
-										  cesServerURL +")"; //$NON-NLS-1$
-						model.add(new Option(cesValue, cesServerURL, isSelected));
+						String cesValue = cesServerURL;
+						Option opt = new Option(cesValue, cesServerURL, isSelected);
+						boolean exists = false;
+						
+						ListIterator<Option> li = model.listIterator();
+						while (li.hasNext())
+						{
+							if (li.next().value.equalsIgnoreCase(cesServerURL))
+							{
+								exists = true;
+								break;
+							}
+						}
+						
+						if (!exists)
+						{
+							model.add(opt);
+						}
 					}
 				}
 			}
