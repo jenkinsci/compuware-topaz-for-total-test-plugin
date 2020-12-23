@@ -19,13 +19,13 @@
 package com.compuware.jenkins.totaltest;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
 import com.compuware.jenkins.common.configuration.HostConnection;
-import com.compuware.jenkins.common.utils.CLIVersionUtils;
 
 import hudson.EnvVars;
 import hudson.FilePath;
@@ -37,49 +37,51 @@ import hudson.util.ArgumentListBuilder;
 
 public class TotalTestRunner
 {
-	private static final String COMMA = ","; //$NON-NLS-1$
-	
-	private static final String COPY_JUNIT = "copyjunit"; //$NON-NLS-1$
-	private static final String COPY_SONAR = "copysonar"; //$NON-NLS-1$
-	private static final String RUNTEST = "runtest"; //$NON-NLS-1$
-
-	private static final String TOTAL_TEST_CLI_BAT = "TotalTestCLI.bat"; //$NON-NLS-1$
-	private static final String TOTAL_TEST_CLI_SH = "TotalTestCLI.sh"; //$NON-NLS-1$
+	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
+	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
 	public static final String TOPAZ_CLI_WORKSPACE = "TopazCliWkspc"; //$NON-NLS-1$
 	
-	private static final String COMMAND = "-command"; //$NON-NLS-1$
 	private static final String HOST = "-host"; //$NON-NLS-1$
 	private static final String PORT = "-port"; //$NON-NLS-1$
-	private static final String USER= "-user"; //$NON-NLS-1$
-	private static final String PASSWORD = "-pw"; //$NON-NLS-1$ //NOSONAR
-	private static final String PROJECT = "-project"; //$NON-NLS-1$
-	private static final String TESTSUITE = "-ts"; //$NON-NLS-1$
-	private static final String JCL = "-jcl"; //$NON-NLS-1$
-	private static final String EXTERNAL_TOOLS_WS = "-externaltoolsws";  //$NON-NLS-1$
-	private static final String POST_RUN_COMMANDS = "-postruncommands";  //$NON-NLS-1$
-	private static final String TEST_NAME_LIST = "-testsuitelist";  //$NON-NLS-1$
+	private static final String USER= "-userid"; //$NON-NLS-1$
+	private static final String PASSWORD = "-p"; //$NON-NLS-1$ //NOSONAR
+	private static final String ENCRYPTION_PROTOCOL = "-encrypt"; //$NON-NLS-1$
+	private static final String CODE_PAGE = "-code-page";  //$NON-NLS-1$
+	
+	private static final String ROOT = "-root-folder";   //$NON-NLS-1$
+	private static final String FILE = "-file";   //$NON-NLS-1$
+	private static final String PROGRAM_NAMES = "-program-names";   //$NON-NLS-1$
+	
+	private static final String JCL = "-j"; //$NON-NLS-1$
 	private static final String DATA = "-data"; //$NON-NLS-1$
 	private static final String DSN_HLQ = "-dsnhlq"; //$NON-NLS-1$
-	private static final String PROTOCOL = "-encryptprotocol"; //$NON-NLS-1$
 	
-	private static final String CODE_COVERAGE_REPO = "-ccrepo"; //$NON-NLS-1$
+	private static final String CODE_COVERAGE_REPO = "-ccrepository"; //$NON-NLS-1$
 	private static final String CODE_COVERAGE_SYSTEM = "-ccsystem"; //$NON-NLS-1$
 	private static final String CODE_COVERAGE_TESTID = "-cctestid"; //$NON-NLS-1$
 	private static final String CODE_COVERAGE_TYPE = "-cctype"; //$NON-NLS-1$
 	private static final String CODE_COVERAGE_CLEAR = "-ccclearstats"; //$NON-NLS-1$
 	
-	private static final String USE_STUBS = "-usestubs"; //$NON-NLS-1$
-	private static final String DELETE_TEMPORARY = "-deletetemp"; //$NON-NLS-1$
-	private static final String TARGET_ENCODING = "-targetencoding"; //$NON-NLS-1$
-	
-	private static final String RECURSIVE = "-recursive"; //$NON-NLS-1$
-	
 	private static final String PROPERTY_FILE_SEPARATOR = "file.separator";  //$NON-NLS-1$
 	private static final String DEFAULT_CODE_PAGE = "1047";  //$NON-NLS-1$
 
-	private static final String JENKINS = "-jenkins";  //$NON-NLS-1$
+	private static final String LAUNCHER = "-launcher";  //$NON-NLS-1$
+	private static final String JENKINS = "jenkins";  //$NON-NLS-1$
 	
+	private static final String SCENARIOS_DIR = "Scenarios"; //$NON-NLS-1$
+	private static final String SUITES_DIR = "Suites"; //$NON-NLS-1$
+	private static final String TESTSCENARIO = ".testscenario"; //$NON-NLS-1$
+	
+	private static final String JCL_DIR = "JCL"; //$NON-NLS-1$
+	
+	private static final String LOGLEVEL = "-loglevel";  //$NON-NLS-1$
+	private static final String RECURSIVE = "-recursive";  //$NON-NLS-1$
+
 	private final TotalTestBuilder tttBuilder;
+    private String remoteFileSeparator = null;
+	private TaskListener listener;
+	private VirtualChannel vChannel;
+	private boolean isLinux;
 	
 	/**
 	 * Constructor
@@ -101,8 +103,6 @@ public class TotalTestRunner
 	 *            The machine that the files will be checked out.
 	 * @param workspaceFilePath
 	 *            a directory to check out the source code.
-	 * @param listener
-	 *            Build listener
 	 *            
 	 * @return <code>boolean</code> if the build was successful
 	 * 
@@ -111,13 +111,13 @@ public class TotalTestRunner
 	 * @throws InterruptedException
 	 * 			If the Total Test run was interrupted.
 	 */
-	public boolean run(final Run<?,?> build, final Launcher launcher, final FilePath workspaceFilePath, final TaskListener listener) throws IOException, InterruptedException
+	public boolean run(final Run<?,?> build, final Launcher launcher, final FilePath workspaceFilePath, final TaskListener taskListener) throws IOException, InterruptedException
 	{
+		listener = taskListener;
         ArgumentListBuilder args = new ArgumentListBuilder();
         EnvVars env = build.getEnvironment(listener);
 
-        VirtualChannel vChannel = launcher.getChannel();
-        String remoteFileSeparator = null;
+        vChannel = launcher.getChannel();
         if (vChannel != null)
         {
         	Properties remoteProperties = vChannel.call(new RemoteSystemProperties());
@@ -128,33 +128,30 @@ public class TotalTestRunner
         	remoteFileSeparator = File.separator;
         }
         
-		boolean isLinux = launcher.isUnix();
+		isLinux = launcher.isUnix();
 		String osScriptFile = isLinux ? TOTAL_TEST_CLI_SH : TOTAL_TEST_CLI_BAT;
 		
 		TotalTestRunnerUtils.logJenkinsAndPluginVersion(listener);
 		
 		FilePath cliScriptPath = TotalTestRunnerUtils.getCLIScriptPath(launcher, listener, remoteFileSeparator, osScriptFile);
 		
-		args.add(cliScriptPath.getRemote());
+		args.add(normalizeSlashes(cliScriptPath.getRemote()));
 		
 		String topazCliWorkspace = workspaceFilePath.getRemote() + remoteFileSeparator + TOPAZ_CLI_WORKSPACE;
+		topazCliWorkspace = normalizeSlashes(topazCliWorkspace);
 		listener.getLogger().println("Topaz for Total Test CLI workspace: " + topazCliWorkspace); //$NON-NLS-1$
 		
-		addArgument(args, COMMAND, RUNTEST, isLinux);
+		addArgument(args, LAUNCHER, JENKINS);
 		
-		args.add(JENKINS);
+		addHostArguments(build, args);
 		
-		addHostArguments(build, args, isLinux);
-		
-		addProjectArguments(launcher, workspaceFilePath.getRemote() + remoteFileSeparator, args, isLinux);
+		addProjectArguments(launcher, workspaceFilePath.getRemote() + remoteFileSeparator, args);
 	
-		addExecutionArguments(args, isLinux);
+		addExecutionArguments(args);
 		
-		addCodeCoverageArguments(args, isLinux);
-		
-		addExternalToolArguments(workspaceFilePath, args, isLinux);
-		
-		args.add(DATA, topazCliWorkspace);
+		addCodeCoverageArguments(args);
+				
+		addArgument(args, DATA, topazCliWorkspace);
 		
 		FilePath workDir = new FilePath (vChannel, workspaceFilePath.getRemote());
 		workDir.mkdirs();
@@ -166,88 +163,28 @@ public class TotalTestRunner
 	}
 	
 	/**
-	 * Returns the path to the script to execute Total Test CLI
-	 * 
-	 * @param launcher
-	 *            The machine that the files will be checked out.
-	 * @param listener
-	 *            Build listener
-	 * @param remoteFileSeparator
-	 * 			  The remote file seperator
-	 * @param osScriptFile
-	 * 			  The name of the operating system dependent script file to run.
-	 *            
-	 * @return	An instance of <code>FilePath</code> for the CLI directory
-	 * 
-	 * @throws IOException
-	 * 			If the CLI directory does not exist.
-	 * @throws InterruptedException
-	 * 			If unable to get CLI directory.
-	 */
-	private FilePath getCLIScriptPath(final Launcher launcher, final TaskListener listener, String remoteFileSeparator, String osScriptFile) throws IOException, InterruptedException
-	{
-		FilePath cliBatchFileRemote = null;
-		FilePath globalCLIDirectory = null;
-		CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
-		if (globalConfig != null)
-		{
-			String cliDirectoryName = globalConfig.getTopazCLILocation(launcher);
-			if (cliDirectoryName != null)
-			{
-		        VirtualChannel vChannel = launcher.getChannel();
-				globalCLIDirectory = new FilePath(vChannel,cliDirectoryName);
-			}
-		}
-		
-		if (globalCLIDirectory == null)
-		{
-        	throw new FileNotFoundException("ERROR: Topaz Workench CLI location was not specified. Check 'Compuware Configuration' section under 'Configure System'"); //$NON-NLS-1$
-		}
-		else
-		{
-			if (globalCLIDirectory.exists() == false) //NOSONAR
-			{
-		       	throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + globalCLIDirectory.getRemote() + ". Check 'Compuware Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$ //$NON-NLS-2$
-			}
-
-			String cliScriptFile = globalCLIDirectory  + remoteFileSeparator + osScriptFile;
-			listener.getLogger().println("Topaz for Total Test CLI script file path: " + cliScriptFile); //$NON-NLS-1$
-			
-	        VirtualChannel vChannel = launcher.getChannel();
-			cliBatchFileRemote = new FilePath(vChannel, cliScriptFile);
-			listener.getLogger().println("Topaz for Total Test CLI script file remote path: " + cliBatchFileRemote.getRemote()); //$NON-NLS-1$
-			
-			String cliVersion = CLIVersionUtils.getCLIVersion(globalCLIDirectory, TotalTestRunnerUtils.TTT_MINIMUM_CLI_VERSION);
-			CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_MINIMUM_CLI_VERSION);
-		}
-		
-		return cliBatchFileRemote;
-	}
-	
-	/**
 	 * Adds to host related arguments to the argument list.
 	 * <p>
 	 * The following argument are added:
 	 * <ul>
 	 * <li>Host
-	 * <li>Port>
-	 * <li>Code Page
+	 * <li>Port
 	 * <li>User id
 	 * <li>Password
+	 * <li>Code Page
+	 * <li>Encryption Protocol
 	 * </ul>
 	 * 
 	 * @param build
 	 *			  The current running Jenkins build
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isLinux
-	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 * 
 	 * @throws IOException
 	 * 			If not host connection defined.
 	 */
 	@SuppressWarnings("deprecation")
-	private void addHostArguments(final Run<?,?> build, final ArgumentListBuilder args, final boolean isLinux) throws IOException
+	private void addHostArguments(final Run<?,?> build, final ArgumentListBuilder args) throws IOException
 	{
 		String host = null;
 		String port = null;
@@ -295,12 +232,12 @@ public class TotalTestRunner
 			}
 		}
 		
-		addArgument(args, HOST, host, isLinux);
-		addArgument(args, PORT, port, isLinux);
-		addArgument(args, TARGET_ENCODING, codePage, isLinux);
-		addArgument(args, PROTOCOL, protocol, isLinux);
-		addArgument(args, USER, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(), isLinux);
-		addArgument(args, PASSWORD, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword().getPlainText(), isLinux, true);
+		addArgument(args, HOST, host);
+		addArgument(args, PORT, port);
+		addArgument(args, CODE_PAGE, codePage);
+		addArgument(args, ENCRYPTION_PROTOCOL, protocol);
+		addArgument(args, USER, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername());
+		addArgument(args, PASSWORD, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword().getPlainText(), true);
 	}
 	
 	/**
@@ -319,19 +256,17 @@ public class TotalTestRunner
 	 *            a directory to check out the source code.
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isLinux
-	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 * @throws InterruptedException 
 	 * @throws IOException 
 	 */
-	private void addProjectArguments(final Launcher launcher, final String workspaceFilePath, final ArgumentListBuilder args, final boolean isLinux) throws IOException, InterruptedException
+	private void addProjectArguments(final Launcher launcher, final String workspaceFilePath, final ArgumentListBuilder args) throws IOException, InterruptedException
 	{
 		FilePath projectPath = null;
 		String projectFolder = tttBuilder.getProjectFolder();
+		projectFolder = normalizeSlashes(projectFolder);
 		
 		if (projectFolder != null)
 		{
-			VirtualChannel vChannel = launcher.getChannel();
 			FilePath remoteProjectFolder = new FilePath(vChannel, projectFolder);
 			boolean isAbsolute = remoteProjectFolder.absolutize().getRemote().equalsIgnoreCase(remoteProjectFolder.getRemote());
 			
@@ -365,19 +300,62 @@ public class TotalTestRunner
 			throw new IOException("ERROR: 'Test Project Folder' was not specified."); //$NON-NLS-1$
 		}
 		
-		addArgument(args,PROJECT, projectPath.getRemote(), isLinux);
-		 
+		listener.getLogger().println("Project Folder: " + projectPath.getRemote()); //$NON-NLS-1$
+		List<FilePath> testProjects = new ArrayList<>();
+		locateTestFolders(projectPath, testProjects);
+		if (testProjects.size() == 0)
+		{
+			throw new IOException("ERROR: Test Project '" + projectPath.getRemote() + "' does not contain any test folders."); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		else if (testProjects.size() == 1)
+		{
+			 projectPath = testProjects.get(0);
+		}
+		else if (!tttBuilder.isRecursive())
+		{
+			throw new IOException("ERROR: Test Project '" + projectPath.getRemote() + "' containw any multiple test folders. Specify a test folder or set recursion."); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		
+		listener.getLogger().println("Test Folder: " + projectPath.getRemote()); //$NON-NLS-1$
 		String testSuiteEntry = tttBuilder.getTestSuite();
 		if (TotalTestRunnerUtils.isSpecicalTestName(testSuiteEntry) || TotalTestRunnerUtils.isTestNameList(testSuiteEntry))
 		{
-			addArgument(args, TEST_NAME_LIST, testSuiteEntry, isLinux);
+			addArgument(args,FILE, projectPath.getRemote());
+			 
+			addArgument(args, PROGRAM_NAMES, testSuiteEntry);
+			tttBuilder.setRecursive(true);
 		}
 		else
 		{
-			addArgument(args, TESTSUITE, testSuiteEntry, isLinux);
+			addArgument(args,ROOT, projectPath.getRemote());
+			
+			String testPath = null;
+			if (testSuiteEntry.endsWith(TESTSCENARIO))
+			{
+				testPath = SCENARIOS_DIR + remoteFileSeparator + testSuiteEntry;
+			}
+			else
+			{
+				testPath = SUITES_DIR + remoteFileSeparator + testSuiteEntry;
+			}
+			
+			addArgument(args, FILE, testPath);
 		}
 		
-		addArgument(args, JCL, tttBuilder.getJcl(), isLinux);
+		String jcl = tttBuilder.getJcl();
+		jcl = normalizeSlashes(jcl);
+		FilePath jclFilePath = new FilePath(vChannel, jcl);
+		boolean isJclAbsolute = jclFilePath.absolutize().getRemote().equalsIgnoreCase(jclFilePath.getRemote());
+		if (isJclAbsolute)
+		{
+			addArgument(args, JCL, jcl);
+		}
+		else
+		{
+			String jclPath = JCL_DIR + remoteFileSeparator + tttBuilder.getJcl();
+			addArgument(args, JCL, jclPath);
+		}
 	}
 	
 	/**
@@ -394,32 +372,29 @@ public class TotalTestRunner
 	 * 
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isLinux
-	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 */
-	private void addCodeCoverageArguments(final ArgumentListBuilder args, final boolean isLinux)
+	private void addCodeCoverageArguments(final ArgumentListBuilder args)
 	{
 		String ccRepo = tttBuilder.getCcRepo();
 		if ((ccRepo != null) && (ccRepo.length() != 0))
 		{
-			addArgument(args, CODE_COVERAGE_REPO, ccRepo.toUpperCase(), isLinux);
+			addArgument(args, CODE_COVERAGE_REPO, ccRepo.toUpperCase());
 			
 			String ccSystem = (tttBuilder.getCcSystem() != null ? tttBuilder.getCcSystem().toUpperCase() : null);
 			if ((ccSystem != null) && (ccSystem.length() != 0))
 			{
-				addArgument(args, CODE_COVERAGE_SYSTEM, ccSystem, isLinux);
+				addArgument(args, CODE_COVERAGE_SYSTEM, ccSystem);
 			}
 			
 			String ccTestId = (tttBuilder.getCcTestId() != null ? tttBuilder.getCcTestId().toUpperCase() : null);
 			if ((ccTestId != null) && (ccTestId.length() != 0))
 			{
-				addArgument(args, CODE_COVERAGE_TESTID, ccTestId, isLinux);
+				addArgument(args, CODE_COVERAGE_TESTID, ccTestId);
 			}
 			
-			addArgument(args, CODE_COVERAGE_TYPE, tttBuilder.getCcPgmType(), isLinux);
-
+			addArgument(args, CODE_COVERAGE_TYPE, tttBuilder.getCcPgmType());
 			
-			addArgument(args, CODE_COVERAGE_CLEAR, Boolean.toString(tttBuilder.isCcClearStats()), isLinux);
+			addArgument(args, CODE_COVERAGE_CLEAR, Boolean.toString(tttBuilder.isCcClearStats()));
 		}
 	}
 
@@ -435,20 +410,26 @@ public class TotalTestRunner
 	 * 
 	 * @param args
 	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isLinux
-	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 */	
-	private void addExecutionArguments(final ArgumentListBuilder args, final boolean isLinux)
+	private void addExecutionArguments(final ArgumentListBuilder args)
 	{
 		String dsnhlq =  tttBuilder.getHlq();
 		if ((dsnhlq != null) && (dsnhlq.length() != 0))
 		{
-			addArgument(args, DSN_HLQ , dsnhlq.toUpperCase(), isLinux);
+			addArgument(args, DSN_HLQ , dsnhlq.toUpperCase());
 		}
 		
-		addArgument(args, USE_STUBS, Boolean.toString(tttBuilder.isUseStubs()), isLinux);
+//ftcli		addArgument(args, USE_STUBS, Boolean.toString(tttBuilder.isUseStubs()));
+//ftcli		addArgument(args, DELETE_TEMPORARY, Boolean.toString(tttBuilder.isDeleteTemp()));
 		
-		addArgument(args, DELETE_TEMPORARY, Boolean.toString(tttBuilder.isDeleteTemp()), isLinux);
+		if (tttBuilder.isDeleteTemp())
+		{
+			addArgument(args, LOGLEVEL, "INFO");
+		}
+		else
+		{
+			addArgument(args, LOGLEVEL, "DEBUG");
+		}
 		
 		if (tttBuilder.isRecursive())
 		{
@@ -457,28 +438,6 @@ public class TotalTestRunner
 	}
 	
 	/**
-	 * Adds the Execution arguments to the list of arguments.
-	 * 
-	 * The following arguments are added:
-	 * <ul>
-	 * <li>External tools
-	 * <li>Post Run Commands
-	 * </ul>
-	 * 
-	 * @param workspaceFilePath
-	 * 			An instance of <code>FilePath</code> for the workspace directory
-	 * @param args
-	 * 			An instance of <code>ArgumentListBuilder</code> containing the arguments.
-	 * @param isLinux
-	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
-	 */	
-	private void addExternalToolArguments(final FilePath workspaceFilePath, final ArgumentListBuilder args, final boolean isLinux)
-	{
-		addArgument(args, EXTERNAL_TOOLS_WS, workspaceFilePath.getRemote(), isLinux);
-		addArgument(args, POST_RUN_COMMANDS, COPY_JUNIT + COMMA + COPY_SONAR, isLinux);
-	}
-	
-	/**
 	 * Adds an argument to the argument list.
 	 * 
 	 * @param args
@@ -487,12 +446,10 @@ public class TotalTestRunner
 	 * 			The argument name.
 	 * @param argumentValue
 	 * 			The argument value.
-	 * @param isLinux
-	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 */
-	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue, final boolean isLinux)
+	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue)
 	{
-		addArgument(args, argument, argumentValue, isLinux, false);
+		addArgument(args, argument, argumentValue, false);
 	}
 	
 	/**
@@ -504,14 +461,142 @@ public class TotalTestRunner
 	 * 			The argument name.
 	 * @param argumentValue
 	 * 			The argument value.
-	 * @param isLinux
-	 * 			<code>true</code> if running a shell script, otherwise <code>false</code>.
 	 * @param mask
 	 * 			<code>true</code> to mask value when output, <code>true</code> to display normally
 	 */
-	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue, final boolean isLinux, boolean mask)
+	private void addArgument(final ArgumentListBuilder args, final String argument, final String argumentValue, boolean mask)
 	{
-		args.add(TotalTestRunnerUtils.escapeForScript(argument + "=" + argumentValue), mask); //$NON-NLS //$NON-NLS-1$
+		args.add(argument).add(TotalTestRunnerUtils.escapeForScript(argumentValue), mask); //$NON-NLS //$NON-NLS-1$
+	}
+	
+	/**
+	 * Scans the specified directory and all sub-directories to locate Unit Test test folders.
+	 * 
+	 * @param directory
+	 * 			An instance of <code>FilePath</code> for the directory to be scanned
+	 * @param testProjects
+	 * 			A list of <code>File</code> instance for each found Unit Test test folder.
+	 */
+	private void locateTestFolders(final FilePath directory, final List<FilePath> testProjects)
+	{
+		try
+		{
+			List<FilePath> fileList =  directory.list();
+			if (fileList != null)
+			{
+				for (FilePath file : fileList)
+				{
+					if (file.isDirectory())
+					{
+						if (isTestFolder(file))
+						{
+							testProjects.add(file);
+						}
+						else
+						{
+							locateTestFolders(file, testProjects);
+						}
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			listener.getLogger().println("Exception: " + e.toString()); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Returns whether the specified folder is a Unit Test folder.
+	 * 
+	 * @param folderPath
+	 * 			An instance of <codeFilePath</code> for the specified folder.
+	 * 
+	 * @return	<code>true</code> if the folder is a Unit Test folder, otherwise <code>false</code>.
+	 */
+	private boolean isTestFolder(final FilePath folderPath)
+	{
+		boolean isTestFolder = false;
+		try
+		{
+			List<FilePath> subFolders =  folderPath.list();
+			if (subFolders != null && !subFolders.isEmpty() && subFolders.size() >= 3)
+			{
+				String structuresDirName = folderPath + remoteFileSeparator + "Structures";
+				boolean structuresDirExist = doesDirectoryExist(structuresDirName);
+				if (structuresDirExist)
+				{
+					String interfacesDirName = folderPath + remoteFileSeparator + "Interfaces";
+					boolean interfacesDirExist = doesDirectoryExist(interfacesDirName);
+					if (interfacesDirExist)
+					{
+						String scenariosDirName = folderPath + remoteFileSeparator + "Scenarios";
+						boolean scenariosDirExist = doesDirectoryExist(scenariosDirName);
+						if (scenariosDirExist)
+						{
+							isTestFolder = true;
+						}
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			listener.getLogger().println("Exception: " + e.toString()); //$NON-NLS-1$
+			isTestFolder = false;
+		}
+		
+		return isTestFolder;
+				
+	}
+	
+	/**
+	 * Returns whether a directory exists.
+	 * 
+	 * @param directoryName
+	 * 			The name of the directory to check.
+	 * 
+	 * @return	<code>true</code> if the directory exists, otherwise <code>false</code>.
+	 */
+	private boolean doesDirectoryExist(String directoryName)
+	{
+		boolean directoryExists = false;
+		
+		FilePath directoryFilePath = new FilePath(vChannel, directoryName);
+		try
+		{
+			if (directoryFilePath != null && directoryFilePath.exists() && directoryFilePath.isDirectory())
+			{
+				directoryExists = true;
+			}
+		}
+		catch (IOException | InterruptedException e)
+		{
+			listener.getLogger().println("Exception: " + e.toString()); //$NON-NLS-1$
+			directoryExists = false;
+		}
+		
+		return directoryExists;
+	}
+	
+	/**
+	 * Normalizes the slash in a file path.
+	 * 
+	 * @param filepath
+	 * 			The file path to be mormallized.
+	 * 
+	 * @return	The normalized file path.
+	 */
+	private String normalizeSlashes(final String filePath)
+	{
+		if (!isLinux)
+		{
+			return filePath.replace("/", remoteFileSeparator);
+		}
+		else
+		{
+			return filePath.replace("\\", remoteFileSeparator);
+		}
 	}
 }
 
