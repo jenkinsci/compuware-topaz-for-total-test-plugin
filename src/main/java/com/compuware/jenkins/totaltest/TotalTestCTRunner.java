@@ -924,7 +924,7 @@ public class TotalTestCTRunner
 
 			if (globalConfig != null)
 			{
-				connection = globalConfig.getHostConnection(tttBuilder.getConnectionId());
+				connection = globalConfig.getHostConnection(tttBuilder.getEnterpriseDataServerId());
 			}
 		
 			if (connection == null) //NOSONAR
