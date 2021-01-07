@@ -76,6 +76,8 @@ public class TotalTestRunner
 	
 	private static final String LOGLEVEL = "-loglevel";  //$NON-NLS-1$
 	private static final String RECURSIVE = "-recursive";  //$NON-NLS-1$
+	private static final String HALT_FIRST_ERROR = "-h";  //$NON-NLS-1$
+	private static final String COPY_REPORTS = "-G";  //$NON-NLS-1$
 
 	private final TotalTestBuilder tttBuilder;
     private String remoteFileSeparator = null;
@@ -302,7 +304,15 @@ public class TotalTestRunner
 		
 		listener.getLogger().println("Project Folder: " + projectPath.getRemote()); //$NON-NLS-1$
 		List<FilePath> testProjects = new ArrayList<>();
-		locateTestFolders(projectPath, testProjects);
+		if (isTestFolder(projectPath))
+		{
+			testProjects.add(projectPath);
+		}
+		else
+		{
+			locateTestFolders(projectPath, testProjects);
+		}
+		
 		if (testProjects.size() == 0)
 		{
 			throw new IOException("ERROR: Test Project '" + projectPath.getRemote() + "' does not contain any test folders."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -313,7 +323,7 @@ public class TotalTestRunner
 		}
 		else if (!tttBuilder.isRecursive())
 		{
-			throw new IOException("ERROR: Test Project '" + projectPath.getRemote() + "' containw any multiple test folders. Specify a test folder or set recursion."); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new IOException("ERROR: Test Project '" + projectPath.getRemote() + "' contains multiple test folders. Specify a test folder or set recursion."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		
@@ -323,6 +333,19 @@ public class TotalTestRunner
 		{
 			addArgument(args,FILE, projectPath.getRemote());
 			 
+			if (TotalTestRunnerUtils.ALL_SCENARIOS.equalsIgnoreCase(testSuiteEntry))
+			{
+				testSuiteEntry = "*.testscenario"; //$NON-NLS-$
+			}
+			else if (TotalTestRunnerUtils.ALL_SUITES.equalsIgnoreCase(testSuiteEntry))
+			{
+				testSuiteEntry = "*.testsuite"; //$NON-NLS-$
+			}
+//			else if (TotalTestRunnerUtils.AUTO_SELECT.equalsIgnoreCase(testSuiteEntry))
+//			{
+//				throw new IOException("ERROR: " + TotalTestRunnerUtils.AUTO_SELECT + " is no longer supported.");  //$NON-NLS-1$  //$NON-NLS-2$
+//			}
+			
 			addArgument(args, PROGRAM_NAMES, testSuiteEntry);
 			tttBuilder.setRecursive(true);
 		}
@@ -435,6 +458,9 @@ public class TotalTestRunner
 		{
 			args.add(RECURSIVE);
 		}
+		
+		args.add(HALT_FIRST_ERROR);
+		args.add(COPY_REPORTS);
 	}
 	
 	/**

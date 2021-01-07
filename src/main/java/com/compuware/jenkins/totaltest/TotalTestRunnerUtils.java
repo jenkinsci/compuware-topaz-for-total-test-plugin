@@ -61,9 +61,9 @@ public class TotalTestRunnerUtils
 	private static final String DOUBLE_QUOTE = "\""; //$NON-NLS-1$
 	private static final String DOUBLE_QUOTE_ESCAPED = "\"\""; //$NON-NLS-1$
 	
-	private static final String ALL_SCENARIOS = "ALL_SCENARIOS"; //$NON-NLS-1$
-	private static final String ALL_SUITES = "ALL_SUITES"; //$NON-NLS-1$
-	private static final String AUTO_SELECT = "AUTO_SELECT"; //$NON-NLS-1$
+	public static final String ALL_SCENARIOS = "ALL_SCENARIOS"; //$NON-NLS-1$
+	public static final String ALL_SUITES = "ALL_SUITES"; //$NON-NLS-1$
+	public static final String AUTO_SELECT = "AUTO_SELECT"; //$NON-NLS-1$
 	
 	/**
 	 * Gets the host name;
