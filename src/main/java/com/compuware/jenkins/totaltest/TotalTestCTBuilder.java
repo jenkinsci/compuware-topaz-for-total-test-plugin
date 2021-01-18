@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
@@ -36,7 +35,6 @@ import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
 import com.compuware.jenkins.common.configuration.HostConnection;
 import com.google.common.base.Strings;
-
 import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePath;
@@ -147,7 +145,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * Fields for Enterprise Data.
 	 */
 	private boolean useEnterpriseData = DescriptorImpl.defaultUseEnterpriseData;
-	private String enterpriseDataServerId = DescriptorImpl.defaultEnterpriseDataServerId;
+	private String enterpriseDataHostPort = DescriptorImpl.defaultEnterpriseDataHostPort;
 	private String enterpriseDataWorkspace = DescriptorImpl.defaultEnterpriseDataWorkspace;
 	
 	private String customerId = DescriptorImpl.defaultCustomerId;
@@ -185,8 +183,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * 			The Host connection id.
 	 * @param credentialsId
 	 * 			Host credentials.
-	 * @param enterpriseDataServerId
-	 * 			Enterprise Data Communication Server id.
 	 * @param sonarVersion
 	 * 			The Sonar version.
 	 * @param logLevel
@@ -196,7 +192,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public TotalTestCTBuilder(String environmentId, String folderPath,
 							  String serverUrl, String serverCredentialsId,
 							  String connectionId, String credentialsId,
-							  String enterpriseDataServerId,
 							  String sonarVersion, String logLevel)
 	{
 		super();
@@ -206,7 +201,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		this.serverCredentialsId = StringUtils.trimToEmpty(serverCredentialsId);
 		this.connectionId = StringUtils.trimToEmpty(connectionId);
 		this.credentialsId = StringUtils.trimToEmpty(credentialsId);
-		this.enterpriseDataServerId = StringUtils.trimToEmpty(enterpriseDataServerId);
 		
 		if (Strings.isNullOrEmpty(sonarVersion))
 		{
@@ -275,16 +269,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	public String getServerCredentialsId()
 	{
 		return serverCredentialsId;
-	}
-
-	/**
-	 * Server URL accessor
-	 * 
-	 * @return <code>String</code> value of server URL
-	 */
-	public String getEnterpriseDataServerId()
-	{
-		return enterpriseDataServerId;
 	}
 
 	/**
@@ -976,10 +960,32 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	}
 
 	/**
+	 * Sets the Enterprise Data Communication Manager host and port.
+	 *
+	 * @param enterproseDataHostPort
+	 *            The Enterprise Data Communication Manager host and port.
+	 */
+	@DataBoundSetter
+	public void setEnterpriseDataHostPort(String enterproseDataHostPort)
+	{
+		this.enterpriseDataHostPort = enterproseDataHostPort;
+	}
+
+	/**
+	 * Gets the Enterprise Data Communication Manager host and port.
+	 * 
+	 * @return The Enterprise Data Communication Manager host and port.
+	 */
+	public String getEnterpriseDataHostPort()
+	{
+		return enterpriseDataHostPort;
+	}
+
+	/**
 	 * Sets the Enterprise Data Communication Manager workspace.
 	 *
 	 * @param enterpriseDataWorkspace
-	 * 			The Enterprise Data Communication Manager workspace.
+	 *            The Enterprise Data Communication Manager workspace.
 	 */
 	@DataBoundSetter
 	public void setEnterpriseDataWorkspace(String enterpriseDataWorkspace)
@@ -1001,7 +1007,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	 * Sets the Customer ID.
 	 *
 	 * @param customerId
-	 * 			The customer's ID.
+	 *            The customer's ID.
 	 */
 	@DataBoundSetter
 	public void setCustomerId(String customerId)
@@ -1012,7 +1018,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 	/**
 	 * Gets the Customer ID.
 	 * 
-	 * @return The Enterprise Data Communication Manager workspace.
+	 * @return The Enterprise Data Customer ID.
 	 */
 	public String getCustomerId()
 	{
@@ -1398,15 +1404,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public static final String defaultLocalConfigLocation = TotalTestCTBuilder.defaultLocalConfigLocation; //NOSONAR //$NON-NLS-1$
 		public static final String defaultLogLevel = LOGLEVELINFO; //NOSONAR
 		public static final Boolean defaultUseEnterpriseData = false; //NOSONAR
-		public static final String defaultEnterpriseDataServerId = ""; //NOSONAR //$NON-NLS-1$
+		public static final String defaultEnterpriseDataHostPort = ""; // NOSONAR //$NON-NLS-1$
 		public static final String defaultEnterpriseDataWorkspace = ""; //NOSONAR //$NON-NLS-1$
 		public static final String defaultJclPath = ""; //NOSONAR //$NON-NLS-1$
 		public static final String  selectLocalConfigValue = "-cfgdir"; //NOSONAR  //$NON-NLS-1$
 		public static final String selectJclPathValue = "-jcl"; //NOSONAR  //$NON-NLS-1$
 
-		public static final String defaultConnectionId = ""; //NOSONAR //$NON-NLS-1$
-		public static final String defaultHost = ""; //NOSONAR //$NON-NLS-1$
-		public static final int defaultPort = 0; //NOSONAR //$NON-NLS-1$
 		public static final String  selectEnvironmentIdValue = "-e"; //NOSONAR  //$NON-NLS-1$
 		public static final String selectHostConnectionValue = "-hci"; //NOSONAR  //$NON-NLS-1$
 		public static final String selectHostPortValue = "-hostport"; //NOSONAR  //$NON-NLS-1$
@@ -1757,50 +1760,6 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 				String description = Util.fixEmptyAndTrim(c.getDescription());
 				model.add(new Option(c.getUsername() + (description != null ? " (" + description + ")" : ""), c.getId(), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						isSelected));
-			}
-
-			return model;
-		}
-
-		/**
-		 * Fills in the Host Connection selection box with applicable connections.
-		 * 
-		 * @param context
-		 * 		An instance of <code>context</code> for the Jenkin's context
-		 * @param enterpriseDataServerId
-		 *            an existing host connection identifier; can be null
-		 * @param project
-		 * 		An instance of <code>Item</code> for the project.
-		 * 
-		 * @return host connection selections
-		 */
-		public ListBoxModel doFillEnterpriseDataServerIdItems(@AncestorInPath Jenkins context, @QueryParameter String enterpriseDataServerId,
-				@AncestorInPath Item project)
-		{
-			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
-			HostConnection[] connections = globalConfig.getHostConnections();
-
-			ListBoxModel model = new ListBoxModel();
-			model.add(new Option(StringUtils.EMPTY, StringUtils.EMPTY, false));
-
-			for (HostConnection connection : connections)
-			{
-				boolean isSelected = false;
-				if (enterpriseDataServerId != null)
-				{
-					isSelected = enterpriseDataServerId.matches(connection.getConnectionId());
-				}
-				
-				String cesServerURL = connection.getCesUrl();
-				if (cesServerURL == null || cesServerURL.isEmpty())
-				{
-					cesServerURL = "Cloud license server";
-				}
-
-				String serverDataValue = connection.getDescription() + " [" + //$NON-NLS-1$
-						 				 connection.getHostPort() + "] (" + //$NON-NLS-1$
-						 				 cesServerURL + ")"; //$NON-NLS-1$
-				model.add(new Option(serverDataValue, connection.getConnectionId(), isSelected));
 			}
 
 			return model;
