@@ -5,28 +5,28 @@
 			<table width="100%">
 				<f:nested>
 					<f:radio title="${%selectEnvironmentEnvironmentId}" name="selectEnvironmentRadio" value="${descriptor.selectEnvironmentIdValue}" checked="${instance==null || instance.isSelectEnvironmentId()}"/>
-					    <f:entry field="environmentId">
-					        <f:textbox />
-					    </f:entry> 
+						<f:entry field="environmentId">
+							<f:textbox />
+						</f:entry> 
 				</f:nested>
 				<f:nested>
 					<f:radio title="${%selectEnvironmentHostConnection}" name="selectEnvironmentRadio" value="${descriptor.selectHostConnectionValue}" checked="${instance.isSelectHostConnection()}"/>
-					    <f:entry field="connectionId">
-					       <cc:hostSelect default=""/>
-					    </f:entry>
+						<f:entry field="connectionId">
+							<cc:hostSelect default=""/>
+						</f:entry>
 				</f:nested>
 			</table>
 		</f:block>
-	    <f:entry title="${%hostCredentials}" field="credentialsId">
+		<f:entry title="${%hostCredentials}" field="credentialsId">
 			<c:select/>
 		</f:entry>
-	 
-	    <f:entry title="${%serverUrl}" field="serverUrl" >
-	 	   <f:select /> 
-	 	   <label><a href="/configure#cpwr-config">Manage connections</a></label>
-	    </f:entry>
+
+		<f:entry title="${%serverUrl}" field="serverUrl" >
+			<f:select /> 
+			<label><a href="/configure#cpwr-config">Manage connections</a></label>
+		</f:entry>
 		<f:nested>
-		    <f:entry title="${%serverCredentials}" field="serverCredentialsId">
+			<f:entry title="${%serverCredentials}" field="serverCredentialsId">
 				<c:select/>
 			</f:entry>
 		</f:nested>
@@ -61,15 +61,15 @@
 	</f:section>
 
 	<f:section title="${%sectionTestScenarios}">
-	    <f:entry title="${%recursive}" field="recursive">
+		<f:entry title="${%recursive}" field="recursive">
 			<f:checkbox title="${%recursiveDescription}" default="${descriptor.defaultRecursive}"/>
 		</f:entry>
-        <f:entry title="${%folderPath}" field="folderPath">
+		<f:entry title="${%folderPath}" field="folderPath">
 			<f:textbox default="${descriptor.defaultFolderPath}"/>
 		</f:entry>
-        <f:entry title="${%useScenarios}" field="useScenarios">
-            <f:checkbox title="${%useScenariosDescription}" default="${descriptor.defaultUseScenarios}"/>
-        </f:entry>
+		<f:entry title="${%useScenarios}" field="useScenarios">
+			<f:checkbox title="${%useScenariosDescription}" default="${descriptor.defaultUseScenarios}"/>
+		</f:entry>
 		<f:entry title="${%jclPath}" field="jclPath">
 			<f:textbox default="${descriptor.defaultjclPath}"/>
 		</f:entry>
@@ -119,36 +119,36 @@
 			</f:block>
 		</f:optionalBlock>
 		<f:entry title="${%accountInfo}" field="accountInfo">
-        	<f:textbox default="${descriptor.defaultAccountInfo}"/>
-    	</f:entry>
+			<f:textbox default="${descriptor.defaultAccountInfo}"/>
+		</f:entry>
 		<f:entry title="${%stopIfTestFailsOrThresholdReached}" field="stopIfTestFailsOrThresholdReached">
 			<f:checkbox default="${descriptor.defaultStopIfTestFailsOrThresholdReached}"/>
 		</f:entry>
-        <f:entry title="${%haltAtFailure}" field="haltAtFailure">
-            <f:checkbox title="${%haltAtFailureDescription}" default="${descriptor.defaultHaltAtFailure}"/>
-        </f:entry>
+		<f:entry title="${%haltAtFailure}" field="haltAtFailure">
+			<f:checkbox title="${%haltAtFailureDescription}" default="${descriptor.defaultHaltAtFailure}"/>
+		</f:entry>
 		<f:entry title="${%haltPipeline}" field="haltPipelineOnFailure">
 		    <f:checkbox title="${%haltPipelineDescription}" default="${descriptor.defaultHaltPipelineOnFailure}"/>
 		</f:entry>
 		<f:entry title="${%contextVariables}" field="contextVariables">
-        	<f:textbox default="${descriptor.defaultContextVariables}"/>
-    	</f:entry>
-    	
-        <f:invisibleEntry title="${%compareJUnits}" field="compareJUnits">
+			<f:textbox default="${descriptor.defaultContextVariables}"/>
+		</f:entry>
+		
+		<f:invisibleEntry title="${%compareJUnits}" field="compareJUnits">
 		     <f:checkbox default="${false}" />
 	    </f:invisibleEntry>
 	</f:section>
 
 	<f:section title="${%sectionReportAndLogging}">
-        <f:entry title="${%uploadToServer}" field="uploadToServer">
-            <f:checkbox title="${%uploadToServerDescription}" default="${descriptor.defaultUploadToServer}"/>
-        </f:entry>
+		<f:entry title="${%uploadToServer}" field="uploadToServer">
+			<f:checkbox title="${%uploadToServerDescription}" default="${descriptor.defaultUploadToServer}"/>
+		</f:entry>
 		<f:entry title="${%sourceFolder}" field="sourceFolder">
-        	<f:textbox default="${descriptor.defaultSourceFolder}" />
-    	</f:entry>
-    	<f:entry title="${%reportFolder}" field="reportFolder">
-        	<f:textbox default="${descriptor.defaultReportFolder}"/>
-    	</f:entry>
+			<f:textbox default="${descriptor.defaultSourceFolder}" />
+		</f:entry>
+		<f:entry title="${%reportFolder}" field="reportFolder">
+			<f:textbox default="${descriptor.defaultReportFolder}"/>
+		</f:entry>
 		<f:entry title="${%sonarQube}" field="sonarVersion">
 			<f:select value="${sonarVersion}" default="${descriptor.defaultSonarVersion}"/>
 		</f:entry>
@@ -170,42 +170,41 @@
 		</f:entry>
 	</f:section>
 
-    <f:section title="${%sectionCodeCoverage}">
+	<f:section title="${%sectionCodeCoverage}">
 		<f:optionalBlock title="${%optionCollectCodeCoverage}" field="collectCodeCoverage" default="${descriptor.defaultCollectCodeCoverage}" inline="${true}">
 		<f:block>
-					<f:entry title="${%ccRepository}" field="collectCCRepository">
-						<f:textbox value="${it.collectCCRepository}" default="${descriptor.defaultCollectCCRepository}"/>
-					</f:entry>
-					<f:entry title="${%ccSystem}" field="collectCCSystem">
-						<f:textbox default="${descriptor.defaultCollectCCSystem}"/>
-					</f:entry>
-					<f:entry title="${%ccTestID}" field="collectCCTestID">
-						<f:textbox default="${descriptor.defaultCollectCCTestID}"/>
-					</f:entry>
-					<f:entry title="${%clearCodeCoverage}" field="clearCodeCoverage">
-					     <f:checkbox title="${%clearCodeCoverageDescription}" default="${descriptor.defaultClearCodeCoverage}" />
-					</f:entry>
-				    <f:entry title="${%ccThreshold}" field="ccThreshold">
-				    	<f:textbox default="${descriptor.defaultCCThreshold}"/>
-					</f:entry>
+			<f:entry title="${%ccRepository}" field="collectCCRepository">
+				<f:textbox value="${it.collectCCRepository}" default="${descriptor.defaultCollectCCRepository}"/>
+			</f:entry>
+			<f:entry title="${%ccSystem}" field="collectCCSystem">
+				<f:textbox default="${descriptor.defaultCollectCCSystem}"/>
+			</f:entry>
+			<f:entry title="${%ccTestID}" field="collectCCTestID">
+				<f:textbox default="${descriptor.defaultCollectCCTestID}"/>
+			</f:entry>
+			<f:entry title="${%clearCodeCoverage}" field="clearCodeCoverage">
+			     <f:checkbox title="${%clearCodeCoverageDescription}" default="${descriptor.defaultClearCodeCoverage}" />
+			</f:entry>
+			<f:entry title="${%ccThreshold}" field="ccThreshold">
+				<f:textbox default="${descriptor.defaultCCThreshold}"/>
+			</f:entry>
 			</f:block>
 				</f:optionalBlock>
-    </f:section>
+	</f:section>
 	 
 	<f:section title="${%sectionEnterpriseData}">
 		<f:optionalBlock title="${%optionUseEnterpriseData}" field="useEnterpriseData" default="${descriptor.defaultUseEnterpriseData}" inline="${true}">
-			    <f:entry title="${%enterpriseDataServer}" field="enterpriseDataServerId">
-			       <cc:hostSelect default=""/>
-			    </f:entry>
-			    <f:entry title="${%enterpriseDataWorkspace}" field="enterpriseDataWorkspace">
-			    	<f:textbox default="${descriptor.defaultEnterpriseDataWorkspace}"/>
+				<f:entry title="${%enterpriseDataHostPort}" field="enterpriseDataHostPort">
+					<f:textbox default=""/>
 				</f:entry>
-
-			    <f:entry title="${%customerId}" field="customerId">
-			    	<f:textbox default="${descriptor.defaultCustomerId}"/>
+				<f:entry title="${%enterpriseDataWorkspace}" field="enterpriseDataWorkspace">
+					<f:textbox default="${descriptor.defaultEnterpriseDataWorkspace}"/>
 				</f:entry>
-			    <f:entry title="${%siteId}" field="siteId">
-			    	<f:textbox default="${descriptor.defaultSiteId}"/>
+				<f:entry title="${%customerId}" field="customerId">
+					<f:textbox default="${descriptor.defaultCustomerId}"/>
+				</f:entry>
+				<f:entry title="${%siteId}" field="siteId">
+					<f:textbox default="${descriptor.defaultSiteId}"/>
 				</f:entry>
 	</f:optionalBlock>
 	</f:section>
