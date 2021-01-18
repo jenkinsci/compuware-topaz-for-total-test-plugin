@@ -4,7 +4,7 @@
 
 -    Changed Enterprise Data connection to host and port.
 
-### Version 2.3.10
+### Version 2.3.11
 
 -    Added server credentials when using WorkbenchCLI CLI version 20.05.01 or later.
 -    Added new Functional Test option to supply JCL when executing .testscenario files when using WorkbenchCLI CLI version 20.05.01 or later.
