@@ -32,11 +32,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-
+import org.apache.commons.lang3.math.NumberUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
-
 import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
 import com.compuware.jenkins.common.configuration.HostConnection;
 import com.compuware.jenkins.totaltest.TotalTestCTBuilder.DescriptorImpl;
@@ -582,10 +581,10 @@ public class TotalTestCTRunner
 			
 			if (!Strings.isNullOrEmpty(tttBuilder.getJclPath()))
 			{
-				args.add("-j").add(tttBuilder.getJclPath());
+				args.add("-j").add(tttBuilder.getJclPath()); //$NON-NLS-1$
 			}
 			
-			args.add("-loglevel").add(tttBuilder.getLogLevel());
+			args.add("-loglevel").add(tttBuilder.getLogLevel()); //$NON-NLS-1$
 		
 			if (!tttBuilder.getCreateReport())
 			{
@@ -919,39 +918,59 @@ public class TotalTestCTRunner
 	{
 		if (tttBuilder.getUseEnterpriseData())
 		{
-			HostConnection connection = null;
-			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
-
-			if (globalConfig != null)
+			String enterpriseDataHostPort = tttBuilder.getEnterpriseDataHostPort();
+			
+			if (Strings.isNullOrEmpty(enterpriseDataHostPort) || !enterpriseDataHostPort.contains(":")) //$NON-NLS-1$
 			{
-				connection = globalConfig.getHostConnection(tttBuilder.getEnterpriseDataServerId());
-			}
-		
-			if (connection == null) //NOSONAR
-			{
-				throw new IOException("ERROR: No host connection defined. Check project and global configurations to unsure host connection is set."); //$NON-NLS-1$
+				throw new IOException("ERROR: No host and port defined. Check host and port is set."); //$NON-NLS-1$
 			}
 			else
 			{
-				args.add("-faip").add(connection.getHost()); //$NON-NLS-1$
-				args.add("-fap").add(connection.getPort()); //$NON-NLS-1$
-			
+				String trimmedHostPort = enterpriseDataHostPort.trim();
+				String host = null;
+				String port = null;
 
-				// CES and Cloud licensing
-				if (!Strings.isNullOrEmpty(tttBuilder.getServerUrl()))
+				if (Strings.isNullOrEmpty(trimmedHostPort))
 				{
-					args.add("-ces").add(tttBuilder.getServerUrl()); //$NON-NLS-1$
+					throw new IOException("ERROR: Invalid host and port defined. Check host and port is set properly."); //$NON-NLS-1$
 				}
-				else if (tttBuilder.getUseEnterpriseData())
+				else
 				{
-					if (!Strings.isNullOrEmpty(tttBuilder.getCustomerId()))
+					String[] hostAndPort = trimmedHostPort.split(":"); // NOSONAR //$NON-NLS-1$
+
+					if (hostAndPort.length == 2)
 					{
-						args.add("-cid").add(tttBuilder.getCustomerId()); //$NON-NLS-1$
-					}
-					
-					if (!Strings.isNullOrEmpty(tttBuilder.getSiteId()))
-					{
-						args.add("-sid").add(tttBuilder.getSiteId()); //$NON-NLS-1$
+						host = hostAndPort[0];
+						port = hostAndPort[1];
+
+						if (Strings.isNullOrEmpty(host) || Strings.isNullOrEmpty(port) || !NumberUtils.isCreatable(port))
+						{
+							throw new IOException(
+									"ERROR: Host and port not defined or incorrect format. Check host and port is set properly."); //$NON-NLS-1$
+						}
+						else
+						{
+							args.add("-faip").add(host); //$NON-NLS-1$
+							args.add("-fap").add(port); //$NON-NLS-1$
+
+							// CES and Cloud licensing
+							if (!Strings.isNullOrEmpty(tttBuilder.getServerUrl()))
+							{
+								args.add("-ces").add(tttBuilder.getServerUrl()); //$NON-NLS-1$
+							}
+							else if (tttBuilder.getUseEnterpriseData())
+							{
+								if (!Strings.isNullOrEmpty(tttBuilder.getCustomerId()))
+								{
+									args.add("-cid").add(tttBuilder.getCustomerId()); //$NON-NLS-1$
+								}
+
+								if (!Strings.isNullOrEmpty(tttBuilder.getSiteId()))
+								{
+									args.add("-sid").add(tttBuilder.getSiteId()); //$NON-NLS-1$
+								}
+							}
+						}
 					}
 				}
 			}
