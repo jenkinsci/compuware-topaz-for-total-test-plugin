@@ -1,5 +1,9 @@
 # Change Log
 
+### Version 2.3.12
+
+-    Corrected error with invalid quoting of parameters.
+
 ### Version 2.3.11
 
 -    Changed Enterprise Data connection to host and port.
