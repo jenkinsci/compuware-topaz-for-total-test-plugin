@@ -26,10 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.remoting.RoleChecker;
-
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
@@ -199,9 +197,6 @@ public class TotalTestRunnerUtils
 		{
 			// escape any double quotes (") with another double quote (") for both batch and shell scripts
 			output = StringUtils.replace(input, DOUBLE_QUOTE, DOUBLE_QUOTE_ESCAPED);
-
-			// wrap the input in quotes
-			output = wrapInQuotes(output);
 		}
 
 		return output;
