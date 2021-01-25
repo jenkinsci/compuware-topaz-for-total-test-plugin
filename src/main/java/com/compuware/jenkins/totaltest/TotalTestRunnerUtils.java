@@ -242,25 +242,6 @@ public class TotalTestRunnerUtils
 	}
 	
 	/**
-	 * Wrap a string in quotes.
-	 * 
-	 * @param text
-	 *            the string to wrap in quotes
-	 * @return the quoted string
-	 */
-	private static String wrapInQuotes(final String text)
-	{
-		String quotedValue = text;
-		if (text != null)
-		{
-			quotedValue = String.format("\"%s\"", text); //$NON-NLS-1$
-		}
-		
-		return quotedValue;
-	}
-	
-	
-	/**
 	 * Logs the Jenkins and Total Test Plugin versions
 	 * 
 	 * @param listener
