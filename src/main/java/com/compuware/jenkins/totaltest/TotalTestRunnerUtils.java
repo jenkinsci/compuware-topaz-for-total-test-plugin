@@ -26,10 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.remoting.RoleChecker;
-
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
@@ -61,9 +59,9 @@ public class TotalTestRunnerUtils
 	private static final String DOUBLE_QUOTE = "\""; //$NON-NLS-1$
 	private static final String DOUBLE_QUOTE_ESCAPED = "\"\""; //$NON-NLS-1$
 	
-	public static final String ALL_SCENARIOS = "ALL_SCENARIOS"; //$NON-NLS-1$
-	public static final String ALL_SUITES = "ALL_SUITES"; //$NON-NLS-1$
-	public static final String AUTO_SELECT = "AUTO_SELECT"; //$NON-NLS-1$
+	private static final String ALL_SCENARIOS = "ALL_SCENARIOS"; //$NON-NLS-1$
+	private static final String ALL_SUITES = "ALL_SUITES"; //$NON-NLS-1$
+	private static final String AUTO_SELECT = "AUTO_SELECT"; //$NON-NLS-1$
 	
 	/**
 	 * Gets the host name;
@@ -199,9 +197,6 @@ public class TotalTestRunnerUtils
 		{
 			// escape any double quotes (") with another double quote (") for both batch and shell scripts
 			output = StringUtils.replace(input, DOUBLE_QUOTE, DOUBLE_QUOTE_ESCAPED);
-
-			// wrap the input in quotes
-//ftcli			output = wrapInQuotes(output);
 		}
 
 		return output;
