@@ -556,8 +556,27 @@ public class TotalTestCTRunner
 				
 				if (!Strings.isNullOrEmpty(selectProgramsText))
 				{
-					args.add(tttBuilder.getselectProgramsRadioValue());
-					args.add(TotalTestRunnerUtils.escapeForScript(selectProgramsText));
+					String programsArg = tttBuilder.getselectProgramsRadioValue().trim();
+					args.add(programsArg);
+					if (programsArg.equalsIgnoreCase("-pn"))
+					{
+						if (selectProgramsText.startsWith("\"") && selectProgramsText.endsWith("\""))
+						{
+							args.add(selectProgramsText);
+						}
+						else if (!selectProgramsText.contains("\""))
+						{
+							args.add(String.format("\"%s\"", selectProgramsText));
+						}
+						else
+						{
+							listener.getLogger().println("Program name list must begin and end with a quotes or contain no quotes."); //$NON-NLS-1$
+						}
+					}
+					else
+					{
+						args.add(TotalTestRunnerUtils.escapeForScript(selectProgramsText));
+					}
 				}
 				else
 				{

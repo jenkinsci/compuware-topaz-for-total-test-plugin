@@ -46,7 +46,7 @@ import jenkins.model.Jenkins;
 
 public class TotalTestRunnerUtils
 {
-	public static final String TTT_MINIMUM_CLI_VERSION = "19.06.03"; //$NON-NLS-1$
+	public static final String TTT_MINIMUM_CLI_VERSION = "20.06.01"; //$NON-NLS-1$
 	public static final String TTT_NEW_EXTENSIONS_CLI_VERSION = "20.02.01"; //$NON-NLS-1$
 	public static final String TTT_OUTPUTFOLDER_CLI_VERSION = "20.03.01"; //$NON-NLS-1$
 	public static final String TTT_CLI_200401 = "20.04.01"; //$NON-NLS-1$
