@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2015-2020 Compuware Corporation
- * (c) Copyright 2019-2020 BMC Software, Inc.
+ * (c) Copyright 2019-2021 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -59,8 +59,8 @@ public class TotalTestRunnerUtils
 	private static final String DOUBLE_QUOTE = "\""; //$NON-NLS-1$
 	private static final String DOUBLE_QUOTE_ESCAPED = "\"\""; //$NON-NLS-1$
 	
-	private static final String ALL_SCENARIOS = "ALL_SCENARIOS"; //$NON-NLS-1$
-	private static final String ALL_SUITES = "ALL_SUITES"; //$NON-NLS-1$
+	public static final String ALL_SCENARIOS = "ALL_SCENARIOS"; //$NON-NLS-1$
+	public static final String ALL_SUITES = "ALL_SUITES"; //$NON-NLS-1$
 	private static final String AUTO_SELECT = "AUTO_SELECT"; //$NON-NLS-1$
 	
 	/**
