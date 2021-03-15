@@ -4,8 +4,8 @@
 
 **This release requires Workbench 20.06.01 or above.**
 
--    Corrected error iwth program-names argument.
--    Removed Report Foldder
+-    Corrected error with program-names argument.
+-    Removed Report Folder
 
 ### Version 2.3.12
 
