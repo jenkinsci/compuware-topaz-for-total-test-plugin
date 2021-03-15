@@ -146,9 +146,9 @@
 		<f:entry title="${%sourceFolder}" field="sourceFolder">
 			<f:textbox default="${descriptor.defaultSourceFolder}" />
 		</f:entry>
-		<f:entry title="${%reportFolder}" field="reportFolder">
+		<f:invisibleEntry title="${%reportFolder}" field="reportFolder">
 			<f:textbox default="${descriptor.defaultReportFolder}"/>
-		</f:entry>
+		</f:invisibleEntry>
 		<f:entry title="${%sonarQube}" field="sonarVersion">
 			<f:select value="${sonarVersion}" default="${descriptor.defaultSonarVersion}"/>
 		</f:entry>

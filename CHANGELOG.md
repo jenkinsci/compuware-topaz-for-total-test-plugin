@@ -1,5 +1,13 @@
 # Change Log
 
+### Version 2.4.1
+
+**This release requires Workbench 20.06.01 or above.**
+
+-    Corrected error with program-names argument.
+-    Removed Report Folder
+-    Removed vesion text labels
+
 ### Version 2.3.12
 
 -    Corrected error with invalid quoting of parameters.
