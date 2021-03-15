@@ -1,5 +1,12 @@
 # Change Log
 
+### Version 2.3.13
+
+**This release requires Workbench 20.06.01 or above.**
+
+-    Corrected error iwth program-names argument.
+-    Removed Report Foldder
+
 ### Version 2.3.12
 
 -    Corrected error with invalid quoting of parameters.
