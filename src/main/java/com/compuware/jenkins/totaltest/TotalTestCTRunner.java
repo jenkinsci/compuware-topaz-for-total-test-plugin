@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2019-2020 Compuware Corporation
- * (c) Copyright 2019-2020 BMC Software, Inc.
+ * (c) Copyright 2019-2021 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -56,8 +56,8 @@ public class TotalTestCTRunner
 	private static final String TOPAZ_CLI_WORKSPACE = "TopazCliWkspc"; //$NON-NLS-1$
 	private static final String DATA = "-data"; //$NON-NLS-1$
 	private static final String FOLDER_OUTPUT = "Output"; //$NON-NLS-1$
-	private static final String GENERATED_SUITE_RESULT_FILE_NAME = "generated.cli.suiteresult";  //$NON-NLS-1$
-	private static final String GENERATED_SUITE_RESULT_FILE_NAME_OLD = "generated.cli.xasuiteres"; //$NON-NLS-1$
+	private static final String GENERATED_SUITE_RESULT_FILE_NAME = ".cli.suiteresult";  //$NON-NLS-1$
+	private static final String GENERATED_SUITE_RESULT_FILE_NAME_OLD = ".cli.xasuiteres"; //$NON-NLS-1$
 	private static final String FILE_EXT_XAUNIT ="scenario"; //$NON-NLS-1$
 	private static final String FILE_EXT_XAUNIT_OLD = "xaunit"; //$NON-NLS-1$
 	private static final String FILE_EXT_XASUITE = "suite"; //$NON-NLS-1$
@@ -67,6 +67,8 @@ public class TotalTestCTRunner
 	private static final String FILE_EXT_XASUITE_RESULT_OLD ="xasuiteres"; //$NON-NLS-1$
 	private static final String FILE_EXT_CONTEXT="context"; //$NON-NLS-1$
   	private static final String FILE_EXT_CONTEXT_OLD="xactx"; //$NON-NLS-1$
+ 	private static final String SCENARIOS_FOLDER = "Scenarios"; //$NON-NLS-1$ 
+ 	private static final String SUITES_FOLDER = "Suites"; //$NON-NLS-1$ 
 
 	private final TotalTestCTBuilder tttBuilder;
 
@@ -167,7 +169,8 @@ public class TotalTestCTRunner
 
 					// Don't fail the build so the pipeline can continue.
 					listener.getLogger()
-					.println("Test result failed but build continues (\"" + tttBuilder.getHaltPipelineTitle() + "\" is false)"); //$NON-NLS-1$
+							.println("Test result failed but build continues (\"" + tttBuilder.getHaltPipelineTitle() //$NON-NLS-1$
+									+ "\" is false)"); //$NON-NLS-1$
 					exitValue = 0;
 				}
 			}
@@ -449,9 +452,9 @@ public class TotalTestCTRunner
 				
 				if (!Strings.isNullOrEmpty(serverCreds))
 				{
-					args.add("-cesu").add(
+					args.add("-cesu").add( //$NON-NLS-1$
 							TotalTestRunnerUtils.getLoginInformation(build.getParent(), serverCreds).getUsername(), false);
-					args.add("-cesp").add(
+					args.add("-cesp").add( //$NON-NLS-1$
 							TotalTestRunnerUtils.getLoginInformation(build.getParent(), serverCreds).getPassword(), true);
 				}
 			}
@@ -518,11 +521,11 @@ public class TotalTestCTRunner
 			args.add("-cfgdir"); //$NON-NLS-1$
 			if (Strings.isNullOrEmpty(tttBuilder.getLocalConfigLocation()))
 			{
-				args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.DescriptorImpl.defaultLocalConfigLocation)); //$NON-NLS-1$
+				args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.DescriptorImpl.defaultLocalConfigLocation));
 			}
 			else
 			{
-				args.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getLocalConfigLocation())); //$NON-NLS-1$
+				args.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getLocalConfigLocation()));
 			}
 		}
 
@@ -558,15 +561,15 @@ public class TotalTestCTRunner
 				{
 					String programsArg = tttBuilder.getselectProgramsRadioValue().trim();
 					args.add(programsArg);
-					if (programsArg.equalsIgnoreCase("-pn"))
+					if (programsArg.equalsIgnoreCase("-pn")) //$NON-NLS-1$
 					{
-						if (selectProgramsText.startsWith("\"") && selectProgramsText.endsWith("\""))
+						if (selectProgramsText.startsWith("\"") && selectProgramsText.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
 						{
 							args.add(selectProgramsText);
 						}
-						else if (!selectProgramsText.contains("\""))
+						else if (!selectProgramsText.contains("\"")) //$NON-NLS-1$
 						{
-							args.add(String.format("\"%s\"", selectProgramsText));
+							args.add(String.format("\"%s\"", selectProgramsText)); //$NON-NLS-1$
 						}
 						else
 						{
@@ -582,7 +585,8 @@ public class TotalTestCTRunner
 				{
 					if (Strings.isNullOrEmpty(tttBuilder.getSelectProgramsRadio()) || tttBuilder.isSelectProgramsJSON())
 					{
-						listener.getLogger().println("No JSON file specified.  Using default value of " + TotalTestCTBuilder.defaultLocalConfigLocation + "."); //$NON-NLS-1$
+						listener.getLogger().println("No JSON file specified.  Using default value of " //$NON-NLS-1$
+								+ TotalTestCTBuilder.defaultLocalConfigLocation + "."); //$NON-NLS-1$
 						args.add(tttBuilder.getselectProgramsRadioValue());
 						args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.defaultLocalConfigLocation));
 					}
@@ -720,6 +724,7 @@ public class TotalTestCTRunner
 							absoluteFolder = new FilePath (vChannel, workDir + remoteFileSeparator + folderPathString).absolutize();
 						}
 					}
+					
 					if (absoluteFolder.isDirectory())
 					{
 						workDir = absoluteFolder;
@@ -731,6 +736,13 @@ public class TotalTestCTRunner
 		if (!workDir.exists())
 		{
 			throw new FileNotFoundException("workDir location does not exist. Location: " + workDir.getRemote()); //$NON-NLS-1$
+		}
+
+	
+		String workDirName = workDir.getRemote();
+		if (workDirName.endsWith(SCENARIOS_FOLDER ) || workDirName.endsWith(SUITES_FOLDER ))
+		{
+			workDir = workDir.getParent();
 		}
 
 		listener.getLogger().println("workspace path: " + workDir.getRemote()); //$NON-NLS-1$
@@ -814,7 +826,16 @@ public class TotalTestCTRunner
 		FilePath absoluteReportFolderPath = null;
 		absoluteReportFolderPath = new FilePath(workDir, outputFolder).absolutize();
 		
-		listener.getLogger().println("Search " + osFile + " from the folder path: " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$ //$NON-NLS-2$
+		if (osFile.endsWith(GENERATED_SUITE_RESULT_FILE_NAME))
+		{
+			listener.getLogger().println("Searching for test suite result file(*.cli.suiteresult) from folder path: " //$NON-NLS-1$
+					+ absoluteReportFolderPath.getRemote());
+		}
+		else
+		{
+			listener.getLogger().println("Searching for test suite result file(*.cli.xasuiteres) from folder path: " //$NON-NLS-1$
+					+ absoluteReportFolderPath.getRemote());
+		}
 		FilePath fileFound = searchFileFromDir(absoluteReportFolderPath, osFile, listener);
 		
 		return fileFound;
@@ -846,7 +867,7 @@ public class TotalTestCTRunner
 						// Recurse into this directory
 						returnFile = searchFileFromDir(childPath, search, listener);
 					}
-					else if (search.equals(childPath.getName()))
+					else if (childPath.getName().endsWith(search))
 					{
 						returnFile = childPath.absolutize();
 					}
@@ -886,7 +907,8 @@ public class TotalTestCTRunner
 	{
 		if (tttBuilder.isSelectEnvironmentId())
 		{
-			args.add(DescriptorImpl.selectEnvironmentIdValue).add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
+			args.add(DescriptorImpl.selectEnvironmentIdValue)
+					.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false);
 		}
 		else if (tttBuilder.isSelectHostConnection())
 		{

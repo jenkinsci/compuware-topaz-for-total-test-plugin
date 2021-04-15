@@ -1,5 +1,9 @@
 # Change Log
 
+### Version 2.4.2
+
+-    Corrected error with plug-in not finding results file when an absolute file path specified for the test.
+
 ### Version 2.4.1
 
 **This release requires Workbench 20.06.01 or above.**
