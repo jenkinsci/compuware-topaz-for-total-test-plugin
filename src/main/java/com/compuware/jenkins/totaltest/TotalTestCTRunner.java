@@ -824,7 +824,7 @@ public class TotalTestCTRunner
 		FilePath absoluteReportFolderPath = null;
 		absoluteReportFolderPath = new FilePath(workDir, outputFolder).absolutize();
 		
-		if (GENERATED_SUITE_RESULT_FILE_NAME.equals(osFile))
+		if (osFile.endsWith(GENERATED_SUITE_RESULT_FILE_NAME))
 		{
 			listener.getLogger().println("Searching for test suite result file(*.cli.suiteresult) from folder path: " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
