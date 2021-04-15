@@ -169,7 +169,8 @@ public class TotalTestCTRunner
 
 					// Don't fail the build so the pipeline can continue.
 					listener.getLogger()
-					.println("Test result failed but build continues (\"" + tttBuilder.getHaltPipelineTitle() + "\" is false)"); //$NON-NLS-1$
+							.println("Test result failed but build continues (\"" + tttBuilder.getHaltPipelineTitle() //$NON-NLS-1$
+									+ "\" is false)"); //$NON-NLS-1$
 					exitValue = 0;
 				}
 			}
@@ -451,9 +452,9 @@ public class TotalTestCTRunner
 				
 				if (!Strings.isNullOrEmpty(serverCreds))
 				{
-					args.add("-cesu").add(
+					args.add("-cesu").add( //$NON-NLS-1$
 							TotalTestRunnerUtils.getLoginInformation(build.getParent(), serverCreds).getUsername(), false);
-					args.add("-cesp").add(
+					args.add("-cesp").add( //$NON-NLS-1$
 							TotalTestRunnerUtils.getLoginInformation(build.getParent(), serverCreds).getPassword(), true);
 				}
 			}
@@ -520,11 +521,11 @@ public class TotalTestCTRunner
 			args.add("-cfgdir"); //$NON-NLS-1$
 			if (Strings.isNullOrEmpty(tttBuilder.getLocalConfigLocation()))
 			{
-				args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.DescriptorImpl.defaultLocalConfigLocation)); //$NON-NLS-1$
+				args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.DescriptorImpl.defaultLocalConfigLocation));
 			}
 			else
 			{
-				args.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getLocalConfigLocation())); //$NON-NLS-1$
+				args.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getLocalConfigLocation()));
 			}
 		}
 
@@ -560,15 +561,15 @@ public class TotalTestCTRunner
 				{
 					String programsArg = tttBuilder.getselectProgramsRadioValue().trim();
 					args.add(programsArg);
-					if (programsArg.equalsIgnoreCase("-pn"))
+					if (programsArg.equalsIgnoreCase("-pn")) //$NON-NLS-1$
 					{
-						if (selectProgramsText.startsWith("\"") && selectProgramsText.endsWith("\""))
+						if (selectProgramsText.startsWith("\"") && selectProgramsText.endsWith("\"")) //$NON-NLS-1$ //$NON-NLS-2$
 						{
 							args.add(selectProgramsText);
 						}
-						else if (!selectProgramsText.contains("\""))
+						else if (!selectProgramsText.contains("\"")) //$NON-NLS-1$
 						{
-							args.add(String.format("\"%s\"", selectProgramsText));
+							args.add(String.format("\"%s\"", selectProgramsText)); //$NON-NLS-1$
 						}
 						else
 						{
@@ -584,7 +585,8 @@ public class TotalTestCTRunner
 				{
 					if (Strings.isNullOrEmpty(tttBuilder.getSelectProgramsRadio()) || tttBuilder.isSelectProgramsJSON())
 					{
-						listener.getLogger().println("No JSON file specified.  Using default value of " + TotalTestCTBuilder.defaultLocalConfigLocation + "."); //$NON-NLS-1$
+						listener.getLogger().println("No JSON file specified.  Using default value of " //$NON-NLS-1$
+								+ TotalTestCTBuilder.defaultLocalConfigLocation + "."); //$NON-NLS-1$
 						args.add(tttBuilder.getselectProgramsRadioValue());
 						args.add(TotalTestRunnerUtils.escapeForScript(TotalTestCTBuilder.defaultLocalConfigLocation));
 					}
@@ -826,11 +828,13 @@ public class TotalTestCTRunner
 		
 		if (osFile.endsWith(GENERATED_SUITE_RESULT_FILE_NAME))
 		{
-			listener.getLogger().println("Searching for test suite result file(*.cli.suiteresult) from folder path: " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$ //$NON-NLS-2$
+			listener.getLogger().println("Searching for test suite result file(*.cli.suiteresult) from folder path: " //$NON-NLS-1$
+					+ absoluteReportFolderPath.getRemote());
 		}
 		else
 		{
-			listener.getLogger().println("Searching for test suite result file(*.cli.xasuiteres) from folder path: " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$ //$NON-NLS-2$
+			listener.getLogger().println("Searching for test suite result file(*.cli.xasuiteres) from folder path: " //$NON-NLS-1$
+					+ absoluteReportFolderPath.getRemote());
 		}
 		FilePath fileFound = searchFileFromDir(absoluteReportFolderPath, osFile, listener);
 		
@@ -903,7 +907,8 @@ public class TotalTestCTRunner
 	{
 		if (tttBuilder.isSelectEnvironmentId())
 		{
-			args.add(DescriptorImpl.selectEnvironmentIdValue).add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false); //$NON-NLS-1$
+			args.add(DescriptorImpl.selectEnvironmentIdValue)
+					.add(TotalTestRunnerUtils.escapeForScript(tttBuilder.getEnvironmentId()), false);
 		}
 		else if (tttBuilder.isSelectHostConnection())
 		{
