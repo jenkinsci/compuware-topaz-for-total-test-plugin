@@ -1,5 +1,11 @@
 # Change Log
 
+### Version 2.4.3
+
+-    Updated required minimum credentials version to 2.3.19
+-    Updated required minimum Jenkins version to 2.222.4
+-    Updated required minimum SLF4j version to 1.7.26
+
 ### Version 2.4.2
 
 -    Corrected error with plug-in not finding results file when an absolute file path specified for the test.
