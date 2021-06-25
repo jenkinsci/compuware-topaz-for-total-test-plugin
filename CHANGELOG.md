@@ -1,5 +1,13 @@
 # Change Log
 
+### Version 2.4.5
+
+-    Updated change log.
+
+### Version 2.4.4
+
+-    Corrections for failed plugin publish.
+
 ### Version 2.4.3
 
 -    Updated required minimum credentials version to 2.3.19
