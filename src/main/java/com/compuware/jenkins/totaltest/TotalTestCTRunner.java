@@ -928,6 +928,9 @@ public class TotalTestCTRunner
 			{
 				args.add("-host", connection.getHost()); //$NON-NLS-1$
 				args.add("-port", connection.getPort()); //$NON-NLS-1$
+				if(!connection.getProtocol().equalsIgnoreCase("none")) {
+					args.add("-encryption", connection.getProtocol());
+				}
 			}
 		}
 		else
