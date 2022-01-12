@@ -1,5 +1,9 @@
 # Change Log
 
+### Version 2.4.6
+
+-    Added support for encrypted host connections.
+
 ### Version 2.4.5
 
 -    Updated change log.
