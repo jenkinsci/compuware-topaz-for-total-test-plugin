@@ -1,6 +1,8 @@
 ### Overview
 
 Compuware's Topaz for Total Test is a testing product with automation to speed testing development and provide higher confidence during program deployment process. The plugin allows Jenkins users to run test scenarios and test suites.
+-    Note: The same Topaz Workbench CLI version is required to execute as the Topaz Workbench that supports the functionality of the tests to be executed.
+           For example, Functional Test option for Enterprise Data integration requires Workbench version 20.05.01 or later, so any tests that contain Enterprise Data requires Topaz Workbench CLI 20.05.01 or later.
 
 ### Change Log
 

@@ -1,14 +1,26 @@
 # Change Log
 
+### Version 2.4.6
+
+**This release requires Topaz Workbench CLI 20.06.01 or later.**
+
+-    Honor the HCI connection encryption setting.
+
 ### Version 2.4.5
+
+**This release requires Topaz Workbench CLI 20.06.01 or later.**
 
 -    Updated change log.
 
 ### Version 2.4.4
 
+**This release requires Topaz Workbench CLI 20.06.01 or later.**
+
 -    Corrections for failed plugin publish.
 
 ### Version 2.4.3
+
+**This release requires Topaz Workbench CLI 20.06.01 or later.**
 
 -    Updated required minimum credentials version to 2.3.19
 -    Updated required minimum Jenkins version to 2.222.4
@@ -16,11 +28,13 @@
 
 ### Version 2.4.2
 
+**This release requires  Topaz Workbench CLI 20.06.01 or later.**
+
 -    Corrected error with plug-in not finding results file when an absolute file path specified for the test.
 
 ### Version 2.4.1
 
-**This release requires Workbench 20.06.01 or above.**
+**This release requires Topaz Workbench CLI 20.06.01 or later.**
 
 -    Corrected error with program-names argument.
 -    Removed Report Folder
@@ -36,9 +50,9 @@
 
 ### Version 2.3.10
 
--    Added server credentials when using WorkbenchCLI CLI version 20.05.01 or later.
--    Added new Functional Test option to supply JCL when executing .testscenario files when using WorkbenchCLI CLI version 20.05.01 or later.
--    Added new Functional Test option to supply replaceable Context Variables when using WorkbenchCLI CLI version 20.05.01 or later.
+-    Added server credentials when using Topaz Workbench CLI version 20.05.01 or later.
+-    Added new Functional Test option to supply JCL when executing .testscenario files when using Topaz Workbench CLI version 20.05.01 or later.
+-    Added new Functional Test option to supply replaceable Context Variables when using Topaz Workbench CLI version 20.05.01 or later.
 -    Added new Functional Test option for Enterprise Data integration when using WorkbenchCLI CLI version 20.05.01 or later.
 
 ### Version 2.3.9
