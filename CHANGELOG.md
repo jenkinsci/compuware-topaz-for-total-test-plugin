@@ -2,9 +2,9 @@
 
 ### Version 2.4.6
 
-**This release requires Topaz Workbench CLI 20.06.01 or later.**
+**This release requires Topaz Workbench CLI 20.09.02 or later.**
 
--    Honor the HCI connection encryption setting.
+-    Honor the HCI connection encryption setting
 
 ### Version 2.4.5
 
