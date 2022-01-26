@@ -1,5 +1,11 @@
 # Change Log
 
+### Version 2.4.7
+
+**This release requires Topaz Workbench CLI 20.09.02 or later.**
+
+-    Updated change log.
+
 ### Version 2.4.6
 
 **This release requires Topaz Workbench CLI 20.09.02 or later.**
