@@ -15,7 +15,7 @@ The following are required to use this plugin:
 
 -   Jenkins
 -   Jenkins Credentials Plugin
--   Topaz Workbench CLI.Refer to the [Topaz Workbench Install
+-   Topaz Workbench CLI. Requires a minimum CLI level of 20.09.02. Refer to the [Topaz Workbench Install
     Guide](http://frontline.compuware.com/Doc/KB/KB1802/PDF/Topaz_Workbench_Install_Guide.pdf) for
     instructions.
 -   Topaz for Total Test license.
