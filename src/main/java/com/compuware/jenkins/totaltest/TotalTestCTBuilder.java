@@ -1534,6 +1534,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public ListBoxModel doFillConnectionIdItems(@AncestorInPath Jenkins context, @QueryParameter String connectionId,
 				@AncestorInPath Item project)
 		{
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
+			
 			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
 			HostConnection[] hostConnections = globalConfig.getHostConnections();
 
@@ -1644,6 +1650,11 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context, //NOSONAR
 				@QueryParameter final String credentialsId, @AncestorInPath final Item project)
 		{
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
 					StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
 					Collections.<DomainRequirement> emptyList());
@@ -1678,9 +1689,14 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 * @return serverUrl selections
 		 * 
 		 */
-		public ListBoxModel doFillServerUrlItems(@QueryParameter String serverUrl)
+		public ListBoxModel doFillServerUrlItems(@QueryParameter String serverUrl,@AncestorInPath final Item project)
 		{
-
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
+			
 			ListBoxModel model = new ListBoxModel();
 			model.add(new Option("", "", false)); //$NON-NLS-1$ //$NON-NLS-2$
 			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
@@ -1740,6 +1756,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		public ListBoxModel doFillServerCredentialsIdItems(@AncestorInPath final Jenkins context, //NOSONAR
 				@QueryParameter final String serverCredentialsId, @AncestorInPath final Item project)
 		{
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
+			
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
 					StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
 					Collections.<DomainRequirement> emptyList());

@@ -798,6 +798,13 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		public ListBoxModel doFillConnectionIdItems(@AncestorInPath Jenkins context, @QueryParameter String connectionId,
 				@AncestorInPath Item project)
 		{
+			
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
+			
 			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
 			HostConnection[] hostConnections = globalConfig.getHostConnections();
 
@@ -856,6 +863,12 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		 */
 		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context, @QueryParameter final String credentialsId, @AncestorInPath final Item project)
 		{
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
+			
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider
 					.lookupCredentials(StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
 							Collections.<DomainRequirement> emptyList());
