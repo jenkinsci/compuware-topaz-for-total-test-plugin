@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2015-2020 Compuware Corporation
- * (c) Copyright 2019-2020 BMC Software, Inc.
+ * (c) Copyright 2019-2020 & 2020-2022BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -26,14 +26,16 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.remoting.RoleChecker;
+
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.cloudbees.plugins.credentials.matchers.IdMatcher;
 import com.compuware.jenkins.common.configuration.CpwrGlobalConfiguration;
 import com.compuware.jenkins.common.utils.CLIVersionUtils;
+
 import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.Launcher;
@@ -42,6 +44,7 @@ import hudson.model.Item;
 import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import hudson.security.ACL;
+import jenkins.MasterToSlaveFileCallable;
 import jenkins.model.Jenkins;
 
 public class TotalTestRunnerUtils
@@ -504,13 +507,9 @@ public class TotalTestRunnerUtils
 	 * @see hudson.FilePath#act(FileCallable)
 	 * 
 	 */
-	public static class GetRemoteUTF8FileContents implements FileCallable<String> {
+	public static class GetRemoteUTF8FileContents extends MasterToSlaveFileCallable<String> {
 		private static final long serialVersionUID = 1L;
 		
-		/*
-		 * (non-Javadoc)
-		 * @see hudson.FileCallable#invoke(File file, hudson.VirtualChannel channel)
-		 */
 		@Override
 		public String invoke(File file, VirtualChannel channel) throws IOException, InterruptedException {
 			String retVal = null;
@@ -522,14 +521,6 @@ public class TotalTestRunnerUtils
 			return retVal;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * @see org.jenkinsci.remoting.RoleChecker#checkRoles(hudson.RoleChecker arg0l)
-		 */
-		@Override
-		public void checkRoles(RoleChecker arg0) throws SecurityException {
-			// TODO Auto-generated method stub
-		}
 	}
 
 }

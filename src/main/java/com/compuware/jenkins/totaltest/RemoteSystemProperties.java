@@ -2,6 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2015 - 2018 Compuware Corporation
+ * (c) Copyright 2020-2022 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -19,9 +20,6 @@ package com.compuware.jenkins.totaltest;
 
 import java.util.Properties;
 
-import org.jenkinsci.remoting.RoleChecker;
-
-import hudson.remoting.Callable;
 import jenkins.security.MasterToSlaveCallable;
 
 /**
