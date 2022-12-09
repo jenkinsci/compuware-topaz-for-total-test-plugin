@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2015 - 2020 Compuware Corporation
- * 
+  * (c) Copyright 2020 - 2022 BMC Software, Inc.
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
  * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
@@ -798,6 +798,13 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		public ListBoxModel doFillConnectionIdItems(@AncestorInPath Jenkins context, @QueryParameter String connectionId,
 				@AncestorInPath Item project)
 		{
+			
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
+			
 			CpwrGlobalConfiguration globalConfig = CpwrGlobalConfiguration.get();
 			HostConnection[] hostConnections = globalConfig.getHostConnections();
 
@@ -856,6 +863,12 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		 */
 		public ListBoxModel doFillCredentialsIdItems(@AncestorInPath final Jenkins context, @QueryParameter final String credentialsId, @AncestorInPath final Item project)
 		{
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
+			
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider
 					.lookupCredentials(StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
 							Collections.<DomainRequirement> emptyList());
