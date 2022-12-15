@@ -1585,8 +1585,14 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
 		 */
-		public FormValidation doCheckReportFolder(@QueryParameter final String value)
+		public FormValidation doCheckReportFolder(@QueryParameter final String value, @AncestorInPath Item project)
 		{
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
+			
 			if (value == null || value.isEmpty() || value.trim().length() == 0)
 			{
 				return FormValidation.error(Messages.errors_missingReportFolder());
@@ -1608,8 +1614,14 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
 		 */
-		public FormValidation doCheckFolderPath(@QueryParameter final String value)
+		public FormValidation doCheckFolderPath(@QueryParameter final String value, @AncestorInPath Item project)
 		{
+			if (project == null) {
+				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+			} else {
+				project.checkPermission(Item.CONFIGURE);
+			}
+			
 			if (value != null && value.trim().length() > 0)
 			{
 				File theFolder = new File(value);
