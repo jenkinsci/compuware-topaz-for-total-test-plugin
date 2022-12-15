@@ -1585,25 +1585,23 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
 		 */
-		public FormValidation doCheckReportFolder(@QueryParameter final String value, @AncestorInPath Item project)
+		public FormValidation doCheckReportFolder(@QueryParameter final String value, @AncestorInPath Item item)
 		{
-			if (project == null) {
-				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-			} else {
-				project.checkPermission(Item.CONFIGURE);
+			if (item == null) {
+				return FormValidation.ok();
+		    }
+			item.checkPermission(Item.CONFIGURE);
+			
+			if (Util.fixEmptyAndTrim(value) == null) {
+			    return FormValidation.error(Messages.errors_missingReportFolder());
 			}
 			
-			if (value == null || value.isEmpty() || value.trim().length() == 0)
-			{
-				return FormValidation.error(Messages.errors_missingReportFolder());
-			}
-
 			File theFolder = new File(value);
 			if (theFolder.isFile())
 			{
 				return FormValidation.error(Messages.errors_wrongReportFolder());
 			}
-
+			
 			return FormValidation.ok();
 		}
 
@@ -1614,12 +1612,15 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
 		 */
-		public FormValidation doCheckFolderPath(@QueryParameter final String value, @AncestorInPath Item project)
+		public FormValidation doCheckFolderPath(@QueryParameter final String value, @AncestorInPath Item item)
 		{
-			if (project == null) {
-				Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-			} else {
-				project.checkPermission(Item.CONFIGURE);
+			if (item == null) {
+				return FormValidation.ok();
+		    }
+			item.checkPermission(Item.CONFIGURE);
+			
+			if (Util.fixEmptyAndTrim(value) == null) {
+			    return FormValidation.error(Messages.errors_missingReportFolder());
 			}
 			
 			if (value != null && value.trim().length() > 0)
