@@ -1585,19 +1585,18 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
 		 */
-		public FormValidation doCheckReportFolder(@QueryParameter final String value)
+		public FormValidation doCheckReportFolder(@QueryParameter final String value, @AncestorInPath Item item)
 		{
-			if (value == null || value.isEmpty() || value.trim().length() == 0)
-			{
-				return FormValidation.error(Messages.errors_missingReportFolder());
+			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+				  return FormValidation.ok(); 
 			}
-
+			
 			File theFolder = new File(value);
 			if (theFolder.isFile())
 			{
 				return FormValidation.error(Messages.errors_wrongReportFolder());
 			}
-
+			
 			return FormValidation.ok();
 		}
 
@@ -1608,8 +1607,12 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 *            Value passed from the config.jelly "fileExtension" field
 		 * @return validation message
 		 */
-		public FormValidation doCheckFolderPath(@QueryParameter final String value)
+		public FormValidation doCheckFolderPath(@QueryParameter final String value, @AncestorInPath Item item)
 		{
+			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+				  return FormValidation.ok();
+		    }
+			
 			if (value != null && value.trim().length() > 0)
 			{
 				File theFolder = new File(value);
@@ -1655,6 +1658,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			} else {
 				project.checkPermission(Item.CONFIGURE);
 			}
+			
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
 					StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
 					Collections.<DomainRequirement> emptyList());
