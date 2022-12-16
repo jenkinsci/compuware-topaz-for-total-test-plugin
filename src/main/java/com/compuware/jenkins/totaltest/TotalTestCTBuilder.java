@@ -1587,13 +1587,8 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 */
 		public FormValidation doCheckReportFolder(@QueryParameter final String value, @AncestorInPath Item item)
 		{
-			if (item == null) {
-				return FormValidation.ok();
-		    }
-			item.checkPermission(Item.CONFIGURE);
-			
-			if (Util.fixEmptyAndTrim(value) == null) {
-			    return FormValidation.error(Messages.errors_missingReportFolder());
+			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+				  return FormValidation.ok(); 
 			}
 			
 			File theFolder = new File(value);
@@ -1614,14 +1609,9 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		 */
 		public FormValidation doCheckFolderPath(@QueryParameter final String value, @AncestorInPath Item item)
 		{
-			if (item == null) {
-				return FormValidation.ok();
+			if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+				  return FormValidation.ok();
 		    }
-			item.checkPermission(Item.CONFIGURE);
-			
-			if (Util.fixEmptyAndTrim(value) == null) {
-			    return FormValidation.error(Messages.errors_missingReportFolder());
-			}
 			
 			if (value != null && value.trim().length() > 0)
 			{
@@ -1668,6 +1658,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			} else {
 				project.checkPermission(Item.CONFIGURE);
 			}
+			
 			List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
 					StandardUsernamePasswordCredentials.class, project, ACL.SYSTEM,
 					Collections.<DomainRequirement> emptyList());
