@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2019-2020 Compuware Corporation
- * (c) Copyright 2019-2020, 2022 BMC Software, Inc.
+ * (c) Copyright 2019-2023 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -1336,7 +1336,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			else
 			{
 				throw new IllegalArgumentException(
-						"Missing parameter CES server URL - please use the Compuware configuration tool to configure"); //$NON-NLS-1$
+						"Missing parameter CES server URL - please use the BMC configuration tool to configure"); //$NON-NLS-1$
 			}
 		}
 
