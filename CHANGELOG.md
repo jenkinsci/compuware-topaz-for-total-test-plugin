@@ -2,7 +2,7 @@
 
 ### Version 2.4.8
 
-**This release requires Topaz Workbench CLI 20.14.01 or later.**
+**This release requires BMC AMI DevX Workbench CLI 20.14.01 or later.**
 
 -    Updated entire plugin for rebranding changes.
 -    Updated compuware-common-configuration version to 1.0.16.
