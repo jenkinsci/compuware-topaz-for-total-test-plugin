@@ -1,8 +1,10 @@
-### Overview
+# <img src="images/bmc_brandmark.png" width="45" height="45">BMC AMI DevX Total Test
 
-Compuware's Topaz for Total Test is a testing product with automation to speed testing development and provide higher confidence during program deployment process. The plugin allows Jenkins users to run test scenarios and test suites.
--    Note: The same Topaz Workbench CLI version is required to execute as the Topaz Workbench that supports the functionality of the tests to be executed.
-           For example, Functional Test option for Enterprise Data integration requires Workbench version 20.05.01 or later, so any tests that contain Enterprise Data requires Topaz Workbench CLI 20.05.01 or later.
+## Overview
+
+BMC AMI DevX Total Test is a testing product with automation to speed testing development and provide higher confidence during program deployment process. The plugin allows Jenkins users to run test scenarios and test suites.
+-    Note: The same BMC AMI DevX Workbench CLI version is required to execute as the BMC AMI DevX Workbench that supports the functionality of the tests to be executed.
+           For example, Functional Test option for BMC AMI DevX Data Studio (Previously called Enterprise Data) integration requires Workbench version 20.05.01 or later, so any tests that contain DevX Data requires BMC AMI DevX Workbench CLI 20.05.01 or later.
 
 ### Change Log
 
@@ -15,37 +17,36 @@ The following are required to use this plugin:
 
 -   Jenkins
 -   Jenkins Credentials Plugin
--   Topaz Workbench CLI.Refer to the [Topaz Workbench Install
-    Guide](http://frontline.compuware.com/Doc/KB/KB1802/PDF/Topaz_Workbench_Install_Guide.pdf) for
+-   BMC AMI DevX Workbench CLI.Refer to the [BMC AMI DevX Workbench for Eclipse Installation Guide](https://docs.bmc.com/docs/x/Lk5QRw) for
     instructions.
--   Topaz for Total Test license.
+-   BMC AMI DevX Total Test license.
 -   Host Communications Interface
 
 ### Installing in a Jenkins Instance
 
-1.  Install the Compuware Topaz for Total Test plugin according to the Jenkins instructions for installing plugins. Dependent plugins will automatically be installed.
-2.  Install the Topaz Workbench CLI on the Jenkins instances that will execute the plugin. The Topaz Workbench CLI is available on the Topaz Workbench installation package. If you do not have the installation package, please  visit [go.compuware.com](http://go.compuware.com/). For Topaz Workbench CLI installation instructions, please refer to the[Topaz Workbench Install Guide](http://frontline.compuware.com/Doc/KB/KB1802/PDF/Topaz_Workbench_Install_Guide.pdf)
+1.  Install the BMC AMI DevX Total Test plugin according to the Jenkins instructions for installing plugins. Dependent plugins will automatically be installed.
+2.  Install the BMC AMI DevX Workbench CLI on the Jenkins instances that will execute the plugin. The BMC AMI DevX Workbench CLI is available on the Workbench installation package. If you do not have the installation package, please  visit [bmc.com](http://bmc.com/). For BMC AMI DevX Workbench CLI installation instructions, please refer to the[BMC AMI DevX Workbench for Eclipse Installation Guide](https://docs.bmc.com/docs/x/Lk5QRw)
 
 ### Configuring Host Connections
-	In order to use Topaz for Total Test you will need to point to an installed Topaz Workbench Command Line Interface (CLI). The Topaz Workbench CLI will work with host connection(s) you also need to configure Topaz for Total Test members.
-    - See [Configuring for Topaz Workbench CLI & Host Connections](https://github.com/jenkinsci/compuware-common-configuration-plugin/blob/master/README.md#configuring-for-topaz-workbench-cli--host-connections)
+	In order to use BMC AMI DevX Total Test you will need to point to an installed BMC AMI DevX Workbench Command Line Interface (CLI). The BMC AMI DevX Workbench CLI will work with host connection(s) you also need to configure Total Test members.
+    - See [Configuring for BMC AMI DevX Workbench CLI & Host Connections](https://github.com/jenkinsci/compuware-common-configuration-plugin/blob/master/README.md#configuring-for-topaz-workbench-cli--host-connections)
     
 ### Executing Unit tests
 
-1.  Install the Compuware Topaz for Total Test plugin according to the Jenkins instructions for installing plugins.
+1.  Install the BMC AMI DevX Total Test plugin according to the Jenkins instructions for installing plugins.
 
-2.  In the Jenkins system configuration page's **Topaz Workbench CLI**, point to the Windows and/or Linux installation    location(s) of the CLI. If necessary, change the default values given to match the correct installation location(s).
+2.  In the Jenkins system configuration page's **BMC AMI DevX Workbench CLI**, point to the Windows and/or Linux installation    location(s) of the CLI. If necessary, change the default values given to match the correct installation location(s).
 
-    **Note**: The Topaz Workbench CLI must be installed on the machine that is configured to run the job.
+    **Note**: The BMC AMI DevX Workbench CLI must be installed on the machine that is configured to run the job.
 
-3.  On the project Configuration page, in the **Build** section click **Add build step** button and select **Topaz for Total Test**.
+3.  On the project Configuration page, in the **Build** section click **Add build step** button and select **BMC AMI DevX Total Test**.
 
 4.  In the **Host:port** field, enter the z/OS host to connect to.
 
 5.  In the **Login credentials**, select the stored credentials to use for logging onto the host. Alternatively, click **Add** add
     credentials using the Credentials Plugin. Refer to the Jenkins documentation for the Credentials Plugin.
 
-6.  In the **Test Project Folder**, enter the path to the folder containing the Topaz for Total Test project.
+6.  In the **Test Project Folder**, enter the path to the folder containing the BMC AMI DevX Total Test project.
 
 7.  In the **Test scenario/suite**, enter the name of the test scenario or test suite to be executed.
 
@@ -66,17 +67,17 @@ The following are required to use this plugin:
 
 # Product Assistance
 
-Compuware provides assistance for customers with its documentation, the Compuware Support Center web site, and telephone customer support.
+BMC provides assistance for customers with its documentation, the BMC Support Center web site, and telephone customer support.
 
-## Compuware Support Center
+## BMC Support Center
 
-You can access online information for Compuware products via our Support Center site at [https://go.compuware.com](https://go.compuware.com/) Support Center provides access to critical information about your Compuware products. You can review frequently asked questions, read or download documentation, access product fixes, or e-mail your questions or comments. The first time you access Support Center, you must register and obtain a password. Registration is free.
+You can access online information for BMC products via our Support Center site at [https://support.bmc.com](https://support.bmc.com/) Support Center provides access to critical information about your BMC products. You can review frequently asked questions, read or download documentation, access product fixes, or e-mail your questions or comments. The first time you access Support Center, you must register and obtain a password. Registration is free.
 
-Compuware also offers User Communities, online forums to collaborate, network, and exchange best practices with other Compuware solution users worldwide. Go to <http://groups.compuware.com/> to join.
+BMC also offers User Communities, online forums to collaborate, network, and exchange best practices with other BMC solution users worldwide.
 
 ## Contacting Customer Support
 
-At Compuware, we strive to make our products and documentation the best in the industry. Feedback from our customers helps us maintain our quality standards. If you need support services, please obtain the following information before calling Compuware's 24-hour telephone support:
+At BMC, we strive to make our products and documentation the best in the industry. Feedback from our customers helps us maintain our quality standards. If you need support services, please obtain the following information before calling BMC's 24-hour telephone support:
 
 -   The name, release number, and build number of your product. This information is displayed in the **About** dialog box.
 
@@ -88,27 +89,16 @@ At Compuware, we strive to make our products and documentation the best in the i
 
 -   The exact application, licensing, or operating system error messages, if any.
 
-You can contact Compuware in one of the following ways:
-
-### Phone
-
--   USA and Canada: 1-800-538-7822 or 1-313-227-5444.
-
--   All other countries: Contact your local Compuware office. Contact information is available at [https://go.compuware.com](https://go.compuware.com/)
+You can contact BMC in one of the following ways:
 
 ### Web
 
-You can report issues via Compuware Support Center.
+You can report issues via the BMC Support web site: [BMC Support](https://support.bmc.com/).
+-   All other countries: Contact your local BMC office. Contact information is available at [Contact BMC](https://www.bmc.com/contacts-locations/united-states.html)
 
-**Note:** Please report all high-priority issues by phone.
-
-### Mail
-
-Customer Support  
-Compuware Corporation  
-One Campus Martius  
-Detroit, MI 48226-5099
 
 ## Corporate Web Site
 
-To access Compuware's site on the Web, go to [https://www.compuware.com](https://www.compuware.com/). The Compuware site provides a variety of product and support information.
+To access BMC site on the Web, go to [https://www.bmc.com/](https://www.bmc.com/). The BMC site provides a variety of product and support information.
+
+

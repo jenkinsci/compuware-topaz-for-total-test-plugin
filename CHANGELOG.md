@@ -1,5 +1,13 @@
 # Change Log
 
+### Version 2.4.8
+
+**This release requires Topaz Workbench CLI 20.14.01 or later.**
+
+-    Updated entire plugin for rebranding changes.
+-    Updated compuware-common-configuration version to 1.0.16.
+-    Updated org.jenkins-ci.plugins credentials version to 2.6.1.1.
+
 ### Version 2.4.7
 
 **This release requires Topaz Workbench CLI 20.09.02 or later.**

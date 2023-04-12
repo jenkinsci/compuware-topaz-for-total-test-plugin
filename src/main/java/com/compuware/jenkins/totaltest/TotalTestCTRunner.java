@@ -53,7 +53,7 @@ public class TotalTestCTRunner
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestFTCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestFTCLI.sh"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_WEBAPP = "totaltestapi"; //$NON-NLS-1$
-	private static final String TOPAZ_CLI_WORKSPACE = "TopazCliWkspc"; //$NON-NLS-1$
+	private static final String TOPAZ_CLI_WORKSPACE = "BMC-CliWkspc"; //$NON-NLS-1$
 	private static final String DATA = "-data"; //$NON-NLS-1$
 	private static final String FOLDER_OUTPUT = "Output"; //$NON-NLS-1$
 	private static final String GENERATED_SUITE_RESULT_FILE_NAME = ".cli.suiteresult";  //$NON-NLS-1$

@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2015-2020 Compuware Corporation
- * (c) Copyright 2019-2020 & 2020-2022BMC Software, Inc.
+ * (c) Copyright 2019-2023 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -259,14 +259,14 @@ public class TotalTestRunnerUtils
 			Plugin pluginV1 = jenkinsInstance.getPlugin("compuware-topaz-for-total-test"); //$NON-NLS-1$
 			if (pluginV1 != null)
 			{
-				listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion());  //$NON-NLS-1$  //$NON-NLS-2$
+				listener.getLogger().println("Total Test Jenkins Plugin: " + pluginV1.getWrapper().getShortName() + " Version: " + pluginV1.getWrapper().getVersion());  //$NON-NLS-1$  //$NON-NLS-2$
 			}
 			else
 			{
 				Plugin pluginV2 = jenkinsInstance.getPlugin("compuware-totaltest");  //$NON-NLS-1$
 				if (pluginV2 != null)
 				{
-					listener.getLogger().println("Topaz for Total Test Jenkins Plugin: " + pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$  //$NON-NLS-2$
+					listener.getLogger().println("Total Test Jenkins Plugin: " + pluginV2.getWrapper().getShortName() + " Version: " + pluginV2.getWrapper().getVersion()); //$NON-NLS-1$  //$NON-NLS-2$
 				}
 			}
 		}
@@ -356,18 +356,18 @@ public class TotalTestRunnerUtils
 		
 		if (topazWorkbenchCLIPath == null)
 		{
-        	throw new FileNotFoundException("ERROR: Topaz Workench CLI location was not specified. Check 'Compuware Configuration' section under 'Configure System'"); //$NON-NLS-1$
+        	throw new FileNotFoundException("ERROR: Topaz Workench CLI location was not specified. Check 'BMC Configuration' section under 'Configure System'"); //$NON-NLS-1$
 		}
 		else
 		{
 			if (topazWorkbenchCLIPath.exists() == false) //NOSONAR
 			{
-		       	throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + topazWorkbenchCLIPath.getRemote() + ". Check 'Compuware Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$  //$NON-NLS-2$
+		       	throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + topazWorkbenchCLIPath.getRemote() + ". Check 'BMC Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$  //$NON-NLS-2$
 			}
 			
 			String cliScriptFile = topazWorkbenchCLIPath.getRemote()  + fileSeparator + osScriptFile;
 			cliScriptPath = new FilePath(vChannel, cliScriptFile);
-			listener.getLogger().println("Topaz for Total Test CLI script path: " + cliScriptPath.getRemote()); //$NON-NLS-1$
+			listener.getLogger().println("Total Test CLI script path: " + cliScriptPath.getRemote()); //$NON-NLS-1$
 			
 			String cliVersion = getCLIVersion(launcher, fileSeparator);
 			CLIVersionUtils.checkCLICompatibility(cliVersion, minCLIRelease);
@@ -408,13 +408,13 @@ public class TotalTestRunnerUtils
 		
 		if (globalCLIDirectory == null)
 		{
-			throw new FileNotFoundException("ERROR: Topaz Workench CLI location was not specified. Check 'Compuware Configuration' section under 'Configure System'"); //$NON-NLS-1$
+			throw new FileNotFoundException("ERROR: Topaz Workench CLI location was not specified. Check 'BMC Configuration' section under 'Configure System'"); //$NON-NLS-1$
 		}
 		else
 		{
 			if (globalCLIDirectory.exists() == false) //NOSONAR
 			{
-				throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + globalCLIDirectory.getRemote() + ". Check 'Compuware Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$ //$NON-NLS-2$
+				throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + globalCLIDirectory.getRemote() + ". Check 'BMC Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else
 			{

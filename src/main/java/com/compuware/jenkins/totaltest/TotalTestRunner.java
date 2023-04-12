@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2015-2020 Compuware Corporation
- * (c) Copyright 2019-2020 BMC Software, Inc.
+ * (c) Copyright 2019-2023 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -45,7 +45,7 @@ public class TotalTestRunner
 
 	private static final String TOTAL_TEST_CLI_BAT = "TotalTestCLI.bat"; //$NON-NLS-1$
 	private static final String TOTAL_TEST_CLI_SH = "TotalTestCLI.sh"; //$NON-NLS-1$
-	public static final String TOPAZ_CLI_WORKSPACE = "TopazCliWkspc"; //$NON-NLS-1$
+	public static final String TOPAZ_CLI_WORKSPACE = "BMC-CliWkspc"; //$NON-NLS-1$
 	
 	private static final String COMMAND = "-command"; //$NON-NLS-1$
 	private static final String HOST = "-host"; //$NON-NLS-1$
@@ -138,7 +138,7 @@ public class TotalTestRunner
 		args.add(cliScriptPath.getRemote());
 		
 		String topazCliWorkspace = workspaceFilePath.getRemote() + remoteFileSeparator + TOPAZ_CLI_WORKSPACE;
-		listener.getLogger().println("Topaz for Total Test CLI workspace: " + topazCliWorkspace); //$NON-NLS-1$
+		listener.getLogger().println("BMC AMI DevX Total Test CLI workspace: " + topazCliWorkspace); //$NON-NLS-1$
 		
 		addArgument(args, COMMAND, RUNTEST, isLinux);
 		
@@ -201,21 +201,21 @@ public class TotalTestRunner
 		
 		if (globalCLIDirectory == null)
 		{
-        	throw new FileNotFoundException("ERROR: Topaz Workench CLI location was not specified. Check 'Compuware Configuration' section under 'Configure System'"); //$NON-NLS-1$
+        	throw new FileNotFoundException("ERROR: Workench CLI location was not specified. Check 'BMC Configuration' section under 'Configure System'"); //$NON-NLS-1$
 		}
 		else
 		{
 			if (globalCLIDirectory.exists() == false) //NOSONAR
 			{
-		       	throw new FileNotFoundException("ERROR: Topaz Workench CLI location does not exist. Location: " + globalCLIDirectory.getRemote() + ". Check 'Compuware Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$ //$NON-NLS-2$
+		       	throw new FileNotFoundException("ERROR: Workench CLI location does not exist. Location: " + globalCLIDirectory.getRemote() + ". Check 'BMC Configuration' section under 'Configure System'");  //NOSONAR //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
 			String cliScriptFile = globalCLIDirectory  + remoteFileSeparator + osScriptFile;
-			listener.getLogger().println("Topaz for Total Test CLI script file path: " + cliScriptFile); //$NON-NLS-1$
+			listener.getLogger().println("Total Test CLI script file path: " + cliScriptFile); //$NON-NLS-1$
 			
 	        VirtualChannel vChannel = launcher.getChannel();
 			cliBatchFileRemote = new FilePath(vChannel, cliScriptFile);
-			listener.getLogger().println("Topaz for Total Test CLI script file remote path: " + cliBatchFileRemote.getRemote()); //$NON-NLS-1$
+			listener.getLogger().println("Total Test CLI script file remote path: " + cliBatchFileRemote.getRemote()); //$NON-NLS-1$
 			
 			String cliVersion = CLIVersionUtils.getCLIVersion(globalCLIDirectory, TotalTestRunnerUtils.TTT_MINIMUM_CLI_VERSION);
 			CLIVersionUtils.checkCLICompatibility(cliVersion, TotalTestRunnerUtils.TTT_MINIMUM_CLI_VERSION);
