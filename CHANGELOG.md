@@ -1,5 +1,13 @@
 # Change Log
 
+### Version 2.4.14
+
+**This release requires BMC AMI DevX Workbench CLI 20.14.01 or later.**
+
+-    Rebranidng changes for Title.
+-    Updated pom.xml for plugin name, description and developer email address.
+
+
 ### Version 2.4.8
 
 **This release requires BMC AMI DevX Workbench CLI 20.14.01 or later.**
