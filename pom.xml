@@ -23,8 +23,8 @@
     <java.level>8</java.level>
   </properties>
   
-  <name>Compuware Topaz for Total Test</name>
-  <description>Runs the Compuware Topaz for Total Test CLI to execute tests.</description>
+  <name>BMC AMI DevX Total Test</name>
+  <description>Runs the BMC AMI DevX Total Test CLI to execute tests.</description>
   <url>https://github.com/jenkinsci/compuware-topaz-for-total-test-plugin</url>
   <licenses>
     <license>
@@ -37,7 +37,7 @@
     <developer>
       <id>cpwr_jenkins</id>
       <name>Paul Allard</name>
-      <email>paul.allard@compuware.com</email>
+      <email>paul_allard@bmc.com</email>
     </developer>
   </developers>
 
