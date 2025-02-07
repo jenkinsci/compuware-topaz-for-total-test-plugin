@@ -1,4 +1,14 @@
 # Change Log
+### Version 2.4.16
+
+Updated the following
+
+-	the label for Use Scenario Check box as ‘Execute functional test scenarios only’ and
+-	text for the help tip for the Use Scenario Check box as This will execute functional test only using the .scenarios 		files instead of the .context files which are meant for both Functional and Unit tests.
+
+### Version 2.4.15
+
+Updated the Add build step option "Total Test - Execute unit tests" to "Total Test - Execute unit tests (deprecated)"
 
 ### Version 2.4.14
 
