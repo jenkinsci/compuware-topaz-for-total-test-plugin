@@ -7,7 +7,7 @@
     <artifactId>plugin</artifactId>
     <!-- Baseline Jenkins version you use to build and test the plugin. Users must have this version or newer to run. -->
     <relativePath />
-    <version>3.2</version>
+    <version>4.88</version>
   </parent>
   
   <groupId>com.compuware.jenkins</groupId>
@@ -17,10 +17,10 @@
 
   <properties>
     <slf4jVersion>1.7.26</slf4jVersion>
+    <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
+    <jenkins.baseline>2.462</jenkins.baseline>
     <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-    <jenkins.version>2.222.4</jenkins.version>
-    <!-- Java Level to use. Java 7 required when using core >= 1.612 -->
-    <java.level>8</java.level>
+    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
   </properties>
   
   <name>BMC AMI DevX Total Test</name>
@@ -33,20 +33,23 @@
     </license>
   </licenses>
 
-  <developers>
-    <developer>
-      <id>cpwr_jenkins</id>
-      <name>Paul Allard</name>
-      <email>paul_allard@bmc.com</email>
-    </developer>
-  </developers>
-
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
+    <connection>scm:git:https://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
     <url>http://github.com/jenkinsci/${project.artifactId}-plugin</url>
     <tag>compuware-topaz-for-total-test-2.3.12</tag>
   </scm>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+        <version>4228.v0a_71308d905b_</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <repositories>
     <repository>
@@ -69,7 +72,6 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>cloudbees-folder</artifactId>
-      <version>5.12</version>
     </dependency>
     <dependency>
       <groupId>com.compuware.jenkins</groupId>
