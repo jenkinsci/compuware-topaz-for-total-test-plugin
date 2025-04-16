@@ -91,7 +91,14 @@
       <plugin>
         <groupId>org.jenkins-ci.tools</groupId>
         <artifactId>maven-hpi-plugin</artifactId>
-        <version>3.39</version>
+        <version>3.57</version> <!-- Or use a stable version -->
+        <executions>
+          <execution>
+            <goals>
+              <goal>validate</goal>  <!-- Make sure this goal is necessary for your build -->
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
