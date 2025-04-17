@@ -746,15 +746,16 @@ public class TotalTestCTRunner
 
 	
 		String workDirName = workDir.getRemote();
-		if (workDirName.endsWith(SCENARIOS_FOLDER ) || workDirName.endsWith(SUITES_FOLDER ))
-		{
+		if (workDir != null && (workDirName.endsWith(SCENARIOS_FOLDER ) || workDirName.endsWith(SUITES_FOLDER ))) {
 			workDir = workDir.getParent();
 		}
 
-		listener.getLogger().println("workspace path: " + workDir.getRemote()); //$NON-NLS-1$
-		
+
+		if(listener != null) {
+			listener.getLogger().println("workspace path: " + workDir.getRemote()); //$NON-NLS-1$
+		}
+
 		String outputFolder = null;
-		
 		if (useDefaultOutput == false && folderPathString != null) // NOSONAR
 		{
 			FilePath tempAbsoluteFolder = new FilePath (vChannel, folderPathString);
@@ -805,21 +806,21 @@ public class TotalTestCTRunner
 				if (absoluteReportFolderPath.exists() && absoluteReportFolderPath.isDirectory())
 				{
 					// Relative Path exists in the working directory
-					outputFolder = absoluteFolder.getRemote();
+					if(null != absoluteFolder.getRemote()) {
+						outputFolder = absoluteFolder.getRemote();
+					}
 				}
 				else
 				{
+
 					FilePath parentPath = absoluteReportFolderPath.getParent();
-					
-					if (parentPath.exists())
-					{
-						// Absolute path to suite/context/scenario
+					if (parentPath != null) {
 						outputFolder = new FilePath(parentPath, tttBuilder.getReportFolder().trim()).getRemote();
+					} else {
+						listener.getLogger().println("Warning: Parent path is null for " + absoluteReportFolderPath.getRemote()); //$NON-NLS-1$
+						outputFolder = tttBuilder.getReportFolder().trim(); // fallback
 					}
-					else
-					{
-						outputFolder = tttBuilder.getReportFolder().trim();
-					}
+
 				}
 			}
 		}
@@ -830,17 +831,20 @@ public class TotalTestCTRunner
 		}
 		
 		FilePath absoluteReportFolderPath = null;
-		absoluteReportFolderPath = new FilePath(workDir, outputFolder).absolutize();
-		
-		if (osFile.endsWith(GENERATED_SUITE_RESULT_FILE_NAME))
-		{
-			listener.getLogger().println("Searching for test suite result file(*.cli.suiteresult) from folder path: " //$NON-NLS-1$
-					+ absoluteReportFolderPath.getRemote());
+		if(null != workDir) {
+			absoluteReportFolderPath = new FilePath(workDir, outputFolder).absolutize();
 		}
-		else
-		{
-			listener.getLogger().println("Searching for test suite result file(*.cli.xasuiteres) from folder path: " //$NON-NLS-1$
-					+ absoluteReportFolderPath.getRemote());
+		if(listener != null) {
+			if (osFile.endsWith(GENERATED_SUITE_RESULT_FILE_NAME))
+			{
+				listener.getLogger().println("Searching for test suite result file(*.cli.suiteresult) from folder path: " //$NON-NLS-1$
+						+ absoluteReportFolderPath.getRemote());
+			}
+			else
+			{
+				listener.getLogger().println("Searching for test suite result file(*.cli.xasuiteres) from folder path: " //$NON-NLS-1$
+						+ absoluteReportFolderPath.getRemote());
+			}
 		}
 		FilePath fileFound = searchFileFromDir(absoluteReportFolderPath, osFile, listener);
 		
