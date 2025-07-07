@@ -41,7 +41,7 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
@@ -931,7 +931,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		 * 			If an error occurred processing configuration.
 		 */
         @Override
-        public boolean configure(final StaplerRequest req, final JSONObject formData) throws FormException
+        public boolean configure(final StaplerRequest2 req, final JSONObject formData) throws FormException
         {
             save();
             return super.configure(req,formData);
