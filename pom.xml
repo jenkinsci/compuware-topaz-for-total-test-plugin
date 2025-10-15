@@ -56,6 +56,12 @@
       <id>repo.jenkins-ci.org</id>
       <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
+    
+ <repository>
+    <id>jenkins-releases</id>
+    <url>https://repo.jenkins-ci.org/releases/</url>
+  </repository>
+
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -96,6 +102,7 @@
       <plugin>
         <groupId>org.jenkins-ci.tools</groupId>
         <artifactId>maven-hpi-plugin</artifactId> <!-- Or use a stable version -->
+        <version>3.65</version>
         <executions>
           <execution>
             <goals>
@@ -119,3 +126,4 @@
   </build>
 
 </project>
+
