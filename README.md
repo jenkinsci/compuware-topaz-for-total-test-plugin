@@ -33,37 +33,43 @@ The following are required to use this plugin:
     
 ### Executing Unit tests
 
-1.  Install the BMC AMI DevX Total Test plugin according to the Jenkins instructions for installing plugins.
-
-2.  In the Jenkins system configuration page's **BMC AMI DevX Workbench CLI**, point to the Windows and/or Linux installation    location(s) of the CLI. If necessary, change the default values given to match the correct installation location(s).
-
-    **Note**: The BMC AMI DevX Workbench CLI must be installed on the machine that is configured to run the job.
-
-3.  On the project Configuration page, in the **Build** section click **Add build step** button and select **BMC AMI DevX Total Test**.
-
-4.  In the **Host:port** field, enter the z/OS host to connect to.
-
-5.  In the **Login credentials**, select the stored credentials to use for logging onto the host. Alternatively, click **Add** add
-    credentials using the Credentials Plugin. Refer to the Jenkins documentation for the Credentials Plugin.
-
-6.  In the **Test Project Folder**, enter the path to the folder containing the BMC AMI DevX Total Test project.
-
-7.  In the **Test scenario/suite**, enter the name of the test scenario or test suite to be executed.
-
-    **Note**: Wildcards can be used to select multiple test scenarios or test suites.  
-    **Note**: ALL\_SCENARIOS or ALL\_SUITES can be used to select all test.
-
-8.  In the **JCL** field, enter the name of the JCL file to use.
-
-9.  Optionally click the **Code Coverage** button to have Code Coverage information generate during the test run.
-    1.  In the Code Coverage Repository field, enter the dataset name of the Code Coverage repository to be used.
-    2.  In the **System name** field, enter the system name, If left blank defaults to the test scenario or test suite name.
-    3.  In the **Test Id** field, enter a name for test test. If left blank defaults to the test scenario or test suite name.
-10. Optionally click the **Execute Options** button to change execution options.
-    1.  Check the **Use Stubs** checkbox if the test is to be run using stubs. if Stubs are not going to be used uncheck the checkbox. The default is to use Stubs.
-    2.  Check the **Delete temporary files** checkbox if temporary files are to be deleted after the test runs. Uncheck the checkbox if temporary files are to be saved. The default is to delete temporary files.
-    3.  In the **High Level Qualifier** field, enter the high level qualifier to be used to allocate z/OS datasets. If specified not defaults to the user id specified in the **Login Credentials**
-11. Click **Save**.
+1. Install the BMC AMI DevX Total Test plugin according to the Jenkins instructions for installing plugins.
+2. **In the Jenkins system configuration page under the Common Configurations section, supply the path to the CLI installation directory either for** the Windows Workbench for Eclipse CLI home or for the Linux Workbench for Eclipse CLI home **depending on the requirement. If necessary, change the default values given to match the correct installation location(s)**
+3. **In the Jenkins system configuration page under the Common Configurations section, we can add HCI Host, Port, CES URL, Code page and Encryption protocol etc under the sub section Host Connections. For this you need to click on "+Add Host Connection" button and fill up the fields. Out of the 7 fields, first 2 are mandatory i.e. Description and Host:Port are mandatory fields.**
+   **Note:** The BMC AMI DevX Workbench CLI must be installed on the machine that is configured to run the job.
+4. On the project Configuration page, in the **Build** section click **Add build step** button and select **Total Test - Execute Total Test Scenarios**. (Avoid using **Total Test - Execute Unit Tests(deprecated)**)
+5. In the Host:port field, select the z/OS host and port of your choice out of the available host: port options.
+6. In **Jenkins**, navigate to **Manage Jenkins → System → Host Connections → Login Credentials**. From this section, you can select the **stored credentials** that Jenkins should use to log in to the target host.
+7. Alternatively, you can add credentials directly at the **job level** by going to: **Job → Configure → Build Steps** and then click **Add Credentials**. This requires the **Credentials Plugin**, which allows you to securely store and manage authentication details within Jenkins.
+8. In the **Test Folder Path** field, enter the path to the folder containing the BMC AMI DevX Total Test project.
+9. Use Scenario files checkbox for selecting or unselecting execution of functional test scenarios only.
+10. The path to the JCL file to use when executing. ‘test scenario' files.
+11. Optionally click the **Code Coverage** button to have Code Coverage information generated during the test run.
+    1. In the Code Coverage Repository field, enter the dataset name of the Code
+    Coverage repository to be used.
+    2. In the **System name** field, enter the system name, If left blank defaults to the test
+    scenario or test suite name.
+    3. In the **Test Id** field, enter a name for test test. If left blank defaults to the test
+    scenario or test suite name.
+12. Test Execution section: Optionally Select Programs to Execute – Choose which programs to run during the test execution.
+    1. Selected Programs – Manually pick specific programs for execution - Optional comma separated list of tests to execute. Use the Test list field to enter a comma separated list of program names to be tested. Will only include test scenarios that have component under test defined as one of these
+    **Note**: This field is only used for Total Test CLI version 20.04.01 and later
+    2. JSON file – Provide a JSON file containing the list of programs to execute - Optional JSON file containing tests to execute. Use the JSON file field to enter a JSON file containing the tests to execute.
+    **Note**: This field is only used for Total Test CLI version 20.04.01 and later
+    3. Job Accounting Information – Enter details for tracking job execution and resource usage.
+    4. Optionally Stop if test fails or threshold is reached – Stop if test fails or threshold is reached (default is true)
+    5. Optionally Halt at failure – Terminate execution immediately after the first test case fails.
+    6. Optionally Halt pipeline if errors occur – Stop the entire pipeline if any error occurs during execution.
+    7. Optionally Context Variables – Define variables to pass contextual data into the test execution - Execution context variable in the format "field1=value1, field2=value2".
+13. Optional Report and Logging Section Checkbox for **Upload to Server** - If enabled, results will be published to the **Total Test repository server**, allowing centralized access and tracking.
+    1. Text input field for **Source Folder** - Users need to supply the path for the program source code.
+    2. Drop down field for **SonarQube Version** - Specifies the version of SonarQube being targeted (Version 6 as default).
+    3. Checkbox for **Report** - Enables the creation of a general report summarizing the test execution or analysis
+    4. Checkbox for **Result** - Specifies whether a detailed result file should be generated, often used for further analysis or archiving.
+    5. Checkbox for **Sonar Report** - Determines if a report compatible with SonarQube should be created. SonarQube is a tool for continuous inspection of code quality.
+    6. Checkbox for **JUnit Report**- Enables generation of a JUnit-style report, commonly used in Java testing frameworks and CI/CD pipelines.
+    7. Drop down field for **Logging Level** - Controls the verbosity of logs. INFO is the default selection.
+14. Click **Save**.
 
 # Product Assistance
 
