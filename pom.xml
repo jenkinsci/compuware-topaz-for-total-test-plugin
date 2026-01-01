@@ -102,7 +102,7 @@
       <plugin>
         <groupId>org.jenkins-ci.tools</groupId>
         <artifactId>maven-hpi-plugin</artifactId> <!-- Or use a stable version -->
-        <version>3.65</version>
+        <version>3.1787.vd08d76c755ef</version>
         <executions>
           <execution>
             <goals>
