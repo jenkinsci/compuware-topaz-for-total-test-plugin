@@ -2,7 +2,7 @@
  * The MIT License (MIT)
  * 
  * Copyright (c) 2015-2020 Compuware Corporation
- * (c) Copyright 2019-2023 BMC Software, Inc.
+ * (c) Copyright 2019-2023,2025 BMC Software, Inc.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
@@ -51,7 +51,7 @@ public class TotalTestRunner
 	private static final String HOST = "-host"; //$NON-NLS-1$
 	private static final String PORT = "-port"; //$NON-NLS-1$
 	private static final String USER= "-user"; //$NON-NLS-1$
-	private static final String PASSWORD = "-pw"; //$NON-NLS-1$ //NOSONAR
+	private static final String PRD = "-pw"; //$NON-NLS-1$ //NOSONAR
 	private static final String PROJECT = "-project"; //$NON-NLS-1$
 	private static final String TESTSUITE = "-ts"; //$NON-NLS-1$
 	private static final String JCL = "-jcl"; //$NON-NLS-1$
@@ -300,7 +300,7 @@ public class TotalTestRunner
 		addArgument(args, TARGET_ENCODING, codePage, isLinux);
 		addArgument(args, PROTOCOL, protocol, isLinux);
 		addArgument(args, USER, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getUsername(), isLinux);
-		addArgument(args, PASSWORD, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword().getPlainText(), isLinux, true);
+		addArgument(args, PRD, TotalTestRunnerUtils.getLoginInformation(build.getParent(), tttBuilder.getCredentialsId()).getPassword().getPlainText(), isLinux, true);
 	}
 	
 	/**
