@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -197,10 +196,10 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 		super();
 		this.environmentId = environmentId;
 		this.folderPath = folderPath;
-		this.serverUrl = StringUtils.trimToEmpty(serverUrl);
-		this.serverCredentialsId = StringUtils.trimToEmpty(serverCredentialsId);
-		this.connectionId = StringUtils.trimToEmpty(connectionId);
-		this.credentialsId = StringUtils.trimToEmpty(credentialsId);
+		this.serverUrl = Util.fixNull(serverUrl).trim();
+		this.serverCredentialsId = Util.fixNull(serverCredentialsId).trim();
+		this.connectionId = Util.fixNull(connectionId).trim();
+		this.credentialsId = Util.fixNull(credentialsId).trim();
 		
 		if (Strings.isNullOrEmpty(sonarVersion))
 		{
@@ -1544,7 +1543,7 @@ public class TotalTestCTBuilder extends Builder implements SimpleBuildStep
 			HostConnection[] hostConnections = globalConfig.getHostConnections();
 
 			ListBoxModel model = new ListBoxModel();
-			model.add(new Option(StringUtils.EMPTY, StringUtils.EMPTY, false));
+			model.add(new Option("", "", false));
 
 			for (HostConnection hostConnection : hostConnections)
 			{

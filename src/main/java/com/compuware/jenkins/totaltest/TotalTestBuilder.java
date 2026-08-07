@@ -36,7 +36,6 @@ import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -116,12 +115,12 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	@DataBoundConstructor
 	public TotalTestBuilder(String connectionId, String credentialsId, String projectFolder, String testSuite, String jcl)
 	{
-		super.connectionId = StringUtils.trimToEmpty(connectionId);
+		super.connectionId = Util.fixNull(connectionId).trim();
 		
-		this.credentialsId = StringUtils.trimToEmpty(credentialsId);
-		this.projectFolder = StringUtils.trimToEmpty(projectFolder);
-		this.testSuite = StringUtils.trimToEmpty(testSuite);
-		this.jcl = StringUtils.trimToEmpty(jcl);
+		this.credentialsId = Util.fixNull(credentialsId).trim();
+		this.projectFolder = Util.fixNull(projectFolder).trim();
+		this.testSuite = Util.fixNull(testSuite).trim();
+		this.jcl = Util.fixNull(jcl).trim();
 		this.useStubs = true;
 		this.deleteTemp = true;
 		this.ccClearStats = true;
@@ -192,7 +191,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	@DataBoundSetter
 	public void setCcRepo(final String ccRepo)
 	{
-		this.ccRepo = StringUtils.trimToEmpty(ccRepo);
+		this.ccRepo = Util.fixNull(ccRepo).trim();
 	}
 	
 	/**
@@ -214,7 +213,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	@DataBoundSetter
 	public void setCcSystem(final String ccSystem)
 	{
-		this.ccSystem = StringUtils.trimToEmpty(ccSystem);
+		this.ccSystem = Util.fixNull(ccSystem).trim();
 	}
 	
 	/**
@@ -236,7 +235,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	@DataBoundSetter
 	public void setCcTestId(final String ccTestId)
 	{
-		this.ccTestId = StringUtils.trimToEmpty(ccTestId);
+		this.ccTestId = Util.fixNull(ccTestId).trim();
 	}
 	
 	/**
@@ -370,7 +369,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 	@DataBoundSetter
 	public void setHlq(final String hlq)
 	{
-		this.datasetHLQ = StringUtils.trimToEmpty(hlq);
+		this.datasetHLQ = Util.fixNull(hlq).trim();
 	}
 	
 	/**
@@ -559,7 +558,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 		 */
 		public FormValidation doCheckHostPort(@QueryParameter final String value)
 		{
-			String trimmedValue =  StringUtils.trimToEmpty(value);
+			String trimmedValue =  Util.fixNull(value).trim();
 			if (trimmedValue.isEmpty())
 			{
 				return FormValidation.error(Messages.checkHostPortEmptyError());
@@ -573,18 +572,18 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 				}
 				else
 				{
-					String host = StringUtils.trimToEmpty(hostPort[0]);
+					String host = Util.fixNull(hostPort[0]).trim();
 					if (host.isEmpty())
 					{
 						return FormValidation.error(Messages.checkHostPortMissingHostError());
 					}
 
-					String port = StringUtils.trimToEmpty(hostPort[1]);
+					String port = Util.fixNull(hostPort[1]).trim();
 					if (port.isEmpty())
 					{
 						return FormValidation.error(Messages.checkHostPortMissingPortError());
 					}
-					else if (StringUtils.isNumeric(port) == false) //NOSONAR
+					else if (!port.chars().allMatch(Character::isDigit)) //NOSONAR
 					{
 						return FormValidation.error(Messages.checkHostPortInvalidPorttError());
 					}
@@ -809,7 +808,7 @@ public class TotalTestBuilder extends AbstractTotalTestBuilderMigration implemen
 			HostConnection[] hostConnections = globalConfig.getHostConnections();
 
 			ListBoxModel model = new ListBoxModel();
-			model.add(new Option(StringUtils.EMPTY, StringUtils.EMPTY, false));
+			model.add(new Option("", "", false));
 
 			for (HostConnection connection : hostConnections)
 			{

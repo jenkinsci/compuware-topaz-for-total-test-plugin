@@ -27,7 +27,6 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
@@ -46,6 +45,7 @@ import hudson.remoting.VirtualChannel;
 import hudson.security.ACL;
 import jenkins.MasterToSlaveFileCallable;
 import jenkins.model.Jenkins;
+import hudson.Util;
 
 public class TotalTestRunnerUtils
 {
@@ -148,7 +148,7 @@ public class TotalTestRunnerUtils
 	 */
 	public static void validateHostPort(final TaskListener listener, final String hostPortValue)
 	{
-		String trimmedValue =  StringUtils.trimToEmpty(hostPortValue);
+		String trimmedValue =  Util.fixNull(hostPortValue).trim();
 		if (trimmedValue.isEmpty())
 		{
 			throw new IllegalArgumentException(Messages.checkHostPortEmptyError());
@@ -162,18 +162,18 @@ public class TotalTestRunnerUtils
 			}
 			else
 			{
-				String host = StringUtils.trimToEmpty(hostPort[0]);
+				String host = Util.fixNull(hostPort[0]).trim();
 				if (host.isEmpty())
 				{
 					throw new IllegalArgumentException(Messages.invalidParameterValueError(Messages.hostPort(), hostPort));
 				}
 
-				String port = StringUtils.trimToEmpty(hostPort[1]);
+				String port = Util.fixNull(hostPort[1]).trim();
 				if (port.isEmpty())
 				{
 					throw new IllegalArgumentException(Messages.invalidParameterValueError(Messages.hostPort(), hostPort));
 				}
-				else if (StringUtils.isNumeric(port) == false) //NOSONAR
+				else if (!port.chars().allMatch(Character::isDigit)) //NOSONAR
 				{
 					throw new IllegalArgumentException(Messages.checkHostPortInvalidPorttError());
 				}
@@ -199,7 +199,7 @@ public class TotalTestRunnerUtils
 		if (input != null)
 		{
 			// escape any double quotes (") with another double quote (") for both batch and shell scripts
-			output = StringUtils.replace(input, DOUBLE_QUOTE, DOUBLE_QUOTE_ESCAPED);
+			output = input.replace(DOUBLE_QUOTE, DOUBLE_QUOTE_ESCAPED);
 		}
 
 		return output;
